@@ -7,7 +7,7 @@ file_path:
    forecast_output_directory: inst/example/forecast_output
    run_config: inst/example/configuration/flarer/configure_run.yml
 location:
-   site_id: barc
+   site_id: BARC
    name: Lake Barco
    latitude: 29.67562   #Degrees North
    longitude: -82.0085  #Degrees West
@@ -38,8 +38,8 @@ da_setup:
     use_obs_constraint: TRUE
 model_settings:
    ncore: 2
-   model_name: glm #other is "null"
-   base_GLM_nml: glm3_barc.nml
+   model_name: glm_BARC #other is "null"
+   base_GLM_nml: glm3_BARC.nml
    modeled_depths: [0.00,0.10,0.50,1.00,
                     1.50,2.00,2.50,3.00,
                     3.50,4.00,4.50,5.00,
