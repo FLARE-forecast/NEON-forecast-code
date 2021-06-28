@@ -31,14 +31,14 @@ metadata:
 da_setup:
     da_method: enkf
     par_fit_method: inflate
-    ensemble_size:  100
+    ensemble_size:  50
     localization_distance: .na #distance in meters were covariances in the model error are used
     no_negative_states: TRUE
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
 model_settings:
-   ncore: 2
-   model_name: glm_BARC #other is "null"
+   ncore: 1
+   model_name: glm #other is "null"
    base_GLM_nml: glm3_BARC.nml
    modeled_depths: [0.00,0.10,0.50,1.00,
                     1.50,2.00,2.50,3.00,
@@ -78,14 +78,3 @@ uncertainty:
    inflow_process: TRUE
 output_settings:
    diagnostics_names:  [extc_coef]
-management:
-   simulate_sss: FALSE
-   sss_depth: 8.0
-   use_specified_sss: FALSE
-   specified_sss_inflow_file: .na
-   specified_sss_outflow_file: .na
-   forecast_sss_flow: 1000
-   forecast_sss_oxy: 500
-   #umol/m3  of oxygen if SSS turned on in forecast
-   sss_fname: manual-data/FCR_SSS_inflow_2013_2020.csv
-   sss_inflow_factor: 0.25

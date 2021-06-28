@@ -74,11 +74,11 @@
    meteo_fl = 'BARC_met_final.csv'
    subdaily = .true.
    wind_factor = 1
-   sw_factor = 1.1
+   sw_factor = 1
    lw_factor = 1
    at_factor = 1
    rh_factor = 1
-   rain_factor = 0.5
+   rain_factor = 1
    cd = 0.0013
    ce = 0.0013
    ch = 0.001320147
@@ -92,7 +92,7 @@
 &outflow
    num_outlet = 0
    seepage = .true.
-   seepage_rate = 3
+   seepage_rate = 0.01
 /
 &snowice
    snow_albedo_factor = 1
@@ -106,7 +106,7 @@
    zone_heights = 6.5
    sed_heat_Ksoil = .2
    sed_temp_depth = 0.5
-   sed_temp_mean = 20!11.16682669,13.52480062!11.09137447,13.49593699!8.982533531, 8.614077839 ! update these 
+   sed_temp_mean = 20!11.16682669,13.52480062!11.09137447,13.49593699!8.982533531, 8.614077839 ! update these
    sed_temp_amplitude = 0!3.462898198,7.057355328!3.090273694,8.223867241!3.828005548, 6.770951105
    sed_temp_peak_doy = 278.4380074!267.3400911,265.311257!263.9436016,264.8249604!260.7401994, 268.5430713
 /
