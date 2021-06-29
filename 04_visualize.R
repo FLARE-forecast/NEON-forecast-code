@@ -437,5 +437,3 @@ plotting_general_2 <- function (file_name, qaqc_data_directory, ncore = 5, plot_
 
 plotting_general_2(file_name = saved_file,
                          qaqc_data_directory = config$file_path$qaqc_data_directory, ncore = 5)
-
-

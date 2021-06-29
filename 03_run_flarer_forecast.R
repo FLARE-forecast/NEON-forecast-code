@@ -25,7 +25,7 @@ if(!dir.exists(config$file_path$forecast_output_directory)) {
 }
 
 
-observed_met_file <- file.path(paste0(config$file_path$qaqc_data_directory, "/observed-met-",forecast_site,".nc"))
+observed_met_file <- file.path(paste0(config$file_path$qaqc_data_directory, "/observed-met_",forecast_site,".nc"))
 
 start_datetime <- lubridate::as_datetime(config$run_config$start_datetime)
 if(is.na(config$run_config$forecast_start_datetime)){

@@ -1,0 +1,112 @@
+&glm_setup
+   sim_name = 'CRAM'
+   max_layers = 500
+   min_layer_vol = 0.025
+   min_layer_thick = 0.15
+   max_layer_thick = 1.5
+   non_avg = .true.
+/
+&light
+   light_mode = 0
+   n_bands = 4
+   light_extc = 1, 0.5, 2, 4
+   energy_frac = 0.51, 0.45, 0.035, 0.005
+   Benthic_Imin = 10
+   Kw = 0.6265182
+/
+&mixing
+   coef_mix_conv = 0.125
+   coef_wind_stir = 0.23
+   coef_mix_shear = 0.2
+   coef_mix_turb = 0.51
+   coef_mix_KH = 0.3
+   coef_mix_hyp = 0.5978095
+   deep_mixing = 2
+   coef_mix_shreq = 0
+/
+&morphometry
+   lake_name = 'CramptonLake'
+   latitude = 46.209675
+   longitude = -89.473688
+   bsn_len = 634
+   bsn_wid = 790
+   bsn_vals = 39
+   H = 490,490.5,491,491.5,492,492.5,493,493.5,494,494.5,495,495.5,496,496.5,497,497.5,498,498.5,499,499.5,500,500.5,501,501.5,502,502.5,503,503.5,504,504.5,505,505.5,506,506.5,507,507.5,508,508.5,509
+   A = 0,10.4,149.82,467.7,1019.6,1585.01,2146.41,2904.4,4194.64,5484.74,6890.42,8638.92,10279.59,12208.11,14125.5,16467.17,19193.48,22579.01,27198.5,31584.1,36997.26,44025.53,50479.88,57385.03,66752.67,77869.89,88977.33,100091.49,111853.08,124871.75,137328.22,153524.9,169216.84,191678.41,213789.77,230037.27,241422.25,250570.32,258924.72
+/
+&time
+   timefmt = 2
+   start = '2017-08-06 00:00:00'
+   stop = '2020-10-01 00:00:00'
+   dt = 1800
+   num_days = 1
+   timezone = -6
+/
+&output
+   out_dir = '.'
+   out_fn = 'output'
+   nsave = 48
+/
+&init_profiles
+   num_depths = 39
+   lake_depth = 19
+   the_depths = 0.1,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15,15.5,16,16.5,17,17.5,18,18.5,19
+   the_temps = 25, 25, 25, 24, 24, 24, 24, 23, 22, 21, 16, 15, 10, 10, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 6, 6, 5 
+   the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   num_wq_vars = 1
+   wq_names = 'OXY_oxy'
+   wq_init_vals = 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300
+   snow_thickness = 0
+   white_ice_thickness = 0
+   blue_ice_thickness = 0
+   avg_surf_temp = 20
+   restart_variables = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+/
+&meteorology
+   met_sw = .true.
+   lw_type = 'LW_IN'
+   rain_sw = .true.
+   atm_stab = 0
+   catchrain = .false.
+   rad_mode = 1
+   albedo_mode = 1
+   cloud_mode = 4
+   meteo_fl = 'CRAM_met_final.csv'
+   subdaily = .true.
+   wind_factor = 1.204324
+   sw_factor = 1
+   lw_factor = 0.967483
+   at_factor = 1
+   rh_factor = 1
+   rain_factor = 1
+   cd = 0.0013
+   ce = 0.0013
+   ch = 0.00261228071351428, 0.6
+   rain_threshold = 0.01220247
+   runoff_coef = 0.3
+   time_fmt = 'YYYY-MM-DD hh:mm:ss'
+/
+&inflow
+   num_inflows = 0
+/
+&outflow
+   num_outlet = 0
+   seepage = .true.
+   seepage_rate = 0.001
+/
+&snowice
+   snow_albedo_factor = 1
+   snow_rho_max = 500
+   snow_rho_min = 100
+/
+&sediment
+   benthic_mode = 2
+   sed_heat_model = 1
+   n_zones = 2
+   zone_heights = 8, 19.5
+   sed_heat_Ksoil = 1.2, 1.2
+   sed_temp_depth = 0.5, 0.5
+   sed_temp_mean = 12,20
+   sed_temp_amplitude = 0,0
+   sed_temp_peak_doy = 278.4380074,276.9746504
+/

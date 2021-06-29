@@ -1,0 +1,102 @@
+file_path:
+   qaqc_data_directory: inst/example/data_processed/
+   noaa_directory: inst/example/forecasted_drivers/
+   inflow_directory: inst/example/forecasted_drivers/
+   configuration_directory: inst/example/configuration/
+   execute_directory: inst/example/flare_tempdir
+   forecast_output_directory: inst/example/forecast_output
+   run_config: inst/example/configuration/flarer/configure_run.yml
+location:
+   site_id: CRAM
+   name: Crampton Lake
+   latitude: 46.209675   #Degrees North
+   longitude: -89.473688  #Degrees West
+metadata:
+   generate_eml: TRUE
+   forecast_project_id: test
+   abstract: "This is where a longer description of the forest can be added"
+   forecast_title: FLARE
+   intellectualRights: insert license
+   model_description:
+      forecast_model_id: https://github.com/rqthomas/flare/commit/d1ddcb07b9d28863890597503fc4aa4a4496de56
+      name: General Lake Model
+      type: process-based
+      repository: https://github.com/AquaticEcoDynamics/GLM/releases/tag/v3.1.0
+   me:
+      individualName:
+         givenName: "Ryan"
+         surName: "McClure"
+      electronicMailAddress:  "ryan333@vt.edu"
+      id: 0000-0001-6370-3852
+da_setup:
+    da_method: enkf
+    par_fit_method: inflate
+    ensemble_size:  50
+    localization_distance: .na #distance in meters were covariances in the model error are used
+    no_negative_states: TRUE
+    assimilate_first_step: FALSE
+    use_obs_constraint: TRUE
+model_settings:
+   ncore: 1
+   model_name: glm #other is "null"
+   base_GLM_nml: glm3_CRAM.nml
+   modeled_depths: [0.00, 0.10, 0.50, 1.00,
+                    1.50, 2.00, 2.50,
+                    3.00, 3.50, 4.00,
+                    4.50, 5.00, 5.50,
+                    6.00, 6.50, 7.00,
+                    7.50, 8.00, 8.50,
+                    9.00, 9.50, 10.0,
+                    10.5, 11.0, 11.5,
+                    12.0, 12.5, 13.0,
+                    13.5, 14.0, 14.5,
+                    15.0, 15.5, 16.0,
+                    16.5, 17.0, 17.5,
+                    18.0, 18.5, 19.0]
+   par_config_file: parameter_calibration_config_cram.csv
+   obs_config_file: observations_config_cram.csv
+   states_config_file: states_config_cram.csv
+   depth_model_sd_config_file: depth_model_sd_cram.csv
+default_init:
+   lake_depth: 19.1  #not a modeled state
+   temp: [4, 4, 4, 4, 4,
+          4, 4, 4, 4, 4,
+          4, 4, 4, 4, 4,
+          4, 4, 4, 4, 4,
+          4, 4, 4, 4, 4,
+          4, 4, 4, 4, 4,
+          4, 4, 4, 4, 4,
+          4, 4, 4, 4, 4]
+   temp_depths: [0.00, 0.10, 0.50, 1.00,
+                  1.50, 2.00, 2.50,
+                  3.00, 3.50, 4.00,
+                  4.50, 5.00, 5.50,
+                  6.00, 6.50, 7.00,
+                  7.50, 8.00, 8.50,
+                  9.00, 9.50, 10.0,
+                  10.5, 11.0, 11.5,
+                  12.0, 12.5, 13.0,
+                  13.5, 14.0, 14.5,
+                  15.0, 15.5, 16.0,
+                  16.5, 17.0, 17.5,
+                  18.0, 18.5, 19.0]
+   salinity: 0.0
+   snow_thickness: 0.0
+   white_ice_thickness: 0.0
+   blue_ice_thickness: 0.0
+inflow:
+   use_forecasted_inflow: FALSE
+   forecast_inflow_model: FLOWS-NOAAGEFS-AR1
+met:
+   use_forecasted_met: TRUE
+   forecast_met_model: NOAAGEFS_1hr
+uncertainty:
+   observation: TRUE
+   process: TRUE
+   weather: TRUE
+   initial_condition: TRUE
+   parameter: TRUE
+   met_downscale: TRUE
+   inflow_process: TRUE
+output_settings:
+   diagnostics_names:  [extc_coef]

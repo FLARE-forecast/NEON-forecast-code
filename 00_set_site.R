@@ -25,12 +25,12 @@ noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr"
 forecast_location <- file.path(getwd(), "flare_tempdir")
 
 ##' Choose the site
-forecast_site = "BARC"
+# forecast_site = "BARC"
 # forecast_site = "SUGG"
 # forecast_site = "CRAM"
 # forecast_site = "LIRO"
 # forecast_site = "PRPO"
-# forecast_site = "PRLA"
+forecast_site = "PRLA"
 
 # Specify the products to download
 products = c("DP1.00098.001",
