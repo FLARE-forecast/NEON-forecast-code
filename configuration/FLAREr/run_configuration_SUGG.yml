@@ -3,7 +3,7 @@ start_datetime: 2021-04-01 00:00:00 # spinup start time
 end_datetime: .na # spinup end time, if not specified, then defaults to when forecasts start
 forecast_start_datetime: 2021-05-01 00:00:00 # noon EST
 forecast_horizon: 16
-sim_name: PRAIRIE_LAKE
+sim_name: SUGGS_LAKE
 forecast_output_directory: .na
 forecast_configuration_directory: .na
 execute_directory: .na

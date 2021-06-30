@@ -4,7 +4,7 @@
 
 source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
 
-date = seq(from = as.Date("2021-03-01"), to = Sys.Date() - 1, by = "days")
+date = seq(from = as.Date("2021-06-01"), to = Sys.Date() - 1, by = "days")
 cycle = c("00")
 
 for(p in 1:length(siteID)){

@@ -5,7 +5,7 @@ file_path:
    configuration_directory: inst/example/configuration/
    execute_directory: inst/example/flare_tempdir
    forecast_output_directory: inst/example/forecast_output
-   run_config: inst/example/configuration/flarer/configure_run.yml
+   run_config: inst/example/configuration/flarer/run_configuration_PRLA.yml
 location:
    site_id: PRLA
    name: Prairie Lake
@@ -31,7 +31,7 @@ metadata:
 da_setup:
     da_method: enkf
     par_fit_method: inflate
-    ensemble_size:  50
+    ensemble_size:  100
     localization_distance: .na #distance in meters were covariances in the model error are used
     no_negative_states: TRUE
     assimilate_first_step: FALSE

@@ -5,7 +5,7 @@
 lake_name_code: BARC
 lake_name: Barco Lake
 lake_latitude: 29.67562   #Degrees North
-lake_longitude: 82.0085  #Degrees West
+lake_longitude: -82.0085  #Degrees West
 
 #Time zone that GLM is run in
 #Currently needed to be GMT so that it interfaces with the NOAA forecast
@@ -37,25 +37,16 @@ realtime_temp_location: data
 insitu_obs_fname:
     - temp_data.csv
 
-secchi_fname: 
-    - secchi_data.csv
-
 variable_obsevation_depths: FALSE
 
-focal_depths: .na #1.6
+focal_depths: .na
 
 pull_from_git: FALSE
 
 target_variables:
     - temperature
-    - secchi
 
 averaging_period:
     - "1 hour"
-    
-averaging_period_starting_hour: "00:00:00"
 
-measurement_methods: 
-    temperature:
-        - thermistor
-        - secchi
+averaging_period_starting_hour: "00:00:00"

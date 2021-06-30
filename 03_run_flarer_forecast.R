@@ -76,21 +76,7 @@ init <- FLAREr::generate_initial_conditions(states_config,
                                             historical_met_error = met_out$historical_met_error)
 
 #Run EnKF
-# states_init = init$states
-# pars_init = init$pars
-# aux_states_init = init$aux_states_init
-# obs = obs
-# obs_sd = obs_config$obs_sd
-# model_sd = model_sd
-# working_directory = config$file_path$execute_directory
-# met_file_names = met_out$filenames
-# config = config
-# pars_config = pars_config
-# states_config = states_config
-# obs_config = obs_config
-# da_method = config$da_setup$da_method
-# par_fit_method = config$da_setup$par_fit_method
-
+t1 <- proc.time()
 da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
                                               pars_init = init$pars,
                                               aux_states_init = init$aux_states_init,
@@ -105,6 +91,8 @@ da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
                                               obs_config = obs_config,
                                               da_method = config$da_setup$da_method,
                                               par_fit_method = config$da_setup$par_fit_method)
+loop <- proc.time()-t1
+print(paste0("TIME OF RUN (minutes) = ",loop[3]/60))
 
 # Save forecast
 saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,

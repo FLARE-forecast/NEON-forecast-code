@@ -5,15 +5,15 @@ file_path:
    configuration_directory: inst/example/configuration/
    execute_directory: inst/example/flare_tempdir
    forecast_output_directory: inst/example/forecast_output
-   run_config: inst/example/configuration/flarer/configure_run.yml
+   run_config: inst/example/configuration/flarer/run_configuration_PRPO.yml
 location:
-   site_id: BARC
-   name: Lake Barco
-   latitude: 29.67562   #Degrees North
-   longitude: -82.0085  #Degrees West
+   site_id: PRPO
+   name: Prairie Pothole Lake
+   latitude: 47.129839   #Degrees North
+   longitude: -99.253147  #Degrees West
 metadata:
    generate_eml: TRUE
-   forecast_project_id: test
+   forecast_project_id: PRPO
    abstract: "This is where a longer description of the forest can be added"
    forecast_title: FLARE
    intellectualRights: insert license
@@ -39,25 +39,16 @@ da_setup:
 model_settings:
    ncore: 1
    model_name: glm #other is "null"
-   base_GLM_nml: glm3_BARC.nml
-   modeled_depths: [0.00,0.10,0.50,1.00,
-                    1.50,2.00,2.50,3.00,
-                    3.50,4.00,4.50,5.00,
-                    5.50,6.00]
-   par_config_file: parameter_calibration_config_barc.csv
-   obs_config_file: observations_config_barc.csv
-   states_config_file: states_config_barc.csv
-   depth_model_sd_config_file: depth_model_sd_barc.csv
+   base_GLM_nml: glm3_PRPO.nml
+   modeled_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
+   par_config_file: parameter_calibration_config_prpo.csv
+   obs_config_file: observations_config_prpo.csv
+   states_config_file: states_config_prpo.csv
+   depth_model_sd_config_file: depth_model_sd_prpo.csv
 default_init:
-   lake_depth: 6.1  #not a modeled state
-   temp: [16,16,16,16,
-          16,16,16,16,
-          16,16,16,16,
-          16,16]
-   temp_depths: [0.00,0.10,0.50,1.00,
-                 1.50,2.00,2.50,3.00,
-                 3.50,4.00,4.50,5.00,
-                 5.50,6.00]
+   lake_depth: 4.1  #not a modeled state
+   temp: [12,12,12,12,12,12,12,12,12,12]
+   temp_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
    salinity: 0.0
    snow_thickness: 0.0
    white_ice_thickness: 0.0

@@ -13,7 +13,7 @@ location:
    longitude: -89.473688  #Degrees West
 metadata:
    generate_eml: TRUE
-   forecast_project_id: test
+   forecast_project_id: CRAMPTON_LAKE
    abstract: "This is where a longer description of the forest can be added"
    forecast_title: FLARE
    intellectualRights: insert license
