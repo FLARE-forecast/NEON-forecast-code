@@ -1,0 +1,6 @@
+barc <- readr::read_csv()
+sugg <- readr::read_csv()
+cram <- readr::read_csv()
+liro <- readr::read_csv()
+prpo <- readr::read_csv()
+prla <- readr::read_csv()

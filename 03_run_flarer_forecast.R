@@ -42,13 +42,31 @@ noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$location
                                 lubridate::as_date(forecast_start_datetime), "00")
 
 
+
+
 # convert NOAA forecasts to GLM format
 met_out <- FLAREr::generate_glm_met_files(obs_met_file = observed_met_file,
                                           out_dir = config$file_path$execute_directory,
                                           forecast_dir = noaa_forecast_path,
                                           config = config)
 
-met_file_names <- met_out$filenames
+
+# forecast_files <- list.files(config$file_path$execute_directory, full.names = TRUE)
+# forecast_remove <- grep("ens00.csv",forecast_files, value = T)
+# unlink(forecast_remove)
+#
+# numbers2 <- as.character(seq(00, 29, by = 1))
+# numbers2 <- str_pad(numbers2, width=2, side="left", pad="0")
+#
+# numbers1 <- as.character(seq(from = "01", to = "30", by = 1))
+# numbers1 <- str_pad(numbers1, width=2, side="left", pad="0")
+#
+# file.rename(from=file.path(config$file_path$execute_directory,paste0("met_ens",numbers1,".csv")),
+#             to=file.path(config$file_path$execute_directory,paste0("met_ens",numbers2,".csv")))
+#
+# file.copy(from = file.path(config$file_path$execute_directory,"met_ens29.csv"),
+#           to = file.path(config$file_path$execute_directory,"met_ens30.csv"))
+
 historical_met_error <- met_out$historical_met_error
 
 #Create observation matrix
@@ -84,7 +102,7 @@ da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
                                               obs_sd = obs_config$obs_sd,
                                               model_sd = model_sd,
                                               working_directory = config$file_path$execute_directory,
-                                              met_file_names = met_out$filenames,
+                                              met_file_names = met_out$filenames[2:31],
                                               config = config,
                                               pars_config = pars_config,
                                               states_config = states_config,
@@ -96,4 +114,4 @@ print(paste0("TIME OF RUN (minutes) = ",loop[3]/60))
 
 # Save forecast
 saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
-                                            forecast_output_directory = config$file_path$forecast_output_directory)
+                                            forecast_output_directory = file.path(config$file_path$forecast_output_directory,forecast_site))

@@ -30,7 +30,7 @@ forecast_location <- file.path(getwd(), "flare_tempdir")
 # forecast_site = "CRAM"
 # forecast_site = "LIRO"
 # forecast_site = "PRPO"
-forecast_site = "PRLA"
+# forecast_site = "PRLA"
 
 # Specify the products to download
 products = c("DP1.00098.001",

@@ -74,7 +74,7 @@
    meteo_fl = 'SUGG_met_final.csv'
    subdaily = .true.
    wind_factor = 1
-   sw_factor = 1.2
+   sw_factor = 1
    lw_factor = 1
    at_factor = 1
    rh_factor = 1
@@ -108,5 +108,5 @@
    sed_temp_depth = 0.5
    sed_temp_mean = 14
    sed_temp_amplitude = 0
-   sed_temp_peak_doy = 276.9746504
+   sed_temp_peak_doy = 290.9746504
 /
