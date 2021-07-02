@@ -19,8 +19,8 @@ buoy_qaqc <- function(realtime_buoy_file,
            depth = ifelse(depth <= 0.5, 0.5, depth),
            date = as.Date(date))%>%
     select(date, hour, depth, value)%>%
-    group_by(date,hour)%>%
-    summarise_at(c("depth","value"), mean, na.rm = TRUE)%>%
+    group_by(date,hour,depth)%>%
+    summarise_at(c("value"), mean, na.rm = TRUE)%>%
     mutate(variable = "temperature")%>%
     ungroup(.)%>%
     arrange(date)
