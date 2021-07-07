@@ -12,35 +12,39 @@ cram_forecasts <- list.files(cram_path, pattern = ".csv")%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))
 
-cram_1wk <- cram_forecasts %>%
-  filter(days <= 7)%>%
+cram_1dy <- cram_forecasts %>%
+  filter(days == 1)%>%
+  group_by(forecast_start_day)%>%
+  summarize(rmse = RMSE(forecast_mean,observed))%>%
+  mutate(forecast_horizon = "1dy")
+
+cram_7dy <- cram_forecasts %>%
+  filter(days == 7)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "1wk")
 
-cram_2wk <- cram_forecasts %>%
-  filter(days > 7)%>%
-  filter(days <= 14)%>%
+cram_14dy <- cram_forecasts %>%
+  filter(days == 14)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "2wk")
 
-cram_3wk <- cram_forecasts %>%
-  filter(days > 14)%>%
-  filter(days <= 21)%>%
+cram_21dy <- cram_forecasts %>%
+  filter(days == 21)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "3wk")
 
-cram_4wk <- cram_forecasts %>%
-  filter(days > 21)%>%
-  filter(days <= 28)%>%
+cram_28dy <- cram_forecasts %>%
+  filter(days == 28)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "4wk")
 
-cram_eval <- bind_rows(cram_1wk, cram_2wk, cram_3wk, cram_4wk)%>%
-  mutate(siteID = "C: CRAM")
+cram_eval <- bind_rows(cram_1dy, cram_7dy, cram_14dy, cram_21dy, cram_28dy)%>%
+  mutate(siteID = "C: CRAM") %>%
+  mutate(`Lake Depth` = "Deep")
 
 # Little Rock Lake
 liro_path <- "./forecast_output/LIRO"
@@ -51,39 +55,55 @@ liro_forecasts <- list.files(liro_path, pattern = ".csv")%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))
 
-liro_1wk <- liro_forecasts %>%
-  filter(days <= 7)%>%
+liro_1dy <- liro_forecasts %>%
+  filter(days == 1)%>%
+  group_by(forecast_start_day)%>%
+  summarize(rmse = RMSE(forecast_mean,observed))%>%
+  mutate(forecast_horizon = "1dy")
+
+liro_7dy <- liro_forecasts %>%
+  filter(days == 7)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "1wk")
 
-liro_2wk <- liro_forecasts %>%
-  filter(days > 7)%>%
-  filter(days <= 14)%>%
+liro_14dy <- liro_forecasts %>%
+  filter(days == 14)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "2wk")
 
-liro_3wk <- liro_forecasts %>%
-  filter(days > 14)%>%
-  filter(days <= 21)%>%
+liro_21dy <- liro_forecasts %>%
+  filter(days == 21)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "3wk")
 
-liro_4wk <- liro_forecasts %>%
-  filter(days > 21)%>%
-  filter(days <= 28)%>%
+liro_28dy <- liro_forecasts %>%
+  filter(days == 28)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "4wk")
 
-liro_eval <- bind_rows(liro_1wk, liro_2wk, liro_3wk, liro_4wk)%>%
-  mutate(siteID = "D: LIRO")
+liro_eval <- bind_rows(liro_1dy, liro_7dy, liro_14dy, liro_21dy, liro_28dy)%>%
+  mutate(siteID = "D: LIRO") %>%
+  mutate(`Lake Depth` = "Shallow")
 
 great_lakes_domain <- bind_rows(cram_eval, liro_eval)%>%
   mutate(domain = "GRL")
 
+gl_fig <- ggplot(great_lakes_domain, aes(forecast_horizon, rmse, fill = `Lake Depth`))+
+  geom_boxplot(outlier.colour="black", outlier.shape=21,
+               outlier.size=2, notch=FALSE, outlier.fill = "grey")+
+  ylab("RMSE")+
+  xlab("")+
+  scale_y_continuous(breaks = c(0,1,2,3,4,5,6), limits = c(0,6))+
+  scale_fill_manual(values=c("darkorange", "darkviolet"))+
+  theme_classic()+
+  theme(axis.text = element_text(size = 15, color = "black"),
+        axis.title = element_text(size = 15, color = "black"),
+        legend.text = element_text(size = 15, color = "black"))+
+  facet_wrap(~siteID)
 
 ### South East Domain
 
@@ -96,35 +116,39 @@ barc_forecasts <- list.files(barc_path, pattern = ".csv")%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))
 
-barc_1wk <- barc_forecasts %>%
-  filter(days <= 7)%>%
+barc_1dy <- barc_forecasts %>%
+  filter(days == 1)%>%
+  group_by(forecast_start_day)%>%
+  summarize(rmse = RMSE(forecast_mean,observed))%>%
+  mutate(forecast_horizon = "1dy")
+
+barc_7dy <- barc_forecasts %>%
+  filter(days == 7)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "1wk")
 
-barc_2wk <- barc_forecasts %>%
-  filter(days > 7)%>%
-  filter(days <= 14)%>%
+barc_14dy <- barc_forecasts %>%
+  filter(days == 14)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "2wk")
 
-barc_3wk <- barc_forecasts %>%
-  filter(days > 14)%>%
-  filter(days <= 21)%>%
+barc_21dy <- barc_forecasts %>%
+  filter(days == 21)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "3wk")
 
-barc_4wk <- barc_forecasts %>%
-  filter(days > 21)%>%
-  filter(days <= 28)%>%
+barc_28dy <- barc_forecasts %>%
+  filter(days == 28)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "4wk")
 
-barc_eval <- bind_rows(barc_1wk, barc_2wk, barc_3wk, barc_4wk)%>%
-  mutate(siteID = "A: BARC")
+barc_eval <- bind_rows(barc_1dy, barc_7dy, barc_14dy, barc_21dy, barc_28dy)%>%
+  mutate(siteID = "A: BARC") %>%
+  mutate(`Lake Depth` = "Deep")
 
 # Lake Suggs
 sugg_path <- "./forecast_output/SUGG"
@@ -135,38 +159,56 @@ sugg_forecasts <- list.files(sugg_path, pattern = ".csv")%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))
 
-sugg_1wk <- sugg_forecasts %>%
-  filter(days <= 7)%>%
+sugg_1dy <- sugg_forecasts %>%
+  filter(days == 1)%>%
+  group_by(forecast_start_day)%>%
+  summarize(rmse = RMSE(forecast_mean,observed))%>%
+  mutate(forecast_horizon = "1dy")
+
+sugg_7dy <- sugg_forecasts %>%
+  filter(days == 7)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "1wk")
 
-sugg_2wk <- sugg_forecasts %>%
-  filter(days > 7)%>%
-  filter(days <= 14)%>%
+sugg_14dy <- sugg_forecasts %>%
+  filter(days == 14)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "2wk")
 
-sugg_3wk <- sugg_forecasts %>%
-  filter(days > 14)%>%
-  filter(days <= 21)%>%
+sugg_21dy <- sugg_forecasts %>%
+  filter(days == 21)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "3wk")
 
-sugg_4wk <- sugg_forecasts %>%
-  filter(days > 21)%>%
-  filter(days <= 28)%>%
+sugg_28dy <- sugg_forecasts %>%
+  filter(days == 28)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "4wk")
 
-sugg_eval <- bind_rows(sugg_1wk, sugg_2wk, sugg_3wk, sugg_4wk)%>%
-  mutate(siteID = "B: SUGG")
+sugg_eval <- bind_rows(sugg_1dy, sugg_7dy, sugg_14dy, sugg_21dy, sugg_28dy)%>%
+  mutate(siteID = "B: SUGG") %>%
+  mutate(`Lake Depth` = "Shallow")
 
 south_east_domain <- bind_rows(barc_eval, sugg_eval)%>%
   mutate(domain = "SOE")
+
+se_fig <- ggplot(south_east_domain, aes(forecast_horizon, rmse, fill = `Lake Depth`))+
+  geom_boxplot(outlier.colour="black", outlier.shape=21,
+               outlier.size=2, notch=FALSE, outlier.fill = "grey")+
+  ylab("")+
+  xlab("")+
+  scale_y_continuous(breaks = c(0,1,2,3,4,5,6), limits = c(0,6))+
+  scale_fill_manual(values=c("darkorange", "darkviolet"))+
+  theme_classic()+
+  theme(legend.position = "none",
+        axis.text = element_text(size = 15, color = "black"),
+        axis.title = element_text(size = 15, color = "black"),
+        legend.text = element_text(size = 15, color = "black"))+
+  facet_wrap(~siteID)
 
 # Northern Plains Domain
 
@@ -179,35 +221,39 @@ prpo_forecasts <- list.files(prpo_path, pattern = ".csv")%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))
 
-prpo_1wk <- prpo_forecasts %>%
-  filter(days <= 7)%>%
+prpo_1dy <- prpo_forecasts %>%
+  filter(days == 1)%>%
+  group_by(forecast_start_day)%>%
+  summarize(rmse = RMSE(forecast_mean,observed))%>%
+  mutate(forecast_horizon = "1dy")
+
+prpo_7dy <- prpo_forecasts %>%
+  filter(days == 7)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "1wk")
 
-prpo_2wk <- prpo_forecasts %>%
-  filter(days > 7)%>%
-  filter(days <= 14)%>%
+prpo_14dy <- prpo_forecasts %>%
+  filter(days == 14)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "2wk")
 
-prpo_3wk <- prpo_forecasts %>%
-  filter(days > 14)%>%
-  filter(days <= 21)%>%
+prpo_21dy <- prpo_forecasts %>%
+  filter(days == 21)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "3wk")
 
-prpo_4wk <- prpo_forecasts %>%
-  filter(days > 21)%>%
-  filter(days <= 28)%>%
+prpo_28dy <- prpo_forecasts %>%
+  filter(days == 28)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "4wk")
 
-prpo_eval <- bind_rows(prpo_1wk, prpo_2wk, prpo_3wk, prpo_4wk)%>%
-  mutate(siteID = "E: PRPO")
+prpo_eval <- bind_rows(prpo_1dy, prpo_7dy, prpo_14dy, prpo_21dy, prpo_28dy)%>%
+  mutate(siteID = "F: PRPO") %>%
+  mutate(`Lake Depth` = "Shallow")
 
 # Prairie Lake
 prla_path <- "./forecast_output/PRLA"
@@ -218,47 +264,58 @@ prla_forecasts <- list.files(prla_path, pattern = ".csv")%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))
 
-prla_1wk <- prla_forecasts %>%
-  filter(days <= 7)%>%
+prla_1dy <- prla_forecasts %>%
+  filter(days == 1)%>%
+  group_by(forecast_start_day)%>%
+  summarize(rmse = RMSE(forecast_mean,observed))%>%
+  mutate(forecast_horizon = "1dy")
+
+prla_7dy <- prla_forecasts %>%
+  filter(days == 7)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "1wk")
 
-prla_2wk <- prla_forecasts %>%
-  filter(days > 7)%>%
-  filter(days <= 14)%>%
+prla_14dy <- prla_forecasts %>%
+  filter(days == 14)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "2wk")
 
-prla_3wk <- prla_forecasts %>%
-  filter(days > 14)%>%
-  filter(days <= 21)%>%
+prla_21dy <- prla_forecasts %>%
+  filter(days == 21)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "3wk")
 
-prla_4wk <- prla_forecasts %>%
-  filter(days > 21)%>%
-  filter(days <= 28)%>%
+prla_28dy <- prla_forecasts %>%
+  filter(days == 28)%>%
   group_by(forecast_start_day)%>%
   summarize(rmse = RMSE(forecast_mean,observed))%>%
   mutate(forecast_horizon = "4wk")
 
-prla_eval <- bind_rows(prla_1wk, prla_2wk, prla_3wk, prla_4wk)%>%
-  mutate(siteID = "F: PRLA")
+prla_eval <- bind_rows(prla_1dy, prla_7dy, prla_14dy, prla_21dy, prla_28dy)%>%
+  mutate(siteID = "E: PRLA") %>%
+  mutate(`Lake Depth` = "Deep")
 
 northern_plains_domain <- bind_rows(prpo_eval, prla_eval)%>%
   mutate(domain = "NRP")
 
-eval_lakes <- bind_rows(south_east_domain, great_lakes_domain, northern_plains_domain)
 
-rmse_fig <- ggplot(eval_lakes, aes(forecast_horizon, rmse, fill = domain))+
-geom_boxplot(outlier.colour="red", outlier.shape=16,
-             outlier.size=1, notch=FALSE)+
+np_fig <- ggplot(northern_plains_domain, aes(forecast_horizon, rmse, fill = `Lake Depth`))+
+geom_boxplot(outlier.colour="black", outlier.shape=21,
+             outlier.size=2, notch=FALSE, outlier.fill = "grey")+
+  ylab("")+
+  xlab("Forecast Horizon")+
+  scale_y_continuous(breaks = c(0,1,2,3,4,5,6), limits = c(0,6))+
+  scale_fill_manual(values=c("darkorange", "darkviolet"))+
   theme_classic()+
+  theme(legend.position = "none",
+        axis.text = element_text(size = 15, color = "black"),
+        axis.title = element_text(size = 15, color = "black"),
+        legend.text = element_text(size = 15, color = "black"))+
   facet_wrap(~siteID)
 
-rmse_fig
-
-ggsave(path = ".", filename = "./forecast_output/figures/across_site_rmse.jpg", width = 10, height = 7, device='jpg', dpi=1000)
+fig <- se_fig/gl_fig/np_fig
+fig
+ggsave(path = ".", filename = "./forecast_output/figures/across_site_rmse.jpg", width = 7, height = 10, device='jpg', dpi=1000)
