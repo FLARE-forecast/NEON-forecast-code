@@ -12,7 +12,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.473 ! generated from the mean secchi depth between 2014 and 2021
+   Kw = 0.2 ! generated from the mean secchi depth between 2014 and 2021
 /
 &mixing
    coef_mix_conv = 0.2
@@ -75,7 +75,7 @@
    subdaily = .true.
    wind_factor = 1
    sw_factor = 1
-   lw_factor = 1
+   lw_factor = 0.8
    at_factor = 1
    rh_factor = 1
    rain_factor = 1
@@ -92,7 +92,7 @@
 &outflow
    num_outlet = 0
    seepage = .true.
-   seepage_rate = 0.01
+   seepage_rate = 0.001
 /
 &snowice
    snow_albedo_factor = 1
@@ -106,7 +106,7 @@
    zone_heights = 3.5
    sed_heat_Ksoil = 1.2
    sed_temp_depth = 0.5
-   sed_temp_mean = 14
+   sed_temp_mean = 20
    sed_temp_amplitude = 0
-   sed_temp_peak_doy = 290.9746504
+   sed_temp_peak_doy = 278.9746504
 /

@@ -1,8 +1,8 @@
-restart_file: .na
-start_datetime: 2021-04-01 00:00:00 # spinup start time
-end_datetime: .na # spinup end time, if not specified, then defaults to when forecasts start
-forecast_start_datetime: 2021-04-26 00:00:00 # noon EST
-forecast_horizon: 35
+restart_file: /Users/ryanmcclure/Documents/NEON-forecast/forecast_output/SUGG/SUGGS_LAKE_H_2021_04_23_2021_04_24_F_35_20210708T181003.nc
+start_datetime: 2021-04-25 00:00:00
+end_datetime: .na
+forecast_start_datetime: 2021-04-26 00:00:00
+forecast_horizon: 35.0
 sim_name: SUGGS_LAKE
 forecast_output_directory: .na
 forecast_configuration_directory: .na

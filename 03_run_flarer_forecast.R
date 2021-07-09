@@ -41,9 +41,6 @@ if(forecast_hour < 10){forecast_hour <- paste0("0",forecast_hour)}
 noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$location$site_id,
                                 lubridate::as_date(forecast_start_datetime), "00")
 
-
-
-
 # convert NOAA forecasts to GLM format
 met_out <- FLAREr::generate_glm_met_files(obs_met_file = observed_met_file,
                                           out_dir = config$file_path$execute_directory,
