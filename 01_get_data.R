@@ -22,7 +22,7 @@ for(p in 1:length(siteID)){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
-8
+
 if (file.exists(file.path(neon_database))){
   Sys.setenv("NEONSTORE_DB" = neon_database)
   Sys.setenv("NEONSTORE_HOME" = neon_database)
