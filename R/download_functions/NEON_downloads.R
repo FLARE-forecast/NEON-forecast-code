@@ -5,16 +5,16 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
         neonstore::neon_download(product = products, site = siteID_neon)
 
         # Store the NEON met data products
-        neonstore::neon_store("SECPRE_30min-basic")
-        neonstore::neon_store("2DWSD_30min-basic")
-        neonstore::neon_store("SLRNR_30min-basic")
-        neonstore::neon_store("SAAT_30min-basic")
-        neonstore::neon_store("RH_30min-basic")
-        neonstore::neon_store("BP_30min-basic")
+        # neonstore::neon_store("SECPRE_30min-basic")
+        # neonstore::neon_store("2DWSD_30min-basic")
+        # neonstore::neon_store("SLRNR_30min-basic")
+        # neonstore::neon_store("SAAT_30min-basic")
+        # neonstore::neon_store("RH_30min-basic")
+        # neonstore::neon_store("BP_30min-basic")
 
         # Tidy up the met data
         # Airtemp
-        airtemp <- neonstore::neon_table(table = "SAAT_30min-basic", site = siteID) %>%
+        airtemp <- neonstore::neon_read(table = "SAAT_30min-basic", site = siteID) %>%
           select(endDateTime, tempSingleMean, siteID) %>%
           mutate(time = lubridate::floor_date(endDateTime, unit = "hour"))%>%
           select(-endDateTime)%>%
@@ -23,7 +23,7 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
           arrange(siteID, time)
 
         # Radiation
-        radiation <- neonstore::neon_table(table = "SLRNR_30min-basic", site = siteID) %>%
+        radiation <- neonstore::neon_read(table = "SLRNR_30min-basic", site = siteID) %>%
           select(endDateTime, inSWMean, inLWMean, siteID) %>%
           mutate(time = lubridate::floor_date(endDateTime, unit = "hour"))%>%
           select(-endDateTime)%>%
@@ -32,7 +32,7 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
           arrange(siteID, time)
 
         # Humidity
-        humidity <- neonstore::neon_table(table = "RH_30min-basic", site = siteID) %>%
+        humidity <- neonstore::neon_read(table = "RH_30min-basic", site = siteID) %>%
           select(endDateTime, RHMean, siteID)%>%
           mutate(time = lubridate::floor_date(endDateTime, unit = "hour"))%>%
           select(-endDateTime)%>%
@@ -41,7 +41,7 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
           arrange(time, siteID)
 
         # Precipitation
-        precip_1  <- neonstore::neon_table(table = "SECPRE_30min-basic", site = ECtower) %>%
+        precip_1  <- neonstore::neon_read(table = "SECPRE_30min-basic", site = ECtower) %>%
           select(endDateTime, secPrecipBulk, siteID) %>%
           mutate(time = lubridate::floor_date(endDateTime, unit = "hour"))%>%
           select(-endDateTime)%>%
@@ -52,7 +52,7 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
                  siteID = ifelse(siteID == "DCFS", "PRPO", siteID))%>%
           arrange(time, siteID)
 
-        precip_2  <- neonstore::neon_table(table = "SECPRE_30min-basic", site = ECtower) %>%
+        precip_2  <- neonstore::neon_read(table = "SECPRE_30min-basic", site = ECtower) %>%
                 select(endDateTime, secPrecipBulk, siteID) %>%
                 mutate(time = lubridate::floor_date(endDateTime, unit = "hour"))%>%
                 select(-endDateTime)%>%
@@ -66,7 +66,7 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
         precip <- bind_rows(precip_1, precip_2)
 
         # Wind Speed
-        windspeed <- neonstore::neon_table(table = "2DWSD_30min-basic", site = siteID)%>%
+        windspeed <- neonstore::neon_read(table = "2DWSD_30min-basic", site = siteID)%>%
           select(endDateTime, windSpeedMean, siteID)%>%
           mutate(time = lubridate::floor_date(endDateTime, unit = "hour"),
                  windSpeedMean = ifelse(windSpeedMean==0,NA,windSpeedMean))%>%
@@ -76,7 +76,7 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
           arrange(time, siteID)
 
         # Pressure
-        pressure <- neonstore::neon_table(table = "BP_30min-basic", site = siteID) %>%
+        pressure <- neonstore::neon_read(table = "BP_30min-basic", site = siteID) %>%
           select(endDateTime, staPresMean, siteID)%>%
           mutate(time = lubridate::floor_date(endDateTime, unit = "hour"))%>%
           select(-endDateTime)%>%
@@ -107,9 +107,9 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
 
 
         # Store the NEON buoy data products
-        neonstore::neon_store("TSD_30_min-basic")
-        neonstore::neon_store("dep_secchi-basic")
-        neonstore::neon_store("dep_profileData-basic")
+        # neonstore::neon_store("TSD_30_min-basic")
+        # neonstore::neon_store("dep_secchi-basic")
+        # neonstore::neon_store("dep_profileData-basic")
 
         # Water temperature by depth
         # ----------------------------------------------------------------------------------------

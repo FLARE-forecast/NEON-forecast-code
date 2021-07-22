@@ -3,14 +3,14 @@ lake_directory <- getwd()
 update_run_config <- TRUE
 
 start_day <- as_date("2021-04-13")
-forecast_start<- as_date("2021-04-20") - days(1)
+forecast_start<- as_date("2021-05-01") - days(1)
 
 holder1 <- start_day
 holder2 <- forecast_start
-while(forecast_start <= as_date("2021-04-26")){
+while(forecast_start <= as_date("2021-05-31")){
   start_day <- forecast_start
   forecast_start <- forecast_start + days(1)
-  if(forecast_start <= as_date("2021-04-26")){
+  if(forecast_start <= as_date("2021-05-31")){
     holder1 <- c(holder1, start_day)
     holder2 <- c(holder2, forecast_start)
   }

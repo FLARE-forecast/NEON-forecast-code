@@ -4,8 +4,8 @@
 
 source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
 
-date = seq(from = as.Date("2021-06-01"), to = Sys.Date() - 1, by = "days")
-cycle = c("00")
+date = seq(from = as.Date("2021-04-13"), to = Sys.Date() - 1, by = "days")
+cycle = c("00","06","12","18")
 
 for(p in 1:length(siteID)){
     for(i in 1:length(date)){
@@ -22,7 +22,7 @@ for(p in 1:length(siteID)){
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
-8
+
 if (file.exists(file.path(neon_database))){
   Sys.setenv("NEONSTORE_DB" = neon_database)
   Sys.setenv("NEONSTORE_HOME" = neon_database)

@@ -5,11 +5,11 @@ pacman::p_load(tidyverse, lubridate, naniar, Amelia, dplyr,
                mice, FactoMineR, broom, aws.s3, scattermore, reshape2, duckdb)
 
 ##' Manually download packages from Github
-remotes::install_github("cboettig/neonstore", force = T)
-remotes::install_github("eco4cast/EFIstandards", force = T)
-remotes::install_github("FLARE-forecast/noaaGEFSpoint", force = T)
-remotes::install_github("FLARE-forecast/GLM3r", force = T)
-remotes::install_github("FLARE-forecast/FLAREr", force = T)
+remotes::install_github("cboettig/neonstore", force = F)
+remotes::install_github("eco4cast/EFIstandards", force = F)
+remotes::install_github("FLARE-forecast/noaaGEFSpoint", force = F)
+remotes::install_github("FLARE-forecast/GLM3r", force = F)
+remotes::install_github("FLARE-forecast/FLAREr", force = F)
 
 
 ##' Set up Lake Barco
@@ -25,12 +25,12 @@ noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr"
 forecast_location <- file.path(getwd(), "flare_tempdir")
 
 ##' Choose the site
-# forecast_site = "BARC"
+forecast_site = "BARC"
 # forecast_site = "SUGG"
 # forecast_site = "CRAM"
 # forecast_site = "LIRO"
 # forecast_site = "PRPO"
- forecast_site = "PRLA"
+# forecast_site = "PRLA"
 
 # Specify the products to download
 products = c("DP1.00098.001",
