@@ -1,24 +1,18 @@
-# NEON-forecast-code
+# NEON lake forecasts in R using GLM (General Lake Model) and FLAREr (Forecasting Lake And Reservoir Ecosystems)
 
-## Above is the code and workflows needed to run National Ecological Observatory Network lake forecasts. 
-To run this code, you will need R v4.0.x or higher and ample space to store all of the NEON meterological and observation data. We suggest an external hard drive or external server as the NEON data takes up a large portion of available space on your local computer. 
-
-To get a sense exactly how FLARE runs, we strongly suggest exploring the Bookdown document written by Dr. Quinn Thomas. This provides step by step instructions how FLARE operates and has a wonderful example forecast in a local drinking water reservoir in Virginia, USA. The link to the Bookdown page is here: https://flare-forecast.org/FLAREr/
-
-# Process-based lake modeling in R using GLM (General Lake Model)
-<a href="https://avatars.githubusercontent.com/u/62960078?s=200&v=4"><img align="right" height="220" width="220" ></a>
+<a href="url"><img align="right" height="220" width="220" ></a>
 
 -----
 
-:busts_in_silhouette: Ryan McClure, Quinn Thomas, Tadhg Moore, Bobby Hensley, Cayelan Carey
-:computer: [Material](https://github.com/FLARE-forecast/NEON-forecast-code)  
+:busts_in_silhouette: Ryan McClure, Quinn Thomas, Tadhg Moore, Bobby Hensley, Cayelan Carey        
+
 :email: [Questions?](mailto:ryan333@vt.edu rqthomas@vt.edu)
 
 -----
 
 ## Description
 
-Thank you for checking out FLAREr and running foreacsts for water temperature in six of the seven NEON lakes. 
+Thank you for checking out FLAREr and running foreacsts for water temperature in six of the seven NEON lakes. Freshwater lakes globally are increasingly threatened as a result of rapidly changing land use and climate, are the most threatened ecosystems on Earth (Carpenter et al., 2011). In response, developing forecast workflows has has emerged as a powerful tool to predict future environmental conditions in lakes in order to make informed management decisions for safety, health, and conservation (Carey et al., 2021; Thomas et al., 2020; Peng et al., 2019; Baracchini et al., 2020; Page et al., 2018; Gilbert 2018). However, the discipline of forecasting lake processes is still in early stages of making robust forecasts that are flexible such that they can be applied across many lakes. As a result, there is a dire need for open-source forecast workflows that are broadly applicable to many different lake ecosystems and flexible to different datastreams and local needs.
 
 ## What will this workshop material cover?
 
@@ -107,4 +101,8 @@ Windows users will then run v3.1.0a4 whereas Unix users use v3.1.0b1. Unfortunat
    - use and try ``` devtools::install_github("robertladwig/GLM3r", ref = "v3.1.0a3") ``` to install GLM3r
    - or install the missing libraries, e.g. by using ['brew'](https://brew.sh): ``` brew install gcc ```, ``` brew install netcdf```, ``` brew install gc```; afterwards you should install this GLM3r version: ```devtools::install_github("robertladwig/GLM3r", ref = "v3.1.0a3-2")``` (we are working on fixing all these macOS-specific problems) 
     
+    ## Above is the code and workflows needed to run National Ecological Observatory Network lake forecasts. 
+To run this code, you will need R v4.0.x or higher and ample space to store all of the NEON meterological and observation data. We suggest an external hard drive or external server as the NEON data takes up a large portion of available space on your local computer. 
+
+To get a sense exactly how FLARE runs, we strongly suggest exploring the Bookdown document written by Dr. Quinn Thomas. This provides step by step instructions how FLARE operates and has a wonderful example forecast in a local drinking water reservoir in Virginia, USA. The link to the Bookdown page is here: https://flare-forecast.org/FLAREr/
 -----
