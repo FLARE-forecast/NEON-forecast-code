@@ -145,4 +145,13 @@ download_neon_files <- function(siteID_neon, siteID, ECtower, products, buoy_pro
         d$value <- as.numeric(d$value)
 
         write_csv(d, "./data_raw/raw_neon_temp_data.csv")
+
+        Kw <- neonstore::neon_read(table = "dep_secchi-basic", site = siteID)%>%
+                select(secchiMeanDepth, siteID) %>%
+                group_by(siteID)%>%
+                mutate(kw = 1.7/secchiMeanDepth)%>%
+                summarise(kw = mean(kw, na.rm = T))
+
+        return(Kw)
+
 }

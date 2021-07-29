@@ -12,7 +12,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.5 ! generated from the mean secchi depth between 2014 and 2021
+   Kw = 6.790788
 /
 &mixing
    coef_mix_conv = 0.2
@@ -32,7 +32,7 @@
    bsn_wid = 526
    bsn_vals = 10
    H = 561, 561.5, 562, 562.5, 563, 563.5, 564, 564.5, 564.9, 565
-   A = 5.752306919,24.71221307,51598.59447,113370.2667,137979.8383,164923.9439,194412.0957,213294.4509,221846.2199,227434.2199
+   A = 5.752306919, 24.71221307, 51598.59447, 113370.2667, 137979.8383, 164923.9439, 194412.0957, 213294.4509, 221846.2199, 227434.2199
 /
 &time
    timefmt = 2
@@ -50,7 +50,7 @@
 &init_profiles
    num_depths = 10
    lake_depth = 4
-   the_depths = 0,0.1,0.5,1,1.5,2,2.5,3,3.5,4
+   the_depths = 0, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4
    the_temps = 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
    the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
    num_wq_vars = 0
@@ -83,7 +83,6 @@
    ce = 0.0013
    ch = 0.001320147
    rain_threshold = 0.04
-   !runoff_coef = 0.3
    time_fmt = 'YYYY-MM-DD hh:mm:ss'
 /
 &inflow
@@ -108,5 +107,5 @@
    sed_temp_depth = 0.5
    sed_temp_mean = 12
    sed_temp_amplitude = 0
-   sed_temp_peak_doy = 278.4380074
+   sed_temp_peak_doy = 278.438
 /

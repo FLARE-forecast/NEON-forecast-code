@@ -12,7 +12,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.5 ! generated from the mean secchi depth between 2014 and 2021
+   Kw = 3.279593
 /
 &mixing
    coef_mix_conv = 0.2
@@ -26,13 +26,13 @@
 /
 &morphometry
    lake_name = 'PrairiePotholeLake'
-   latitude = 47.129839
-   longitude = -99.253147
+   latitude = 47.12984
+   longitude = -99.25315
    bsn_len = 504
    bsn_wid = 333
    bsn_vals = 10
    H = 575, 575.5, 576, 576.5, 577, 577.5, 578, 578.5, 578.9, 579
-   A = 0.059721988,2.526010063,8.416914247,27.30382676,46503.32333,79410.32286,101046.2741,105615.0383,108733.8,109852.4999
+   A = 0.059721988, 2.526010063, 8.416914247, 27.30382676, 46503.32333, 79410.32286, 101046.2741, 105615.0383, 108733.8, 109852.4999
 /
 &time
    timefmt = 2
@@ -50,7 +50,7 @@
 &init_profiles
    num_depths = 10
    lake_depth = 4
-   the_depths = 0,0.1,0.5,1,1.5,2,2.5,3,3.5,4
+   the_depths = 0, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4
    the_temps = 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
    the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
    num_wq_vars = 0
@@ -83,7 +83,6 @@
    ce = 0.0013
    ch = 0.001320147
    rain_threshold = 0.04
-   !runoff_coef = 0.3
    time_fmt = 'YYYY-MM-DD hh:mm:ss'
 /
 &inflow
@@ -108,5 +107,5 @@
    sed_temp_depth = 0.5
    sed_temp_mean = 16
    sed_temp_amplitude = 0
-   sed_temp_peak_doy = 278.4380074
+   sed_temp_peak_doy = 278.438
 /

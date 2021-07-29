@@ -42,7 +42,6 @@ for(i in 1:nrow(forecasting_timings)){
   run_config$start_datetime <- as.character(paste0(forecasting_timings[i,1], " 00:00:00"))
   run_config$forecast_start_datetime <- as.character(paste0(forecasting_timings[i, 2], " 00:00:00"))
   run_config$forecast_horizon <- forecasting_timings[i, 3]
-  run_config$restart_file <- saved_file
   yaml::write_yaml(run_config, file = config$file_path$run_config)
 
   # Create directories if not present

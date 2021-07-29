@@ -1,6 +1,13 @@
-stack_noaa_forecasts <- function(dates, # list of dates you have NOAA GEFS .nc forecasts for
-                                 outfile, # file path where you want the output file to go
-                                 config # FLARE config list
+# combine first cycle noaa forecasts as obs
+
+
+stack_noaa_forecasts <- function(dates,            #list of dates you have NOAA GEFS .nc forecasts for
+                                 outfile,          #file path where you want the output file to go
+                                 config,           #FLARE config list
+                                 model_name,       #Output name of the .nc file
+                                 noaa_directory,
+                                 hist_file
+
 ){
 
 
@@ -11,30 +18,66 @@ stack_noaa_forecasts <- function(dates, # list of dates you have NOAA GEFS .nc f
 
 
   # .nc file metadata info
-  model_name <- paste0("observed-met_",config$location$site_id)
   site <- config$location$site_id
   lat <- config$location$latitude
   lon <- config$location$longitude
   cf_units <- cf_var_units1
-  identifier <- paste(model_name)
+  identifier <- paste(model_name,sep="_")
   fname <- paste0(identifier,".nc")
   output_file <- file.path(outfile, fname)
 
+
+
+  # check output directory to see if there are already existing files to append to
+  hist_files <- list.files(file.path(outfile))
+  hist_met_all <- NULL
+  run_fx <- TRUE
+  append_data <- FALSE
+
+  if(hist_file %in% hist_files){
+    hist_met_nc <- ncdf4::nc_open(file.path(outfile, hist_file))
+    hist_met_time <- ncdf4::ncvar_get(hist_met_nc, "time")
+    origin <- stringr::str_sub(ncdf4::ncatt_get(hist_met_nc, "time")$units, 13, 28)
+    origin <- lubridate::ymd_hm(origin)
+    hist_met_time <- origin + lubridate::hours(hist_met_time)
+    hist_met <- tibble::tibble(time = hist_met_time)
+
+    for(i in 1:length(cf_met_vars)){
+      hist_met <- cbind(hist_met, ncdf4::ncvar_get(hist_met_nc, cf_met_vars[i]))
+    }
+
+    names(hist_met) <- c("time", cf_met_vars) # glm_met_vars
+
+    if(max(hist_met$time) == max(dates)){
+      print('Already up to date, cancel the rest of the function')
+      run_fx <- FALSE
+    }else if(max(hist_met$time) > max(dates)){
+      print('Already up to date, cancel the rest of the function')
+      run_fx <- FALSE
+    }else if(max(hist_met$time) > min(dates)){
+      print('Appending existing historical files')
+      append_data <- TRUE
+      dates <- dates[dates > max(hist_met$time)]
+    }else{
+      append_data <- FALSE
+    }
+  }
+
   # set up dataframe for outfile
-  noaa_obs_out <- data.frame(matrix(ncol=length(cf_met_vars) + 1), nrow = 0)
-  colnames(noaa_obs_out) <- c('time', cf_met_vars, "cycle")
-  noaa_obs_out$time <- as.POSIXct(noaa_obs_out$time)
+  noaa_obs_out <- NULL
+
 
   # loop through each date of forecasts and extract the first day, stack together to create a continuous dataset of day 1 forecasts
+  if(run_fx){
   for(k in 1:length(dates)){
 
-    cycle <- list.files(file.path(config$file_path$noaa_directory, config$location$site_id, dates[k]))
-
+    cycle <- list.files(file.path(noaa_directory, "noaa", config$met$forecast_met_model, config$location$site_id, dates[k]))
 
     daily_noaa <- data.frame(matrix(ncol = length(cf_met_vars) + 3, nrow = 0))
     colnames(daily_noaa) <- c('time', cf_met_vars, 'ens', 'cycle')
+
     for(f in 1:length(cycle)){
-      forecast_dir <- file.path(config$file_path$noaa_directory, config$location$site_id, dates[k], cycle[f])
+      forecast_dir <- file.path(noaa_directory, "noaa", config$met$forecast_met_model, config$location$site_id, dates[k], cycle[f])
 
       if(!is.null(forecast_dir)){
 
@@ -69,8 +112,8 @@ stack_noaa_forecasts <- function(dates, # list of dates you have NOAA GEFS .nc f
             dplyr::filter(date %in% dates[k]) %>%
             dplyr::mutate(cycle = cycle[f]) %>%
             select(-date)
-          if(length(cycle > 1)){ #if you have more than just the 00 cycle and want the first six hours of each
-            noaa_met <- noaa_met[c(1:7),]
+          if(cycle > 1){ #if you have more than just the 00 cycle and want the first six hours of each
+            noaa_met <- noaa_met[c(1:6),]
           }
 
           daily_noaa <- rbind(noaa_met, daily_noaa)
@@ -95,11 +138,21 @@ stack_noaa_forecasts <- function(dates, # list of dates you have NOAA GEFS .nc f
 
 
   }
+  }
+
+  if(append==TRUE){
+    noaa_obs_out <- noaa_obs_out %>%
+      select(-cycle)
+    noaa_obs_out <- rbind(hist_met, noaa_obs_out)
+  }
+  #noaa_obs_out$time <- as.POSIXct(noaa_obs_out$time, origin = '1970-01-01 00:00.00 UTC') #+ 60*60*4
   noaa_obs_out <- na.omit(noaa_obs_out)
+  #write.csv(noaa_obs_out, paste0(outfile, '/NOAA_GEFS_mean_ens_', dates[1], '-', dates[k-1], '.csv'), row.names = FALSE)
   start_time <- min(noaa_obs_out$time)
   end_time <- max(noaa_obs_out$time)
   noaa_obs_out <- noaa_obs_out %>%
-    arrange(time)
+    arrange(time) %>%
+    ungroup()
 
   data <- noaa_obs_out %>%
     dplyr::select(-time)

@@ -1,10 +1,14 @@
+##'
+# Source the Functions to download the NEON data
+source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
+source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
+
+##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### DOANLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
-
-date = seq(from = as.Date("2021-04-13"), to = Sys.Date() - 1, by = "days")
+date = seq(from = Sys.Date() - 7, to = Sys.Date() - 1, by = "days")
 cycle = c("00","06","12","18")
 
 for(p in 1:length(siteID)){
@@ -17,11 +21,11 @@ for(p in 1:length(siteID)){
     }
   }
 }
+
+##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### DOANLOAD THE NEWEST NEON DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 if (file.exists(file.path(neon_database))){
   Sys.setenv("NEONSTORE_DB" = neon_database)

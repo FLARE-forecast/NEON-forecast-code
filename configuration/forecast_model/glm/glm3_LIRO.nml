@@ -12,7 +12,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.5 ! generated from the mean secchi depth between 2014 and 2021
+   Kw = 0.4493642
 /
 &mixing
    coef_mix_conv = 0.2
@@ -26,13 +26,13 @@
 /
 &morphometry
    lake_name = 'LittleRockLake'
-   latitude = 45.998269
-   longitude = -89.704767
+   latitude = 45.99827
+   longitude = -89.70477
    bsn_len = 1000
    bsn_wid = 326
    bsn_vals = 12
    H = 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 501.4, 501.9, 502
-   A = 1200.896814,4445.377,7689.857634,14786.16,21882.46835,37773.74,53665.01806,77701.28,101737.5469,143813.8,159640.5,175467.2354,185890.0044
+   A = 1200.896814, 4445.377, 7689.857634, 14786.16, 21882.46835, 37773.74, 53665.01806, 77701.28, 101737.5469, 143813.8, 159640.5, 175467.2354, 185890.0044
 /
 &time
    timefmt = 2
@@ -50,7 +50,7 @@
 &init_profiles
    num_depths = 13
    lake_depth = 10
-   the_depths = 0.0,0.1,0.5,1,2,3,4,5,6,7,8,9,10
+   the_depths = 0, 0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
    the_temps = 20, 20, 20, 20, 18, 15, 14, 13, 12, 11, 10, 10, 10
    the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
    num_wq_vars = 0
@@ -74,16 +74,15 @@
    meteo_fl = 'LIRO_met_final.csv'
    subdaily = .true.
    wind_factor = 1
-   sw_factor = 1.0
+   sw_factor = 1
    lw_factor = 1
    at_factor = 1
    rh_factor = 1
-   rain_factor = 1.0
+   rain_factor = 1
    cd = 0.0013
    ce = 0.0013
    ch = 0.001320147
    rain_threshold = 0.04
-   !runoff_coef = 0.3
    time_fmt = 'YYYY-MM-DD hh:mm:ss'
 /
 &inflow
@@ -103,10 +102,10 @@
    benthic_mode = 2
    sed_heat_model = 1
    n_zones = 1
-   zone_heights = 5.0,10.2
-   sed_heat_Ksoil = 1.2,1.2
-   sed_temp_depth = 0.5,0.5
-   sed_temp_mean = 10,6
-   sed_temp_amplitude = 0,0
-   sed_temp_peak_doy = 278,280.9746504
+   zone_heights = 5, 10.2
+   sed_heat_Ksoil = 1.2, 1.2
+   sed_temp_depth = 0.5, 0.5
+   sed_temp_mean = 10, 6
+   sed_temp_amplitude = 0, 0
+   sed_temp_peak_doy = 278, 280.9746504
 /
