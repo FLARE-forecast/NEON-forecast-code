@@ -1,6 +1,7 @@
 # NEON lake forecasts in R using GLM (General Lake Model) and FLAREr (Forecasting Lake And Reservoir Ecosystems)
 
-<a href="url"><img align="right" height="220" width="220" ></a>
+<a href="url"><img src = "FLARE.jpg" align="right" height="220" width="220" ></a>
+<a href="url"><img src = "NEON-Blue-Badge.png" align="right" height="220" width="220" ></a>
 
 -----
 
