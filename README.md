@@ -1,7 +1,7 @@
 # NEON lake forecasts in R using FLAREr (Forecasting Lake And Reservoir Ecosystems)
 
-<a href="url"><img src = "FLARE.jpg" align="right" height="200" width="200" ></a>
-<a href="url"><img src = "nsf_neon_logo.png" align="right" height="200" width="520" ></a>
+<a href="url"><img src = "FLARE.jpg" align="top" height="200" width="200" ></a>
+<a href="url"><img src = "nsf_neon_logo.png" align="top" height="200" width="540" ></a>
 
 -----
 :busts_in_silhouette: Ryan McClure, Quinn Thomas, Tadhg Moore, Cayelan Carey, Renato Figueiredo, Whitney Woelmer, Heather Wander, Vahid Daneshmand    
