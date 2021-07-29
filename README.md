@@ -1,8 +1,7 @@
-# NEON lake forecasts in R using GLM (General Lake Model) and FLAREr (Forecasting Lake And Reservoir Ecosystems)
+# NEON lake forecasts in R using FLAREr (Forecasting Lake And Reservoir Ecosystems)
 
-<a href="url"><img src = "FLARE.jpg" align="right" height="220" width="220" ></a>
-<a href="url"><img src = "NEON-Blue-Badge.png" align="right" height="220" width="220" ></a>
-<a href="url"><img src = "NSF.png" align="right" height="220" width="220" ></a>
+<a href="url"><img src = "FLARE.jpg" align="right" height="200" width="200" ></a>
+<a href="url"><img src = "nsf_neon_logo.png" align="right" height="200" width="520" ></a>
 -----
 
 :busts_in_silhouette: Ryan McClure, Quinn Thomas, Tadhg Moore, Cayelan Carey, Renato Figueiredo, Whitney Woelmer, Heather Wander, Vahid Daneshmand    
@@ -25,16 +24,7 @@ Disregard if you DO NOT have a Mac with Apple silicon and R 4.1.0-arm64.
 Some packages will need manual compilation if you have a Mac OS with the new Apple silicon arm64 (M1 chip) and have recently updated to R 4.1.0-arm64. The specific package is udunits. Homebrew is not yet (to our knowledge) bottled for udunits and Apple silicon so go here to download the version of udunits for 4.1.0-arm64: https://mac.r-project.org/libs-arm64/udunits-2.2.28-darwin.20-arm64.tar.gz. 
 
 
-
-## What will this workshop material cover?
-
-  - Running GLM in R
-  - Manipulating the configuration files
-  - Visualising the results
-  - Calibrating water temp. and oxygen parameters
-  - Checking your phytoplankton
-
-
+## Description of FLAREr
 
 
   This workshop example was tested on General Lake Model (GLM) Version 3.1.1. The setup may not work using older and more recent versions of GLM.
