@@ -12,8 +12,7 @@ config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","N
 config$run_config <- run_config
 
 ##' Download the latest "early release" data from Bobby Hensley at NEON
-x <- getURL("https://raw.githubusercontent.com/FLARE-forecast/NEON-proprietary-data/master/surface_sonde_NEON_raw.csv")
-prop_neon <- read.csv(text = x)
+prop_neon <- read.csv("https://raw.githubusercontent.com/FLARE-forecast/NEON-proprietary-data/master/surface_sonde_NEON_raw.csv")
 
 ##' Process the NEON data for the site selected in the original .yml file
 buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
@@ -25,8 +24,13 @@ buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_tem
 ##' Update the GLM3r configuration files with the newest Kw values based off of all previous secchi data at the site.
 # In this case, we are simply assuming kw = 1.7/secchi
 # read example configuration into memory
+Kw <- neonstore::neon_read(table = "dep_secchi-basic", site = siteID) %>%
+  select(secchiMeanDepth, siteID) %>%
+  group_by(siteID)%>%
+  mutate(kw = 1.7/secchiMeanDepth)%>%
+  summarise(kw = mean(kw, na.rm = T))
 kw_site <- Kw %>% filter(siteID == forecast_site)
-nml_file = file.path(paste0(lake_directory,"/configuration/", "forecast_model/","glm/", "glm3_",forecast_site,".nml"))
+nml_file = file.path(lake_directory, "configuration", "forecast_model", "glm", paste0("glm3_",forecast_site,".nml"))
 nml <- read_nml(nml_file)
 get_nml_value(nml, 'Kw')
 new_nml <- set_nml(nml, 'Kw', kw_site$kw)
