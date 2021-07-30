@@ -27,6 +27,7 @@ FLAREr has been tested across Windows, Mac, and Linux OS. It also requires R ver
 Some packages will need manual compilation <b>if you have a Mac OS with the new Apple silicon arm64</b> (M1 chip) and have recently updated to R 4.1.0-arm64. The specific package is udunits. Homebrew is not yet (to our knowledge) bottled for udunits and Apple silicon so go here to download the version of udunits for 4.1.0-arm64: https://mac.r-project.org/libs-arm64/udunits-2.2.28-darwin.20-arm64.tar.gz. 
 
 
+
 ## Cloning NEON-forecast-code onto your computer (5 steps)
 1. Go to the [NEON-forecast-code](https://github.com/FLARE-forecast/NEON-forecast-code) repository and copy the repo URL. 
 2. Open R
@@ -34,7 +35,9 @@ Some packages will need manual compilation <b>if you have a Mac OS with the new 
 4. Select: Version Control > Git
 5. Paste the repo's URL into "Repository URL:", keep the project directory name as the default, select "open in new session", and click <b>New Project</b>
 
-## Forecast Site Setup (5 steps)
+
+
+## Forecast Site Setup 
 1. When you have cloned the project into R, Open the following R scripts in main project directory: 
    <i>00_set_site.R</i>, <i>01_get_data.R</i>, <i>02_process_data.R</i>, and <i>03_single_forecast_example.R</i>.
 2. Navigate to 00_set_site.R and <b>read the directions at the top!</b>
@@ -54,7 +57,9 @@ execute_directory: .na
 4. You can edit the sim_name: and forecast_site: lines in the <i>run_configuration.yml</i> file to chose what NEON lake you wish to forecast. 
 5. Save the <i>run_configuration.yml</i> when sim_name and forecast_site are specified and then navigate to <i>00_setup.R</i> script. 
   
-## Run Setup Script (2 Steps + description)
+  
+  
+## Run Setup Script
 1. You can either source the <i>00_setup.R</i> script or run through it incrementally. 
 
 ### This script is setting up a few more configuarions to execute a forecast. This includes:
@@ -109,7 +114,9 @@ buoy_products = c("DP1.20264.001",   #Buoy
 ```
 2. When script has finished running click on the <i>01_downloads.R</i> script. 
 
-## Run Downloading Script (2 Steps + description)
+
+
+## Run Downloading Script
 1. You can either source the <i>01_downloads.R</i> script or run through it incrementally. 
 
 ### This script includes two componenets that calls separate functions
@@ -158,6 +165,87 @@ if (file.exists(file.path(neon_database))){
 
 download_neon_files(siteID = siteID, buoy_products = buoy_products)
 ```
+
 ### WORD OF CAUTION
-<a href="url"><img src = "DWNLD.jpg" align="left" height="100" width="150" ></a>
-Just be mindful that downloading the NOAA GEFS and NEON data might take a few minutes.
+<a href="url"><img src = "DWNLD.jpg" align="top" height="100" width="150" ></a>
+
+Just be mindful that downloading the NOAA GEFS and NEON data might take a few minutes. Maybe go grab a tea or coffee?
+
+2. When script has finished running click on the <i>02_process_data.R</i> script.
+
+
+
+## Run Data Processing Script
+1. If everything has been properly aligned, you should also be able to click source and the script will run through. 
+
+### This script includes componenets that calls three separate functions
+
+One function processes the NOAA GEFS forecasts so the forecast from the first day becomes the meteorological driver data for the forecast model spinup. This is currently for simplicity in executing this example. However, we are working on a detailed workflow that downloads NEON meterological data form each lake site and the nearby eddy flux covariance towers as the meterological drivers of the model. Here, this process is excluded because downloading hourly met NEON data across multiple sites takes multiple hours and the processing/QAQC of the data is still in production. 
+
+The second function processes the NEON temperature and secchi data such that it can be implemented in the ENKF that is used by FLARE. 
+
+The third function is a manually processed version of [glmtools](https://github.com/USGS-R/glmtools) so the secchi depths can be used to updated the Kw initial condition that is used for the forecasts. 
+``` r
+source(file.path(lake_directory, "R/process_functions/met_qaqc2.R"))
+source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
+source(file.path(lake_directory, "R/process_functions/glmtools.R"))
+```
+
+The next block of code is used to configure the processing of the data. 
+``` r
+##' Set up configurations for the data processing
+lake_directory <- here::here()
+config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
+config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
+config$file_path$data_directory <- file.path(lake_directory, "data_raw")
+config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
+config$run_config <- run_config
+```
+
+The next block of code is accessing prereleased NEON data that is stored in a seperate [data repository](https://github.com/FLARE-forecast/NEON-proprietary-data).
+``` r
+##' Download the latest "early release" data from Bobby Hensley at NEON
+x <- getURL("https://raw.githubusercontent.com/FLARE-forecast/NEON-proprietary-data/master/surface_sonde_NEON_raw.csv")
+prop_neon <- read.csv(text = x)
+```
+
+This block will append and process the NEON data from 'neonstore' and prereleased NEON data so it can be accessed by FLAREr's ENKF.
+``` r
+##' Process the NEON data for the site selected in the original .yml file
+buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
+          prop_neon = prop_neon,
+          input_file_tz = "UTC",
+          local_tzone = "UTC",
+          forecast_site = forecast_site)
+```
+The next block is an addition that will update the Kw value in the GLM3r configuration file using the secchi depths recorded in the site you selected. This manually loads in the .nml file, finds the current nml value for Kw, and then updates it based off of the calculated Kw from the <i>buoy_qaqc.R</i> function. 
+
+``` r
+##' Update the GLM3r configuration files with the newest Kw values based off of all previous secchi data at the site.
+# In this case, we are simply assuming kw = 1.7/secchi
+# read example configuration into memory
+kw_site <- Kw %>% filter(siteID == forecast_site)
+nml_file = file.path(paste0(lake_directory,"/configuration/", "forecast_model/","glm/", "glm3_",forecast_site,".nml"))
+nml <- read_nml(nml_file)
+get_nml_value(nml, 'Kw')
+new_nml <- set_nml(nml, 'Kw', kw_site$kw)
+get_nml_value(new_nml, 'Kw')
+write_nml(new_nml, file = nml_file)
+```
+The next block processes the NOAA forecasts so the first day of the forecast can be used as meterological driver data. 
+``` r
+##' get NOAA met forecasts and stack first day to use as met 'obs'
+dates <- seq.Date(as.Date('2021-04-13'), as.Date(config$run_config$forecast_start_datetime), by = 'day') # cycle through historical dates
+cycle <- c('00','06','12','18')
+outfile <- config$file_path$qaqc_data_directory
+
+stack_noaa_forecasts(dates = dates,
+                     outfile = outfile,
+                     config = config,
+                     model_name = paste0("observed-met_",config$location$site_id),
+                     hist_file = file.path(paste0(lake_directory,"/data_processed/","observed-met_",forecast_site,".nc")),
+                     noaa_directory = noaa_directory)
+```
+2. When this script has finished running click on the <i>03_single_forecast_example.R</i> script.
+
+## Run Forecasting Script
