@@ -46,10 +46,10 @@ ECtower = c("OSBS", "UNDE", "DCFS")
 
 ##' Set up the directories and databases for processing files
 lake_directory <- getwd()
-noaa_directory <- file.path(getwd(), "data_processed", "NOAA_data")
+noaa_directory <- file.path(lake_directory, "data_processed", "NOAA_data")
 neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
-noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
-forecast_location <- file.path(getwd(), "flare_tempdir")
+noaa_data_location <- file.path(lake_directory,"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+forecast_location <- file.path(lake_directory, "flare_tempdir")
 
 ##' Set up the NEON site that you wish to forecast
 
@@ -60,14 +60,14 @@ forecast_site <- run_config$forecast_site
 
 ##' Specify the NEON products to download
 # Meteorological products
-products = c("DP1.00098.001",
-             "DP1.00002.001",
-             "DP1.00023.001",
-             "DP1.00006.001",
-             "DP1.00001.001",
-             "DP1.00004.001")
+products = c("DP1.00098.001", # Relative humidity
+             "DP1.00002.001", # Air temperature
+             "DP1.00023.001", # Shortwave and longwave radiation
+             "DP1.00006.001", # Precipitation
+             "DP1.00001.001", # Wind speed and direction
+             "DP1.00004.001") # Barometric pressure
 
-# Tempereature products
-buoy_products = c("DP1.20264.001",
-                  "DP1.20252.001",
-                  "DP1.20254.001")
+# Temperature products
+buoy_products = c("DP1.20264.001", # Buoy
+                  "DP1.20252.001", # Sonde profiles
+                  "DP1.20254.001") # Secchi
