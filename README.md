@@ -159,3 +159,5 @@ if (file.exists(file.path(neon_database))){
 download_neon_files(siteID = siteID, buoy_products = buoy_products)
 ```
 ### WORD OF CAUTION
+<a href="url"><img src = "DWNLD.jpg" align="left" height="100" width="150" ></a>
+Just be mindful that downloading the NOAA GEFS and NEON data might take a few minutes.
