@@ -39,8 +39,8 @@ Some packages will need manual compilation <b>if you have a Mac OS with the new 
 
 ## Forecast Site Setup 
 1. When you have cloned the project into R, Open the following R scripts in main project directory: 
-   <i>00_set_site.R</i>, <i>01_get_data.R</i>, <i>02_process_data.R</i>, and <i>03_single_forecast_example.R</i>.
-2. Navigate to 00_set_site.R and <b>read the directions at the top!</b>
+   <i>00_setup.R</i>, <i>01_downloads.R</i>, <i>02_process_data.R</i>, and <i>03_single_forecast_example.R</i>.
+2. Navigate to <i>00_setup.R</i> and <b>read the directions at the top!</b>
 3. Open the <i>run_configuration.yml</i> file located in "NEON-forecast-code/configuration/FLAREr/". It should look like this:
 ``` r
 restart_file: .na
