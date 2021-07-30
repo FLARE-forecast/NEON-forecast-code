@@ -1,3 +1,4 @@
+##' Load in the required functions for processing the data
 source(file.path(lake_directory, "R/process_functions/met_qaqc2.R"))
 source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
 source(file.path(lake_directory, "R/process_functions/glmtools.R"))
