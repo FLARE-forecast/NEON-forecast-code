@@ -95,7 +95,6 @@ Set directories for the forecast workflow
 lake_directory <- getwd()
 noaa_directory <- file.path(getwd(), "data_processed", "NOAA_data")
 neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
-noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
 forecast_location <- file.path(getwd(), "flare_tempdir")
 ```
 
@@ -163,7 +162,7 @@ if (file.exists(file.path(neon_database))){
   neonstore::neon_dir()
 }
 
-download_neon_files(siteID = siteID, buoy_products = buoy_products)
+download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date = as.Date("2021-01-01"))
 ```
 
 ### WORD OF CAUTION
@@ -188,7 +187,6 @@ The third function is a manually processed version of [glmtools](https://github.
 ``` r
 source(file.path(lake_directory, "R/process_functions/met_qaqc2.R"))
 source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
-source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 ```
 
 The next block of code is used to configure the processing of the data. 
@@ -213,25 +211,13 @@ This block will append and process the NEON data from 'neonstore' and prerelease
 ``` r
 ##' Process the NEON data for the site selected in the original .yml file
 buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
+          realtime_kw_file = file.path(lake_directory, "data_raw", paste0("Kw_",forecast_site,".csv")),
           prop_neon = prop_neon,
           input_file_tz = "UTC",
           local_tzone = "UTC",
           forecast_site = forecast_site)
 ```
-The next block is an addition that will update the Kw value in the GLM3r configuration file using the secchi depths recorded in the site you selected. This manually loads in the .nml file, finds the current nml value for Kw, and then updates it based off of the calculated Kw from the <i>buoy_qaqc.R</i> function. 
 
-``` r
-##' Update the GLM3r configuration files with the newest Kw values based off of all previous secchi data at the site.
-# In this case, we are simply assuming kw = 1.7/secchi
-# read example configuration into memory
-kw_site <- Kw %>% filter(siteID == forecast_site)
-nml_file = file.path(paste0(lake_directory,"/configuration/", "forecast_model/","glm/", "glm3_",forecast_site,".nml"))
-nml <- read_nml(nml_file)
-get_nml_value(nml, 'Kw')
-new_nml <- set_nml(nml, 'Kw', kw_site$kw)
-get_nml_value(new_nml, 'Kw')
-write_nml(new_nml, file = nml_file)
-```
 The next block processes the NOAA forecasts so the first day of the forecast can be used as meterological driver data. 
 ``` r
 ##' get NOAA met forecasts and stack first day to use as met 'obs'
@@ -249,3 +235,8 @@ stack_noaa_forecasts(dates = dates,
 2. When this script has finished running click on the <i>03_single_forecast_example.R</i> script.
 
 ## Run Forecasting Script
+
+1. If everything has been properly aligned, you should also be able to click source and the script will run through. 
+
+
+
