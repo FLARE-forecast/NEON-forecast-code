@@ -6,16 +6,12 @@ config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FL
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
 config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
-config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
-config$file_path$data_directory <- file.path(lake_directory, "data_raw")
-config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
 config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
 config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
 config$file_path$run_config <- file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration_",forecast_site,".yml"))
 config$file_path$forecast_output_directory <- file.path(lake_directory, "forecast_output")
 config$run_config <- run_config
-# run_config <- yaml::read_yaml(config$file_path$run_config)
-# yaml::write_yaml(run_config, file = config$file_path$run_config)
+
 
 
 ##' Create directories if not present
