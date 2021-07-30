@@ -360,3 +360,5 @@ plotting_general_2(file_name = saved_file,
 
 print(paste0("Metadata and plots generated! Go to NEON-forecast/forecast_output/",forecast_site," folder to view"))
 ```
+### When running the FLAREr forecasts will look like this
+<a href="url"><img src = "FORECAST.gif" align="top" height="200" width="560" ></a>
