@@ -5,7 +5,7 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 ##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-### DOANLOAD THE NEWEST NOAA DATA ###
+### DOWNLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 date = seq(from = Sys.Date() - 7, to = Sys.Date() - 1, by = "days")
@@ -17,14 +17,14 @@ for(p in 1:length(siteID)){
         download_noaa_files_s3(siteID = siteID[p],
                               date = date[i],
                               cycle = cycle[g],
-                              noaa_directory <- noaa_directory)
+                              noaa_directory = noaa_directory)
     }
   }
 }
 
 ##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-### DOANLOAD THE NEWEST NEON DATA ###
+### DOWNLOAD THE NEWEST NEON DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if (file.exists(file.path(neon_database))){
