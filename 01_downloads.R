@@ -8,7 +8,7 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 ### DOANLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-date = seq(from = Sys.Date()-2, to = Sys.Date()-1, by = "days")
+date = seq(from = as.Date("2021-04-13"), to = Sys.Date()-1, by = "days")
 cycle = c("00","06","12","18")
 
 for(p in 1:length(siteID)){

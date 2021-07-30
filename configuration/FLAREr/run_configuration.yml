@@ -3,8 +3,8 @@ start_datetime: 2021-04-13 00:00:00
 end_datetime: .na
 forecast_start_datetime: 2021-05-30 00:00:00
 forecast_horizon: 35
-sim_name: BARC_LAKE #SUGG_LAKE CRAM_LAKE LIRO_LAKE PRLA_LAKE PRPO_LAKE
-forecast_site: BARC #SUGG CRAM LIRO PRLA PRPO
+sim_name: LIRO_LAKE #BARC_LAKE #SUGG_LAKE CRAM_LAKE LIRO_LAKE PRLA_LAKE PRPO_LAKE
+forecast_site: LIRO #BARC #SUGG CRAM LIRO PRLA PRPO
 forecast_output_directory: .na
 forecast_configuration_directory: .na
 execute_directory: .na
