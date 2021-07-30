@@ -3,7 +3,7 @@
 #~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*
 
 # Before running through and hitting source for each script. Please refer to the
-# run_configuration.yml file located in "NEON-forecast/configuration/FLAREr/...
+# run_configuration.yml file located in "NEON-forecast-code/configuration/FLAREr/...
 
 # You can open the file directly in R by clicking the file in your panel. When opened,
 # two lines of the YAML need to be adapted to meet your needs. This includes...
@@ -60,14 +60,15 @@ forecast_site <- run_config$forecast_site
 
 ##' Specify the NEON products to download
 # Meteorological products
-products = c("DP1.00098.001", # Relative humidity
-             "DP1.00002.001", # Air temperature
-             "DP1.00023.001", # Shortwave and longwave radiation
-             "DP1.00006.001", # Precipitation
-             "DP1.00001.001", # Wind speed and direction
-             "DP1.00004.001") # Barometric pressure
+# products = c("DP1.00098.001", # Relative humidity
+#              "DP1.00002.001", # Air temperature
+#              "DP1.00023.001", # Shortwave and longwave radiation
+#              "DP1.00006.001", # Precipitation
+#              "DP1.00001.001", # Wind speed and direction
+#              "DP1.00004.001") # Barometric pressure
 
 # Temperature products
 buoy_products = c("DP1.20264.001", # Buoy
                   "DP1.20252.001", # Sonde profiles
                   "DP1.20254.001") # Secchi
+
