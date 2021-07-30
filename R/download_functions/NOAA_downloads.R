@@ -1,5 +1,5 @@
 # Function to pull the NOAA files from MinIO
-download_noaa_files_s3 <- function(siteID, date, cycle, noaa_directory){
+download_noaa_files_s3 <- function(siteID, date, cycle, noaa_directory, overwrite = FALSE){
 
   Sys.setenv("AWS_DEFAULT_REGION" = "data",
              "AWS_S3_ENDPOINT" = "ecoforecast.org")
@@ -15,6 +15,7 @@ download_noaa_files_s3 <- function(siteID, date, cycle, noaa_directory){
   }
   for(i in 1:length(object_6hr)){
     aws.s3::save_object(object_6hr[[i]], bucket = "drivers",
-                        file = file.path(noaa_directory, object_6hr[[i]]$Key))
+                        file = file.path(noaa_directory, object_6hr[[i]]$Key),
+                        overwrite = overwrite)
   }
 }
