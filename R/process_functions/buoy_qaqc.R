@@ -31,4 +31,13 @@ buoy_qaqc <- function(realtime_buoy_file,
 
   readr::write_csv(observations, file.path(lake_directory, "data_processed", paste0("observations_postQAQC_long_",forecast_site,".csv")))
 
+  Kw <- neonstore::neon_read(table = "dep_secchi-basic", site = siteID)%>%
+    select(secchiMeanDepth, siteID) %>%
+    group_by(siteID)%>%
+    mutate(kw = 1.7/secchiMeanDepth)%>%
+    summarise(kw = mean(kw, na.rm = T))
+
+  return(Kw)
+
+
   }
