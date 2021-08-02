@@ -22,7 +22,6 @@
 #~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*
 #~*#~*#~*#~*#~*#~* THANKS FOR READING #~*#~*#~*#~*#~*#~*#~*#~*#
 #~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*
-lake_directory <- here::here()
 
 ##' Download the packages required to process data and run FLAREr
 if (!require('pacman')) install.packages('pacman'); library('pacman')
