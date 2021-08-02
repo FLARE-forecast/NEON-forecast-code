@@ -41,13 +41,13 @@ model_settings:
    model_name: glm #other is "null"
    base_GLM_nml: glm3_PRPO.nml
    modeled_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
-   par_config_file: parameter_calibration_config_prpo.csv
-   obs_config_file: observations_config_prpo.csv
-   states_config_file: states_config_prpo.csv
-   depth_model_sd_config_file: depth_model_sd_prpo.csv
+   par_config_file: parameter_calibration_config_PRPO.csv
+   obs_config_file: observations_config_PRPO.csv
+   states_config_file: states_config_PRPO.csv
+   depth_model_sd_config_file: depth_model_sd_PRPO.csv
 default_init:
    lake_depth: 4.1  #not a modeled state
-   temp: [12,12,12,12,12,12,12,12,12,12]
+   temp: [20,20,20,20,20,20,20,20,20,20]
    temp_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
    salinity: 0.0
    snow_thickness: 0.0

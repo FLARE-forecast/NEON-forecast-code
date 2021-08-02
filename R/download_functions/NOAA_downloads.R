@@ -1,5 +1,5 @@
 # Function to pull the NOAA files from MinIO
-download_noaa_files_s3 <- function(siteID, date, cycle, noaa_directory, overwrite = FALSE){
+download_noaa_files_s3 <- function(siteID, date, cycle, noaa_directory, overwrite = T){
 
   Sys.setenv("AWS_DEFAULT_REGION" = "data",
              "AWS_S3_ENDPOINT" = "ecoforecast.org")

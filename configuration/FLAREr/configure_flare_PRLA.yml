@@ -14,7 +14,7 @@ location:
 metadata:
    generate_eml: TRUE
    forecast_project_id: test
-   abstract: "This is where a longer description of the forest can be added"
+   abstract: ""
    forecast_title: FLARE
    intellectualRights: insert license
    model_description:
@@ -41,13 +41,13 @@ model_settings:
    model_name: glm #other is "null"
    base_GLM_nml: glm3_PRLA.nml
    modeled_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
-   par_config_file: parameter_calibration_config_prla.csv
-   obs_config_file: observations_config_prla.csv
-   states_config_file: states_config_prla.csv
-   depth_model_sd_config_file: depth_model_sd_prla.csv
+   par_config_file: parameter_calibration_config_PRLA.csv
+   obs_config_file: observations_config_PRLA.csv
+   states_config_file: states_config_PRLA.csv
+   depth_model_sd_config_file: depth_model_sd_PRLA.csv
 default_init:
    lake_depth: 4.1  #not a modeled state
-   temp: [4,4,4,4,4,4,4,4,4,4]
+   temp: [16,16,16,16,16,16,16,16,16,16]
    temp_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
    salinity: 0.0
    snow_thickness: 0.0

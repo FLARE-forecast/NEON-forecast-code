@@ -22,18 +22,18 @@
 #~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*
 #~*#~*#~*#~*#~*#~* THANKS FOR READING #~*#~*#~*#~*#~*#~*#~*#~*#
 #~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*#~*
+lake_directory <- here::here()
 
 ##' Download the packages required to process data and run FLAREr
 if (!require('pacman')) install.packages('pacman'); library('pacman')
 pacman::p_load(tidyverse, lubridate, naniar, Amelia, dplyr,
                mice, FactoMineR, broom, aws.s3, scattermore,
-               reshape2, duckdb, RCurl, here)
+               reshape2, duckdb, RCurl, here, neonstore)
 
 ##' Just in case, run here function from here package to set your project root as the wd
 setwd(here::here())
 
 ##' Manually download packages from Github
-remotes::install_github("cboettig/neonstore", force = F)
 remotes::install_github("eco4cast/EFIstandards", force = F)
 remotes::install_github("rqthomas/noaaGEFSpoint", force = F)
 remotes::install_github("FLARE-forecast/GLM3r", force = F)
@@ -45,10 +45,10 @@ forecast_site <- run_config$forecast_site
 siteID = forecast_site
 
 ##' Set up the directories and databases for processing files
-lake_directory <- getwd()
+
 noaa_directory <- file.path(getwd(), "data_processed", "NOAA_data")
 neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
-#noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
 #noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_6hr",siteID)
 forecast_location <- file.path(getwd(), "flare_tempdir")
 

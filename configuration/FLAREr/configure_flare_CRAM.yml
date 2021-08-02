@@ -53,10 +53,10 @@ model_settings:
                     15.0, 15.5, 16.0,
                     16.5, 17.0, 17.5,
                     18.0, 18.5, 19.0]
-   par_config_file: parameter_calibration_config_cram.csv
-   obs_config_file: observations_config_cram.csv
-   states_config_file: states_config_cram.csv
-   depth_model_sd_config_file: depth_model_sd_cram.csv
+   par_config_file: parameter_calibration_config_CRAM.csv
+   obs_config_file: observations_config_CRAM.csv
+   states_config_file: states_config_CRAM.csv
+   depth_model_sd_config_file: depth_model_sd_CRAM.csv
 default_init:
    lake_depth: 19.1  #not a modeled state
    temp: [12, 12, 12, 12, 12,

@@ -41,13 +41,13 @@ model_settings:
    model_name: glm #other is "null"
    base_GLM_nml: glm3_SUGG.nml
    modeled_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00]
-   par_config_file: parameter_calibration_config_sugg.csv
-   obs_config_file: observations_config_sugg.csv
-   states_config_file: states_config_sugg.csv
-   depth_model_sd_config_file: depth_model_sd_sugg.csv
+   par_config_file: parameter_calibration_config_SUGG.csv
+   obs_config_file: observations_config_SUGG.csv
+   states_config_file: states_config_SUGG.csv
+   depth_model_sd_config_file: depth_model_sd_SUGG.csv
 default_init:
    lake_depth: 3.1  #not a modeled state
-   temp: [16,16,16,16,16,16,16,16]
+   temp: [20,20,20,20,20,20,18,18]
    temp_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00]
    salinity: 0.0
    snow_thickness: 0.0

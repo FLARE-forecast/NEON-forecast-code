@@ -6,7 +6,8 @@ stack_noaa_forecasts <- function(dates,            #list of dates you have NOAA 
                                  config,           #FLARE config list
                                  model_name,       #Output name of the .nc file
                                  noaa_directory,
-                                 hist_file
+                                 hist_file,
+                                 cycle
 
 ){
 
