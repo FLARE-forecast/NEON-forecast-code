@@ -34,25 +34,35 @@ pacman::p_load(tidyverse, lubridate, naniar, Amelia, dplyr,
 setwd(here::here())
 
 ##' Manually download packages from Github
+<<<<<<< HEAD
+=======
+#remotes::install_github("cboettig/neonstore", force = F)
+>>>>>>> 7b9e249b3a512c6fe4c465f54ea1d506c595d7a6
 remotes::install_github("eco4cast/EFIstandards", force = F)
 remotes::install_github("rqthomas/noaaGEFSpoint", force = F)
 remotes::install_github("FLARE-forecast/GLM3r", force = F)
 remotes::install_github("FLARE-forecast/FLAREr", force = F)
 
 ##' Set up the sites for downloading
+lake_directory <- getwd()
 run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
 forecast_site <- run_config$forecast_site
-siteID = forecast_site
+siteID <- forecast_site
 
 ##' Set up the directories and databases for processing files
 
 noaa_directory <- file.path(getwd(), "data_processed", "NOAA_data")
+<<<<<<< HEAD
 neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
 noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+=======
+neon_database <- file.path("/Volumes/Seagate5/neonstore")
+#noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+>>>>>>> 7b9e249b3a512c6fe4c465f54ea1d506c595d7a6
 #noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_6hr",siteID)
 forecast_location <- file.path(getwd(), "flare_tempdir")
 
 ##' Specify the NEON data products to download
-buoy_products = c("DP1.20264.001",
+buoy_products <- c("DP1.20264.001",
                   "DP1.20252.001",
                   "DP1.20254.001")
