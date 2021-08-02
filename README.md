@@ -116,7 +116,7 @@ forecast_location <- file.path(getwd(), "flare_tempdir")
 ``` r
 neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
 ```
-This directory will be used when you reach the <i>01_data_download.R</i> script and can take up a large amount of space on your computer. We suggest storing the data in an external storage space if possible. Here, this exmaple has the NEON data stored in an external hard drive "/Volumes/Seagate Backup Plus Drive/neonstore". 
+This directory will be used when you reach the <i>01_downloads.R</i> script and can take up a large amount of space on your computer. We suggest storing the data in an external storage space if possible. Here, this exmaple has the NEON data stored in an external hard drive "/Volumes/Seagate Backup Plus Drive/neonstore". 
 
 This block specifies the NEON data products to download
 ``` r
