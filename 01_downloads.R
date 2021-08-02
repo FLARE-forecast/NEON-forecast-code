@@ -8,13 +8,9 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 ### DOANLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-<<<<<<< HEAD
-date = seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
-cycle = c("00","06","12","18")
-=======
+
 date <- seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
 cycle <- c("00","06","12","18")
->>>>>>> 7b9e249b3a512c6fe4c465f54ea1d506c595d7a6
 
 if (!file.exists(file.path(noaa_data_location))){
 
@@ -24,14 +20,9 @@ if (!file.exists(file.path(noaa_data_location))){
         download_noaa_files_s3(siteID = siteID[p],
                               date = date[i],
                               cycle = cycle[g],
-<<<<<<< HEAD
-                              noaa_directory <- noaa_directory)
-   }
-=======
                               noaa_directory = noaa_directory,
                               overwrite = TRUE)
     }
->>>>>>> 7b9e249b3a512c6fe4c465f54ea1d506c595d7a6
   }
  }
 }
