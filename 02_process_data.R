@@ -31,7 +31,7 @@ Kw <- neonstore::neon_read(table = "dep_secchi-basic", site = siteID) %>%
   mutate(kw = 1.7/secchiMeanDepth)%>%
   summarise(kw = mean(kw, na.rm = T))
 kw_site <- Kw %>% filter(siteID == forecast_site)
-nml_file = file.path(lake_directory, "configuration", "forecast_model", "glm", paste0("glm3_",forecast_site,".nml"))
+nml_file <- file.path(lake_directory, "configuration", "forecast_model", "glm", paste0("glm3_",forecast_site,".nml"))
 nml <- read_nml(nml_file)
 get_nml_value(nml, 'Kw')
 new_nml <- set_nml(nml, 'Kw', kw_site$kw)
