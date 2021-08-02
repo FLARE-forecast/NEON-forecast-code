@@ -6,7 +6,9 @@
 -----
 
 
-:busts_in_silhouette: Ryan McClure, Quinn Thomas, Tadhg Moore, Cayelan Carey, Renato Figueiredo, Whitney Woelmer, Heather Wander, Vahid Daneshmand    
+:busts_in_silhouette: Ryan McClure, Quinn Thomas, Tadhg Moore, Cayelan Carey, Renato Figueiredo, Whitney Woelmer, Heather Wander, Vahid Daneshmand   
+
+:busts_in_silhouette: Special thanks to: Carl Boettiger, Bobby Hensley, Eric Sokol, Kathleen Weathers
 
 Questions?  :email: ryan333@vt.edu, rqthomas@vt.edu, cayelan@vt.edu, or tadhgm@vt.edu
 
@@ -14,9 +16,9 @@ Questions?  :email: ryan333@vt.edu, rqthomas@vt.edu, cayelan@vt.edu, or tadhgm@v
 
 ## Motivation
 
-Thank you for checking out NEON-forecast-code. Freshwater lakes globally are increasingly threatened as a result of rapidly changing land use and climate (Carpenter et al., 2011). In response, developing forecast workflows has has emerged as a powerful tool to predict future environmental conditions in lakes in order to make informed management decisions for safety, health, and conservation (Carey et al., 2021; Baracchini et al., 2020; Page et al., 2018). However, the discipline of forecasting in lakes is still in the early stages of making forecasts that are robust and reproducible. As a result, there is a dire need for open-source forecast workflows that are broadly applicable to many different lake ecosystems and flexible to different datastreams and local needs.
+Thank you for checking out NEON-forecast-code. Freshwater lakes globally are increasingly threatened as a result of rapidly changing land use and climate ([Carpenter et al., 2011](https://www.annualreviews.org/doi/abs/10.1146/annurev-environ-021810-094524)). In response, developing forecast workflows has has emerged as a powerful tool to predict future environmental conditions in lakes in order to make informed management decisions for safety, health, and conservation ([Carey et al., 2021](); [Baracchini et al., 2020](https://www.sciencedirect.com/science/article/pii/S0043135420300658); [Page et al., 2018](https://www.sciencedirect.com/science/article/pii/S0043135418300605)). However, the discipline of forecasting in lakes is still in the early stages of making forecasts that are robust and reproducible. As a result, there is a dire need for open-source forecast workflows that are broadly applicable to many different lake ecosystems and flexible to different datastreams and local needs.
 
-Here, we applied the FLAREr forecasting system (Thomas et al., 2020) to six NEON lakes to test FLAREr's robustness and scalability to other sites. The NEON lakes serve as an exemplar case to test FLARE because they have reliable, open-source datastreams in which new data can be acquired at relatively low latencies (<1.5 months). The goal of our forecast scaling study was to show that FLAREr is scalable to other lake ecosystems and can produce robust forecasts of water temperatures up to 35-days into the future. Altogether, we hope this workflow is a first step to building a community of lake and reservoir forecast practitioners that develop reliable forecast workflows and make informed decisions for future lake conservation and management.
+Here, we applied the FLAREr forecasting system ([Thomas et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2019WR026138)) to six NEON lakes to test FLAREr's robustness and scalability to other sites. The NEON lakes serve as an exemplar case to test FLARE because they have reliable, open-source datastreams in which new data can be acquired at relatively low latencies (<1.5 months). The goal of our forecast scaling study was to show that FLAREr is scalable to other lake ecosystems and can produce robust forecasts of water temperatures up to 35-days into the future. Altogether, we hope this workflow is a first step to building a community of lake and reservoir forecast practitioners that develop reliable forecast workflows and make informed decisions for future lake conservation and management.
 
 ## Prerequisites
 
@@ -26,7 +28,19 @@ FLAREr has been tested across Windows, Mac, and Linux OS. It also requires R ver
 
 Some packages will need manual compilation <b>if you have a Mac OS with the new Apple silicon arm64</b> (M1 chip) and have recently updated to R 4.1.0-arm64. The specific package is udunits. Homebrew is not yet (to our knowledge) bottled for udunits and Apple silicon so go here to download the version of udunits for 4.1.0-arm64: https://mac.r-project.org/libs-arm64/udunits-2.2.28-darwin.20-arm64.tar.gz. 
 
+When this version of udunits2 is downloaded, navigate and place the binaries in the correct path. According to the R download page: "the binaries here live in /opt/R/arm64 to not conflict with Intel builds so you must add /opt/R/arm64/bin to your PATH in order to use them."
 
+You also need to update your .Renviron page so it corerctly builds on your computer. This file is locarted here:
+```
+/Library/Frameworks/R.framework/Versions/Current/Resources/etc/
+```
+
+Open this file and save it in your project directory. In the file, you will need to add two lines for the udunits2 build:
+``` r
+UDUNITS2_INCLUDE=/opt/R/arm64/include/
+UDUNITS2_LIB=/opt/R/arm64/lib/
+```
+With this update, you should be able to successfully build udunits2 onto your fancy new Mac with the newest version of R. 
 
 ## Cloning NEON-forecast-code onto your computer (5 steps)
 1. Go to the [NEON-forecast-code](https://github.com/FLARE-forecast/NEON-forecast-code) repository and copy the repo URL. 
@@ -321,7 +335,7 @@ init <- FLAREr::generate_initial_conditions(states_config,
                                             historical_met_error = met_out$historical_met_error)
 ```
 
-Aaaaannd finally... The block that run the forecasts is as follows:
+And finally... The block that run the forecasts is as follows:
 ``` r
 print("Starting Data Assimilation and Forecasting")
 print("-----------------------------------")
@@ -362,3 +376,7 @@ print(paste0("Metadata and plots generated! Go to NEON-forecast/forecast_output/
 ```
 ### When running the FLAREr forecasts will look like this
 <a href="url"><img src = "FORECAST.gif" align="top" height="200" width="560" ></a>
+
+
+#Plotting, output and interpretation
+In progress

@@ -1,7 +1,7 @@
 ##' Load in the required functions for processing the data
 source(file.path(lake_directory, "R/process_functions/met_qaqc2.R"))
 source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
-source(file.path(lake_directory, "R/process_functions/glmtools.R"))
+
 
 ##' Set up configurations for the data processing
 lake_directory <- here::here()
@@ -16,6 +16,7 @@ prop_neon <- read.csv("https://raw.githubusercontent.com/FLARE-forecast/NEON-pro
 
 ##' Process the NEON data for the site selected in the original .yml file
 buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
+          realtime_kw_file = file.path(lake_directory, "data_raw", paste0("Kw_",forecast_site,".csv")),
           prop_neon = prop_neon,
           input_file_tz = "UTC",
           local_tzone = "UTC",
@@ -36,7 +37,6 @@ get_nml_value(nml, 'Kw')
 new_nml <- set_nml(nml, 'Kw', kw_site$kw)
 get_nml_value(new_nml, 'Kw')
 write_nml(new_nml, file = nml_file)
-
 
 ##' get NOAA met forecasts and stack first day to use as met 'obs'
 dates <- seq.Date(as.Date('2021-04-13'), as.Date(config$run_config$forecast_start_datetime), by = 'day') # cycle through historical dates

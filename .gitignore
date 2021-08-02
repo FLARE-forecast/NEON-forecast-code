@@ -28,3 +28,4 @@ vignettes/*.pdf
 .Renviron
 # Files to ignore in NEON-forecast
 data_processed/
+flare_tempdir/
