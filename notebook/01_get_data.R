@@ -5,10 +5,10 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 ##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-### DOANLOAD THE NEWEST NOAA DATA ###
+### DOWNLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-date = seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
+date = seq(from = as.Date("2021-04-13"), to = Sys.Date()-1, by = "days")
 cycle = c("00","06","12","18")
 
 for(p in 1:length(siteID)){
@@ -17,14 +17,15 @@ for(p in 1:length(siteID)){
         download_noaa_files_s3(siteID = siteID[p],
                               date = date[i],
                               cycle = cycle[g],
-                              noaa_directory <- noaa_directory)
+                              noaa_directory = noaa_directory,
+                              overwrite = FALSE)
     }
   }
 }
 
 ##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-### DOANLOAD THE NEWEST NEON DATA ###
+### DOWNLOAD THE NEWEST NEON DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if (file.exists(file.path(neon_database))){
@@ -38,8 +39,5 @@ if (file.exists(file.path(neon_database))){
   neonstore::neon_dir()
 }
 
-download_neon_files(siteID_neon = siteID_neon,
-                    siteID = siteID,
-                    ECtower = ECtower,
-                    products = products,
+download_neon_files(siteID = siteID,
                     buoy_products = buoy_products)

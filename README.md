@@ -1,7 +1,7 @@
 # NEON lake forecasts in R using FLAREr (Forecasting Lake And Reservoir Ecosystems)
 
-<a href="url"><img src = "FLARE.jpg" align="top" height="200" width="200" ></a>
-<a href="url"><img src = "nsf_neon_logo.png" align="top" height="200" width="560" ></a>
+<a href="url"><img src = "images/FLARE.jpg" align="top" height="200" width="200" ></a>
+<a href="url"><img src = "images/nsf_neon_logo.png" align="top" height="200" width="560" ></a>
 
 -----
 
@@ -116,14 +116,14 @@ forecast_location <- file.path(getwd(), "flare_tempdir")
 ``` r
 neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
 ```
-This directory will be used when you reach the <i>01_downloads.R</i> script and can take up a large amount of space on your computer. We suggest storing the data in an external storage space if possible. Here, this exmaple has the NEON data stored in an external hard drive "/Volumes/Seagate Backup Plus Drive/neonstore". 
+This directory will be used when you reach the <i>01_data_download.R</i> script and can take up a large amount of space on your computer. We suggest storing the data in an external storage space if possible. Here, this example has the NEON data stored in an external hard drive "/Volumes/Seagate Backup Plus Drive/neonstore". 
 
 This block specifies the NEON data products to download
 ``` r
 ##' Specify the NEON data products to download
-buoy_products = c("DP1.20264.001",   #Buoy
-                  "DP1.20252.001",   #Sonde Profiles
-                  "DP1.20254.001")   #Secchi
+buoy_products = c("DP1.20264.001",   # Buoy
+                  "DP1.20252.001",   # Sonde Profiles
+                  "DP1.20254.001")   # Secchi
 ```
 2. When script has finished running click on the <i>01_downloads.R</i> script. 
 
@@ -132,7 +132,7 @@ buoy_products = c("DP1.20264.001",   #Buoy
 ## Run Downloading Script
 1. You can either source the <i>01_downloads.R</i> script or run through it incrementally. 
 
-### This script includes two componenets that calls separate functions
+### This script includes two components that calls separate functions
 
 One function downloads the NOAA Global Ensemble Forecasting Systems (NOAA GEFS) forecasts
 ``` r
@@ -180,7 +180,7 @@ download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date =
 ```
 
 ### WORD OF CAUTION
-<a href="url"><img src = "DWNLD.jpg" align="top" height="100" width="150" ></a>
+<a href="url"><img src = "images/DWNLD.jpg" align="top" height="100" width="150" ></a>
 
 Just be mindful that downloading the NOAA GEFS and NEON data might take a few minutes. Maybe go grab a tea or coffee?
 
@@ -195,7 +195,7 @@ Just be mindful that downloading the NOAA GEFS and NEON data might take a few mi
 
 One function processes the NOAA GEFS forecasts so the forecast from the first day becomes the meteorological driver data for the forecast model spinup. This is currently for simplicity in executing this example. However, we are working on a detailed workflow that downloads NEON meterological data form each lake site and the nearby eddy flux covariance towers as the meterological drivers of the model. Here, this process is excluded because downloading hourly met NEON data across multiple sites takes multiple hours and the processing/QAQC of the data is still in production. 
 
-The second function processes the NEON temperature and secchi data such that it can be implemented in the ENKF that is used by FLARE. 
+The second function processes the NEON temperature and secchi data such that it can be implemented in the ensemble Kalman filter (EnKF) that is used by FLARE. 
 
 ``` r
 source(file.path(lake_directory, "R/process_functions/met_qaqc2.R"))
@@ -220,7 +220,7 @@ x <- getURL("https://raw.githubusercontent.com/FLARE-forecast/NEON-proprietary-d
 prop_neon <- read.csv(text = x)
 ```
 
-This block will append and process the NEON data from 'neonstore' and prereleased NEON data so it can be accessed by FLAREr's ENKF.
+This block will append and process the NEON data from 'neonstore' and prereleased NEON data so it can be accessed by FLAREr's EnKF.
 ``` r
 ##' Process the NEON data for the site selected in the original .yml file
 buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
