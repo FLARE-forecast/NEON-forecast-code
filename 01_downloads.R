@@ -43,4 +43,4 @@ if (file.exists(file.path(neon_database))){
   neonstore::neon_dir()
 }
 
-download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date = as.Date("2021-01-01"))
+download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date = as.Date("2021-01-01"), raw_data_directory = raw_data_directory)

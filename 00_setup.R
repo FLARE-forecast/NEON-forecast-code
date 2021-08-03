@@ -46,9 +46,10 @@ siteID <- forecast_site
 
 ##' Set up the directories and databases for processing files
 
-noaa_directory <- file.path(lake_directory, "data_raw", "NOAA_data")
-neon_database <-  file.path(lake_directory, "data_raw","neonstore")
-noaa_data_location <- file.path(lake_directory,"data_raw","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+raw_data_directory <- file.path(lake_directory,"data_raw")
+noaa_directory <- file.path(raw_data_directory, "NOAA_data")
+neon_database <-  file.path(raw_data_directory,"neonstore")
+noaa_data_location <- file.path(raw_data_directory,"NOAA_data","noaa","NOAAGEFS_1hr",siteID)
 #noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_6hr",siteID)
 forecast_location <- file.path(lake_directory, "flare_tempdir")
 
