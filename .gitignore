@@ -30,3 +30,4 @@ vignettes/*.pdf
 data_processed/
 flare_tempdir/
 data_raw/
+forecast_output/
