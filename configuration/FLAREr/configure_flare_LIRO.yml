@@ -41,13 +41,13 @@ model_settings:
    model_name: glm #other is "null"
    base_GLM_nml: glm3_LIRO.nml
    modeled_depths: [0.0,0.1,0.5,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0]
-   par_config_file: parameter_calibration_config_liro.csv
-   obs_config_file: observations_config_liro.csv
-   states_config_file: states_config_liro.csv
-   depth_model_sd_config_file: depth_model_sd_liro.csv
+   par_config_file: parameter_calibration_config_LIRO.csv
+   obs_config_file: observations_config_LIRO.csv
+   states_config_file: states_config_LIRO.csv
+   depth_model_sd_config_file: depth_model_sd_LIRO.csv
 default_init:
    lake_depth: 10.1  #not a modeled state
-   temp: [5,5,5,5,5,5,5,5,5,5,5,5,5]
+   temp: [18,18,18,18,18,18,16,16,10,8,6,5,5]
    temp_depths: [0.0,0.1,0.5,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0]
    salinity: 0.0
    snow_thickness: 0.0

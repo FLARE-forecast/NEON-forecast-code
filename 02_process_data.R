@@ -22,6 +22,8 @@ buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_tem
           local_tzone = "UTC",
           forecast_site = forecast_site)
 
+<<<<<<< HEAD
+=======
 ##' Update the GLM3r configuration files with the newest Kw values based off of all previous secchi data at the site.
 # In this case, we are simply assuming kw = 1.7/secchi
 # read example configuration into memory
@@ -38,6 +40,7 @@ new_nml <- set_nml(nml, 'Kw', kw_site$kw)
 get_nml_value(new_nml, 'Kw')
 write_nml(new_nml, file = nml_file)
 
+>>>>>>> 7b9e249b3a512c6fe4c465f54ea1d506c595d7a6
 ##' get NOAA met forecasts and stack first day to use as met 'obs'
 dates <- seq.Date(as.Date('2021-04-13'), as.Date(config$run_config$forecast_start_datetime), by = 'day') # cycle through historical dates
 cycle <- c('00','06','12','18')
@@ -46,6 +49,7 @@ outfile <- config$file_path$qaqc_data_directory
 stack_noaa_forecasts(dates = dates,
                      outfile = outfile,
                      config = config,
+                     cycle = cycle,
                      model_name = paste0("observed-met_",config$location$site_id),
                      hist_file = file.path(paste0(lake_directory,"/data_processed/","observed-met_",forecast_site,".nc")),
                      noaa_directory = noaa_directory)

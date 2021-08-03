@@ -29,3 +29,4 @@ vignettes/*.pdf
 # Files to ignore in NEON-forecast
 data_processed/
 flare_tempdir/
+data_raw/

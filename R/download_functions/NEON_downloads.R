@@ -43,12 +43,4 @@ download_neon_files <- function(siteID, buoy_products, start_date){
         d$value <- as.numeric(d$value)
 
         write_csv(d, "./data_raw/raw_neon_temp_data.csv")
-
-        Kw <- neonstore::neon_read(table = "dep_secchi-basic", site = forecast_site, start_date = start_date)%>%
-                select(secchiMeanDepth, siteID) %>%
-                group_by(siteID)%>%
-                mutate(kw = 1.7/secchiMeanDepth)%>%
-                summarise(kw = mean(kw, na.rm = T))
-        readr::write_csv(Kw, file.path(lake_directory, "data_raw", paste0("Kw_",forecast_site,".csv")))
-
 }

@@ -8,10 +8,13 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 ### DOANLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 date <- seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
 cycle <- c("00","06","12","18")
 
-for(p in 1:length(siteID)){
+if (!file.exists(file.path(noaa_data_location))){
+
+  for(p in 1:length(siteID)){
     for(i in 1:length(date)){
       for(g in 1:length(cycle)){
         download_noaa_files_s3(siteID = siteID[p],
@@ -21,6 +24,7 @@ for(p in 1:length(siteID)){
                               overwrite = TRUE)
     }
   }
+ }
 }
 
 ##'

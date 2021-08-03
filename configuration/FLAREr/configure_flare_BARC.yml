@@ -31,7 +31,7 @@ metadata:
 da_setup:
     da_method: enkf
     par_fit_method: inflate
-    ensemble_size:  50
+    ensemble_size:  100
     localization_distance: .na #distance in meters were covariances in the model error are used
     no_negative_states: TRUE
     assimilate_first_step: FALSE
@@ -44,10 +44,10 @@ model_settings:
                     1.50,2.00,2.50,3.00,
                     3.50,4.00,4.50,5.00,
                     5.50,6.00]
-   par_config_file: parameter_calibration_config_barc.csv
-   obs_config_file: observations_config_barc.csv
-   states_config_file: states_config_barc.csv
-   depth_model_sd_config_file: depth_model_sd_barc.csv
+   par_config_file: parameter_calibration_config_BARC.csv
+   obs_config_file: observations_config_BARC.csv
+   states_config_file: states_config_BARC.csv
+   depth_model_sd_config_file: depth_model_sd_BARC.csv
 default_init:
    lake_depth: 6.1  #not a modeled state
    temp: [20,20,20,20,

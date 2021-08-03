@@ -32,13 +32,4 @@ buoy_qaqc <- function(realtime_buoy_file,
     arrange(date)
 
   readr::write_csv(observations, file.path(lake_directory, "data_processed", paste0("observations_postQAQC_long_",forecast_site,".csv")))
-
-  kw_site <- readr::read_csv(realtime_kw_file) %>% filter(siteID == forecast_site)
-  nml_file = file.path(paste0(lake_directory,"/configuration/", "forecast_model/","glm/", "glm3_",forecast_site,".nml"))
-  nml <- read_nml(nml_file)
-  get_nml_value(nml, 'Kw')
-  new_nml <- set_nml(nml, 'Kw', kw_site$kw)
-  get_nml_value(new_nml, 'Kw')
-  write_nml(new_nml, file = nml_file)
-
   }
