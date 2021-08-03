@@ -31,7 +31,7 @@ metadata:
 da_setup:
     da_method: enkf
     par_fit_method: inflate
-    ensemble_size:  100
+    ensemble_size:  1000
     localization_distance: .na #distance in meters were covariances in the model error are used
     no_negative_states: TRUE
     assimilate_first_step: FALSE

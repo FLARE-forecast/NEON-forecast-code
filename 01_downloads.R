@@ -7,7 +7,7 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### DOANLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+setwd(here::here())
 
 date <- seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
 cycle <- c("00","06","12","18")

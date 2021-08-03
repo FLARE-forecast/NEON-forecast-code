@@ -31,13 +31,13 @@ metadata:
 da_setup:
    da_method: enkf
    par_fit_method: inflate
-   ensemble_size:  100
+   ensemble_size:  500
    localization_distance: .na #distance in meters were covariances in the model error are used
    no_negative_states: TRUE
    assimilate_first_step: FALSE
    use_obs_constraint: TRUE
 model_settings:
-   ncore: 1
+   ncore: 6
    model_name: glm #other is "null"
    base_GLM_nml: glm3_SUGG.nml
    modeled_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00]
@@ -47,7 +47,7 @@ model_settings:
    depth_model_sd_config_file: depth_model_sd_SUGG.csv
 default_init:
    lake_depth: 3.1  #not a modeled state
-   temp: [20,20,20,20,20,20,18,18]
+   temp: [16,16,16,16,16,16,16,16]
    temp_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00]
    salinity: 0.0
    snow_thickness: 0.0
