@@ -89,7 +89,7 @@ da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
 
 print("Writing output file")
 saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
-                                            forecast_output_directory = file.path = config$file_path$forecast_output_directory)
+                                            forecast_output_directory = config$file_path$forecast_output_directory)
 
 print("Creating metadata")
 FLAREr::create_flare_metadata(file_name = saved_file,
