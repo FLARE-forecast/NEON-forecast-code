@@ -5,11 +5,11 @@ lake_directory <- here::here()
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
-config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
+config$file_path$noaa_directory <- file.path(lake_directory, "data_raw","NOAA_data","noaa",config$met$forecast_met_model)
 config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
 config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
 config$file_path$run_config <- file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration_",forecast_site,".yml"))
-config$file_path$forecast_output_directory <- file.path(lake_directory, "forecast_output")
+config$file_path$forecast_output_directory <- file.path(lake_directory, "forecast_output",forecast_site)
 config$run_config <- run_config
 
 
@@ -89,7 +89,7 @@ da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
 
 print("Writing output file")
 saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
-                                            forecast_output_directory = file.path(config$file_path$forecast_output_directory,forecast_site))
+                                            forecast_output_directory = config$file_path$forecast_output_directory)
 
 print("Creating metadata")
 FLAREr::create_flare_metadata(file_name = saved_file,

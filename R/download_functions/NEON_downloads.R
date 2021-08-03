@@ -1,5 +1,5 @@
 # Function to extract and clean up the NEON data from NEON
-download_neon_files <- function(siteID, buoy_products, start_date){
+download_neon_files <- function(siteID, buoy_products, start_date, raw_data_directory){
 
         # Download newest products
         neonstore::neon_download(product = buoy_products, site = siteID, start_date = start_date)
@@ -42,5 +42,5 @@ download_neon_files <- function(siteID, buoy_products, start_date){
         d <- bind_rows(water_temp, temp_profiles) %>% arrange(siteID, date)
         d$value <- as.numeric(d$value)
 
-        write_csv(d, "./data_raw/raw_neon_temp_data.csv")
+        write_csv(d, file.path(raw_data_directory, "raw_neon_temp_data.csv"))
 }

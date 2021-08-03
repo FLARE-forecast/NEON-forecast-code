@@ -12,11 +12,11 @@ setwd(here::here())
 date <- seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
 cycle <- c("00","06","12","18")
 
-if (!file.exists(file.path(noaa_data_location))){
-
   for(p in 1:length(siteID)){
     for(i in 1:length(date)){
       for(g in 1:length(cycle)){
+
+        if (length(list.files(file.path(noaa_data_location, date[i], cycle[g]))) != 31){
         download_noaa_files_s3(siteID = siteID[p],
                               date = date[i],
                               cycle = cycle[g],
@@ -43,4 +43,4 @@ if (file.exists(file.path(neon_database))){
   neonstore::neon_dir()
 }
 
-download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date = as.Date("2021-01-01"))
+download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date = as.Date("2021-01-01"), raw_data_directory = raw_data_directory)
