@@ -1,5 +1,5 @@
 ##' Load in the required functions for processing the data
-source(file.path(lake_directory, "R/process_functions/met_qaqc2.R"))
+source(file.path(lake_directory, "R/process_functions/average_historical_stacked.R"))
 source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
 
 
@@ -26,10 +26,13 @@ dates <- seq.Date(as.Date('2021-04-13'), as.Date(config$run_config$forecast_star
 cycle <- c('00','06','12','18')
 outfile <- config$file_path$qaqc_data_directory
 
-stack_noaa_forecasts(dates = dates,
-                     outfile = outfile,
-                     config = config,
-                     cycle = cycle,
-                     model_name = paste0("observed-met_",config$location$site_id),
-                     hist_file = file.path(paste0(lake_directory,"/data_processed/","observed-met_",forecast_site,".nc")),
-                     noaa_directory = noaa_directory)
+lake_directory <- here::here()
+
+
+average_stacked_forecasts(forecast_dates <- seq.Date(as.Date('2021-04-13'), as.Date('2021-05-30'), by = 'day'), # cycle through historical dates
+                          site <- siteID, #four digit name in lowercase
+                          noaa_stacked_directory <- file.path(lake_directory, "data_raw", "NOAA_data", "noaa", "NOAAGEFS_1hr_stacked"),
+                          output_directory <- file.path(lake_directory, "data_processed"),
+                          outfile_name = paste0("observed-met_",config$location$site_id),
+                          noaa_hour = 1)
+

@@ -9,8 +9,8 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 setwd(here::here())
 
-date <- seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
-cycle <- c("00","06","12","18")
+date <- as.Date("2021-05-30")
+cycle <- "00"
 
   for(p in 1:length(siteID)){
     for(i in 1:length(date)){
@@ -22,7 +22,8 @@ cycle <- c("00","06","12","18")
                               cycle = cycle[g],
                               noaa_directory = noaa_directory,
                               overwrite = TRUE)
-    }
+
+   }
   }
  }
 }
