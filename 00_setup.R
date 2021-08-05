@@ -27,12 +27,13 @@
 if (!require('pacman')) install.packages('pacman'); library('pacman')
 pacman::p_load(tidyverse, naniar,
                mice, FactoMineR, aws.s3, scattermore,
-               reshape2, duckdb, RCurl, here, neonstore)
+               reshape2, duckdb, RCurl, here)
 
 ##' Just in case, run here function from here package to set your project root as the wd
 lake_directory <- here::here()
 
 ##' Manually download packages from Github
+remotes::install_github("cboettig/neonstore", force = F)
 remotes::install_github("eco4cast/EFIstandards", force = F)
 remotes::install_github("rqthomas/noaaGEFSpoint", force = F)
 remotes::install_github("FLARE-forecast/GLM3r", force = F)
