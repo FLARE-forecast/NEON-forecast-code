@@ -25,8 +25,7 @@
 
 ##' Download the packages required to process data and run FLAREr
 if (!require('pacman')) install.packages('pacman'); library('pacman')
-pacman::p_load(tidyverse, naniar,
-               mice, FactoMineR, aws.s3, scattermore,
+pacman::p_load(tidyverse, naniar,mice, FactoMineR, aws.s3, scattermore,
                reshape2, duckdb, RCurl, here)
 
 ##' Just in case, run here function from here package to set your project root as the wd
