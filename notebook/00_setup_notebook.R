@@ -25,12 +25,11 @@
 
 ##' Download the packages required to process data and run FLAREr
 if (!require('pacman')) install.packages('pacman'); library('pacman')
-pacman::p_load(tidyverse, lubridate, naniar, Amelia, dplyr,
-               mice, FactoMineR, broom, aws.s3, scattermore,
-               reshape2, duckdb, RCurl, here)
+pacman::p_load(tidyverse, naniar,mice, FactoMineR, aws.s3, scattermore,
+               reshape2, duckdb, RCurl, here, neonstore)
 
 ##' Just in case, run here function from here package to set your project root as the wd
-setwd(here::here())
+lake_directory <- here::here()
 
 ##' Manually download packages from Github
 remotes::install_github("cboettig/neonstore", force = F)
@@ -40,35 +39,21 @@ remotes::install_github("FLARE-forecast/GLM3r", force = F)
 remotes::install_github("FLARE-forecast/FLAREr", force = F)
 
 ##' Set up the sites for downloading
-siteID = c("BARC", "SUGG", "CRAM", "LIRO", "PRPO", "PRLA")
-siteID_neon = c("BARC", "SUGG", "CRAM", "LIRO", "PRPO", "PRLA", "OSBS", "UNDE", "DCFS")
-ECtower = c("OSBS", "UNDE", "DCFS")
 
-##' Set up the directories and databases for processing files
-lake_directory <- getwd()
-noaa_directory <- file.path(lake_directory, "data_processed", "NOAA_data")
-neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
-noaa_data_location <- file.path(lake_directory,"data","NOAA_data","noaa","NOAAGEFS_1hr",siteID)
-forecast_location <- file.path(lake_directory, "flare_tempdir")
-
-##' Set up the NEON site that you wish to forecast
-
-# NOTE: you will need to update this .yml file directly to set the NEON site you wish to forecast
 run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
 forecast_site <- run_config$forecast_site
+siteID <- forecast_site
 
+##' Set up the directories and databases for processing files
 
-##' Specify the NEON products to download
-# Meteorological products
-# products = c("DP1.00098.001", # Relative humidity
-#              "DP1.00002.001", # Air temperature
-#              "DP1.00023.001", # Shortwave and longwave radiation
-#              "DP1.00006.001", # Precipitation
-#              "DP1.00001.001", # Wind speed and direction
-#              "DP1.00004.001") # Barometric pressure
+raw_data_directory <- file.path(lake_directory,"data_raw")
+noaa_directory <- file.path(raw_data_directory, "NOAA_data")
+neon_database <-  file.path(raw_data_directory,"neonstore")
+noaa_data_location <- file.path(raw_data_directory,"NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+#noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_6hr",siteID)
+forecast_location <- file.path(lake_directory, "flare_tempdir")
 
-# Temperature products
-buoy_products = c("DP1.20264.001", # Buoy
-                  "DP1.20252.001", # Sonde profiles
-                  "DP1.20254.001") # Secchi
-
+##' Specify the NEON data products to download
+buoy_products <- c("DP1.20264.001",
+                   "DP1.20252.001",
+                   "DP1.20254.001")

@@ -4,11 +4,6 @@ download_neon_files <- function(siteID, buoy_products, start_date, raw_data_dire
         # Download newest products
         neonstore::neon_download(product = buoy_products, site = siteID, start_date = start_date)
 
-        # Store the NEON buoy data products
-        # neonstore::neon_store("TSD_30_min-basic")
-        # neonstore::neon_store("dep_secchi-basic")
-        # neonstore::neon_store("dep_profileData-basic")
-
         # Water temperature by depth
         # ----------------------------------------------------------------------------------------
         water_temp <- neonstore::neon_read(table = "TSD_30_min-basic", site = siteID, start_date = start_date)%>%
