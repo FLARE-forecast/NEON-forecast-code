@@ -1,6 +1,5 @@
 source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 buoy_qaqc <- function(realtime_buoy_file,
-                      realtime_kw_file,
                       prop_neon,
                       input_file_tz,
                       local_tzone,

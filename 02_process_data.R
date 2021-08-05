@@ -16,7 +16,6 @@ prop_neon <- read.csv("https://raw.githubusercontent.com/FLARE-forecast/NEON-pro
 
 ##' Process the NEON data for the site selected in the original .yml file
 buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
-          realtime_kw_file = file.path(lake_directory, "data_raw", paste0("Kw_",forecast_site,".csv")),
           prop_neon = prop_neon,
           input_file_tz = "UTC",
           local_tzone = "UTC",

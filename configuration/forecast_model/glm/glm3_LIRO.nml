@@ -12,7 +12,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.45
+   Kw = 0.6
 /
 &mixing
    coef_mix_conv = 0.2
