@@ -60,7 +60,7 @@ With this update, you should be able to successfully build udunits2 onto your fa
 restart_file: .na
 start_datetime: 2021-04-13 00:00:00
 end_datetime: .na
-forecast_start_datetime: 2021-05-30 00:00:00
+forecast_start_datetime: 2021-05-18 00:00:00
 forecast_horizon: 35
 sim_name: BARC_LAKE #SUGG_LAKE CRAM_LAKE LIRO_LAKE PRLA_LAKE PRPO_LAKE
 forecast_site: BARC #SUGG CRAM LIRO PRLA PRPO
@@ -81,13 +81,15 @@ Getting default packages
 ``` r
 ##' Download the packages required to process data and run FLAREr
 if (!require('pacman')) install.packages('pacman'); library('pacman')
-pacman::p_load(tidyverse, lubridate, naniar, Amelia, dplyr,
-               mice, FactoMineR, broom, aws.s3, scattermore,
+pacman::p_load(tidyverse, naniar,mice, FactoMineR, aws.s3, scattermore,
                reshape2, duckdb, RCurl, here)
 ```
 
-Getting specific packages from [Github](https://github.com/)
+Setting the working directory and getting specific packages from [Github](https://github.com/)
 ``` r
+##' Just in case, run here function from here package to set your project root as the wd
+lake_directory <- here::here()
+
 ##' Manually download packages from Github
 remotes::install_github("cboettig/neonstore", force = F)
 remotes::install_github("eco4cast/EFIstandards", force = F)
@@ -98,26 +100,14 @@ remotes::install_github("FLARE-forecast/FLAREr", force = F)
 
 Specify the site you wish to download data for and forecast
 ``` r
-##' Set up the sites for downloading
-run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
-forecast_site <- run_config$forecast_site
-siteID = forecast_site
-```
-This block sets directories for the forecast workflow
-``` r
 ##' Set up the directories and databases for processing files
-lake_directory <- getwd()
-noaa_directory <- file.path(getwd(), "data_processed", "NOAA_data")
-neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
-forecast_location <- file.path(getwd(), "flare_tempdir")
-```
 
-### WORD OF CAUTION
-``` r
-neon_database <- file.path("/Volumes/Seagate Backup Plus Drive/neonstore")
+raw_data_directory <- file.path(lake_directory,"data_raw")
+noaa_directory <- file.path(raw_data_directory, "NOAA_data")
+neon_database <-  file.path(raw_data_directory,"neonstore")
+noaa_data_location <- file.path(raw_data_directory,"NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+forecast_location <- file.path(lake_directory, "flare_tempdir")
 ```
-This directory will be used when you reach the <i>01_data_download.R</i> script and can take up a large amount of space on your computer. We suggest storing the data in an external storage space if possible. Here, this example has the NEON data stored in an external hard drive "/Volumes/Seagate Backup Plus Drive/neonstore". 
-
 This block specifies the NEON data products to download
 ``` r
 ##' Specify the NEON data products to download
