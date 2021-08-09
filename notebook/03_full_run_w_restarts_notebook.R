@@ -1,6 +1,6 @@
 source(file.path(lake_directory, "R/post_forecast_functions/plotting.R"))
 
-lake_directory <- lake_directory <- here::here()
+lake_directory <- here::here()
 update_run_config <- TRUE
 
 start_day <- lubridate::as_date("2021-04-13")
@@ -8,10 +8,10 @@ forecast_start<- lubridate::as_date(run_config$forecast_start_datetime)
 
 holder1 <- start_day
 holder2 <- forecast_start
-while(forecast_start <= lubridate::as_date("2021-07-28")){
+while(forecast_start <= lubridate::as_date("2021-08-01")){
   start_day <- forecast_start
   forecast_start <- forecast_start + lubridate::weeks(1)
-  if(forecast_start <= lubridate::as_date("2021-07-28")){
+  if(forecast_start <= lubridate::as_date("2021-08-01")){
     holder1 <- c(holder1, start_day)
     holder2 <- c(holder2, forecast_start)
   }

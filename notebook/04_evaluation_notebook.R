@@ -3,6 +3,8 @@ RMSE = function(m, o){
   sqrt(mean((m - o)^2))
 }
 
+setwd(here::here())
+
 # Cramption Lake
 cram_path <- "./forecast_output/CRAM"
 cram_forecasts <- list.files(cram_path, pattern = ".csv")%>%
@@ -292,4 +294,4 @@ geom_boxplot(outlier.colour="black", outlier.shape=21,
 
 fig2 <- se_fig/gl_fig/np_fig
 fig2
-ggsave(path = ".", filename = "./forecast_output/figures/across_site_sd.jpg", width = 7, height = 10, device='jpg', dpi=1000)
+ggsave(path = ".", filename = "forecast_output/figures/across_site_sd.jpg", width = 7, height = 10, device='jpg', dpi=1000)
