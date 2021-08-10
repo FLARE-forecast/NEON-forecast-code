@@ -126,6 +126,7 @@ buoy_products = c("DP1.20264.001",   # Buoy
 
 One function downloads the NOAA Global Ensemble Forecasting Systems (NOAA GEFS) forecasts
 ``` r
+# Source the Functions to download the NEON and NOAA data
 source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
 ```
 These forecasts are being downloaded from a s3 bucket that is part of the [Ecological Forecasting](https://ecoforecast.org) challenge ([EFI-RCN](https://projects.ecoforecast.org/neon4cast-docs/)) to develop forecasts of different ecological variables across numerous NEON sites. The raw forecasts can be found [HERE](https://data.ecoforecast.org/minio/drivers/noaa/).
@@ -139,22 +140,36 @@ to work with tables that are far to big to fit into memory. Refer to this [Githu
 
 This code block downloads the NOAA GEFS data.
 ``` r
-date = seq(from = as.Date("2021-04-13"), to = as.Date("2021-06-01"), by = "days")
-cycle = c("00","06","12","18")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### DOANLOAD THE NEWEST NOAA DATA ###
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+setwd(here::here())
 
-for(p in 1:length(siteID)){
+date <- as.Date(run_config$forecast_start_datetime)
+cycle <- "00"
+
+  for(p in 1:length(siteID)){
     for(i in 1:length(date)){
       for(g in 1:length(cycle)){
+
+        if (length(list.files(file.path(noaa_data_location, date[i], cycle[g]))) != 31){
         download_noaa_files_s3(siteID = siteID[p],
                               date = date[i],
                               cycle = cycle[g],
-                              noaa_directory <- noaa_directory)
-    }
+                              noaa_directory = noaa_directory,
+                              overwrite = TRUE)
+
+   }
   }
+ }
 }
 ```
 This code block downloads the NEON data.
 ``` r
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### DOANLOAD THE NEWEST NEON DATA ###
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 if (file.exists(file.path(neon_database))){
   Sys.setenv("NEONSTORE_DB" = neon_database)
   Sys.setenv("NEONSTORE_HOME" = neon_database)
@@ -166,13 +181,15 @@ if (file.exists(file.path(neon_database))){
   neonstore::neon_dir()
 }
 
-download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date = as.Date("2021-01-01"))
+download_neon_files(siteID = siteID,
+                    buoy_products = buoy_products,
+                    start_date = as.Date("2021-01-01"),
+                    raw_data_directory = raw_data_directory)
+
 ```
 
 ### WORD OF CAUTION
-<a href="url"><img src = "images/DWNLD.jpg" align="top" height="100" width="150" ></a>
-
-Just be mindful that downloading the NOAA GEFS and NEON data might take a few minutes. Maybe go grab a tea or coffee?
+Just be mindful that downloading the NOAA GEFS and NEON data might take a minute or two. Maybe go grab a tea or coffee?
 
 2. When script has finished running click on the <i>02_process_data.R</i> script.
 
@@ -188,33 +205,33 @@ One function processes the NOAA GEFS forecasts so the forecast from the first da
 The second function processes the NEON temperature and secchi data such that it can be implemented in the ensemble Kalman filter (EnKF) that is used by FLARE. 
 
 ``` r
-source(file.path(lake_directory, "R/process_functions/met_qaqc2.R"))
+source(file.path(lake_directory, "R/process_functions/average_historical_stacked.R"))
 source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
 ```
 
 The next block of code is used to configure the processing of the data. 
 ``` r
-##' Set up configurations for the data processing
+# Set up configurations for the data processing
 lake_directory <- here::here()
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
 config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
 config$run_config <- run_config
+
 ```
 
 The next block of code is accessing prereleased NEON data that is stored in a seperate [data repository](https://github.com/FLARE-forecast/NEON-proprietary-data).
 ``` r
-##' Download the latest "early release" data from Bobby Hensley at NEON
-x <- getURL("https://raw.githubusercontent.com/FLARE-forecast/NEON-proprietary-data/master/surface_sonde_NEON_raw.csv")
-prop_neon <- read.csv(text = x)
+# Download the latest "early release" data from Bobby Hensley at NEON
+prop_neon <- read.csv("https://raw.githubusercontent.com/FLARE-forecast/NEON-proprietary-data/master/surface_sonde_NEON_raw.csv")
+
 ```
 
 This block will append and process the NEON data from 'neonstore' and prereleased NEON data so it can be accessed by FLAREr's EnKF.
 ``` r
-##' Process the NEON data for the site selected in the original .yml file
+# Process the NEON data for the site selected in the original .yml file
 buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
-          realtime_kw_file = file.path(lake_directory, "data_raw", paste0("Kw_",forecast_site,".csv")),
           prop_neon = prop_neon,
           input_file_tz = "UTC",
           local_tzone = "UTC",
@@ -223,22 +240,14 @@ buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_tem
 
 The next block processes the NOAA forecasts so the first day of the forecast can be used as meterological driver data. 
 ``` r
-##' get NOAA met forecasts and stack first day to use as met 'obs'
-dates <- seq.Date(as.Date('2021-04-13'), as.Date(config$run_config$forecast_start_datetime), by = 'day') # cycle through historical dates
-cycle <- c('00','06','12','18')
-outfile <- config$file_path$qaqc_data_directory
-
-stack_noaa_forecasts(dates = dates,
-                     outfile = outfile,
-                     config = config,
-                     model_name = paste0("observed-met_",config$location$site_id),
-                     hist_file = file.path(paste0(lake_directory,"/data_processed/","observed-met_",forecast_site,".nc")),
-                     noaa_directory = noaa_directory)
+# Stack first day to use as met 'obs' for the forecasts.
+average_stacked_forecasts(forecast_dates <- seq.Date(as.Date('2021-04-13'), as.Date(run_config$forecast_start_datetime), by = 'day'), # cycle through historical dates
+                          site <- siteID, #four digit name in lowercase
+                          noaa_stacked_directory <- file.path(lake_directory, "data_raw", "NOAA_data", "noaa", "NOAAGEFS_1hr_stacked"),
+                          output_directory <- file.path(lake_directory, "data_processed"),
+                          outfile_name = paste0("observed-met_",config$location$site_id),
+                          noaa_hour = 1)
 ```
-### It will look like this:
-
-<a href="url"><img src = "NOAA_stack.gif" align="top" height="100" width="400" ></a>
-
 2. When this script has finished running click on the <i>03_single_forecast_example.R</i> script.
 
 ## Run Forecasting Script
@@ -247,24 +256,30 @@ stack_noaa_forecasts(dates = dates,
 
 ### This script includes the bulk for FLAREr. Everything else so far has been just staging to prep for the foreacsts. The coding blocks are as follows: 
 
+The function used processes the output forecasts to generate plats that are saved in the forecast_output folder. This was updated from FLAREr's base plotting scripts to acount for the NEON site specifications 
+
+``` r
+source(file.path(lake_directory, "R/post_forecast_functions/plotting.R"))
+```
+
 This block sets up the configuations from the forecast. This includes the main configuration file for the site being forecasted. 
 ``` r
-##' Set up configurations for the forecasts
+# Set up configurations for the forecasts
 lake_directory <- here::here()
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
-config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
+config$file_path$noaa_directory <- file.path(lake_directory, "data_raw","NOAA_data","noaa",config$met$forecast_met_model)
 config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
 config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
 config$file_path$run_config <- file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration_",forecast_site,".yml"))
-config$file_path$forecast_output_directory <- file.path(lake_directory, "forecast_output")
+config$file_path$forecast_output_directory <- file.path(lake_directory, "forecast_output",forecast_site)
 config$run_config <- run_config
 ```
 
 This block creates a directory for the forecast output and a place to temporarily run all the forecasts
 ``` r
-##' Create directories if not present
+# Create directories if not present
 if(!dir.exists(config$file_path$execute_directory)) {
   dir.create(config$file_path$execute_directory)
 }
@@ -276,7 +291,7 @@ if(!dir.exists(config$file_path$forecast_output_directory)) {
 This block of code configures the meteorological driver data as seperate met forecast ensembles that are used by flare. The current setup has the same met driver data from "2021-04-13" to "2021-05-30" and then hands off to the 35-day NOAA GEFS forecast on "2021-05-31".
 
 ``` r
-##' Configure the NOAA met data from data processing
+# Configure the NOAA met data from data processing
 observed_met_file <- file.path(paste0(config$file_path$qaqc_data_directory, "/observed-met_",forecast_site,".nc"))
 start_datetime <- lubridate::as_datetime(config$run_config$start_datetime)
 if(is.na(config$run_config$forecast_start_datetime)){
@@ -290,18 +305,21 @@ forecast_hour <- lubridate::hour(forecast_start_datetime)
 if(forecast_hour < 10){forecast_hour <- paste0("0",forecast_hour)}
 noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$location$site_id,
                                 lubridate::as_date(forecast_start_datetime), "00")
-
-##' Convert NOAA forecasts to GLM format
+```
+This next block converts the NOAA met data and NOAA forecasts into the format for GLM
+``` r
+# Convert NOAA forecasts to GLM format
 met_out <- FLAREr::generate_glm_met_files(obs_met_file = observed_met_file,
                                           out_dir = config$file_path$execute_directory,
                                           forecast_dir = noaa_forecast_path,
                                           config = config)
 historical_met_error <- met_out$historical_met_error
 ```
+
 This next block creates a matrix of the temperature observations across space and time that is used in the ENKF. 
 
 ``` r
-##' Create observation matrix
+# Create observation matrix
 cleaned_observations_file_long <- file.path(config$file_path$qaqc_data_directory,paste0("observations_postQAQC_long_",forecast_site,".csv"))
 obs_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$obs_config_file), col_types = readr::cols())
 obs <- FLAREr::create_obs_matrix(cleaned_observations_file_long,
@@ -314,7 +332,7 @@ model_sd <- FLAREr::initiate_model_error(config = config, states_config = states
 
 This next block generates the Initial Conditions
 ``` r
-##' Generate initial conditions
+# Generate initial conditions
 pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
 init <- FLAREr::generate_initial_conditions(states_config,
                                             obs_config,
@@ -325,8 +343,9 @@ init <- FLAREr::generate_initial_conditions(states_config,
                                             historical_met_error = met_out$historical_met_error)
 ```
 
-And finally... The block that run the forecasts is as follows:
+The block that run the forecasts is as follows:
 ``` r
+# Run the forecasts
 print("Starting Data Assimilation and Forecasting")
 print("-----------------------------------")
 da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
@@ -349,7 +368,7 @@ da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
 
 print("Writing output file")
 saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
-                                            forecast_output_directory = file.path(config$file_path$forecast_output_directory,forecast_site))
+                                            forecast_output_directory = config$file_path$forecast_output_directory)
 
 print("Creating metadata")
 FLAREr::create_flare_metadata(file_name = saved_file,
@@ -357,6 +376,12 @@ FLAREr::create_flare_metadata(file_name = saved_file,
 
 rm(da_forecast_output)
 gc()
+```
+### When running the FLAREr forecasts will look like this
+<a href="url"><img src = "images/FORECAST.gif" align="top" height="200" width="560" ></a>
+
+After the forecasts have run this last block outputs the forecast plots for quick visualization 
+``` r
 print("Generating plot")
 print("-----------------------------------")
 plotting_general_2(file_name = saved_file,
@@ -364,9 +389,9 @@ plotting_general_2(file_name = saved_file,
 
 print(paste0("Metadata and plots generated! Go to NEON-forecast/forecast_output/",forecast_site," folder to view"))
 ```
-### When running the FLAREr forecasts will look like this
-<a href="url"><img src = "FORECAST.gif" align="top" height="200" width="560" ></a>
+The figures are saved as a PDF and are stored in the forecast_output folder
 
+# Congrats, you have now run FLAREr for a NEON site
+To run a different site simply update the <i>run_configuration.yml</i> file as described above and in the <i>00_setup.R</i> script. 
 
-#Plotting, output and interpretation
-In progress
+A more detailed, iterative, forecast workflow can be found in the /notebook/ folder.
