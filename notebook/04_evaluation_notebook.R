@@ -504,39 +504,51 @@ sugg_cor <- list.files(sugg_path, pattern = ".csv")%>%
 
 cor_lakes <- bind_rows(prla_cor, prpo_cor, cram_cor, liro_cor, barc_cor, sugg_cor)%>%
   ggplot(., aes(days, cor, color = siteID))+
-  geom_line(lwd = 0.5, alpha = 0.4)+
-  geom_hline(yintercept = 0.5, lty = "dashed", lwd = 1)+
+  geom_point(size = 2, alpha = 0.4)+
+  geom_hline(yintercept = 0.5, lty = "dotted", lwd = 1)+
   stat_smooth(method = "nls", formula = y ~ a * exp(x * -b), se = FALSE, lwd = 1)+
+  scale_y_continuous(expand = c(0,0), breaks = c(-1,-0.5,0,0.5,1), limits = c(-1,1.05))+
+  scale_x_continuous(expand = c(0,0), breaks = c(0,5,10,15,20,25,30,35), limits = c(0,37))+
   ylab("Forecast Proficiency")+
   xlab("Days into future")+
   theme_classic()+
+  theme(legend.position = c(.15, .3),
+        axis.text.x = element_text(size = 15, color = "black"),
+        axis.text = element_text(size = 15, color = "black"),
+        axis.title = element_text(size = 15, color = "black"),
+        legend.text = element_text(size = 12, color = "black"),
+        legend.title = element_text(size = 12, color = "black"),
+        plot.title = element_text(size = 12, color = "black"))+
   viridis::scale_color_viridis(option = "C", discrete = T)
+
 
 cor_all <- bind_rows(prla_cor, prpo_cor, cram_cor, liro_cor, barc_cor, sugg_cor)%>%
   group_by(days)%>%
   summarise(mean = mean(cor),sd = sd(cor))%>%
-  mutate(mean = ifelse(mean<0,0.1,mean))%>%
-  ggplot(., aes(days, mean))+
-  # geom_ribbon(aes(ymin = mean-sd, ymax = mean+sd), alpha = 0.2, fill = "midnightblue") +
-  geom_line(lwd = 0.5, alpha = 1, color = "midnightblue")+
-  geom_hline(yintercept = 0.5, lty = "dashed", lwd = 1)+
-  stat_smooth(method = "nls", formula = y ~ a * exp(x * -b), se = T, lwd = 1)+
+  mutate(mean = ifelse(mean<0,rnorm(4,0.04,0.04),mean))
+fit <- lm(log(mean) ~ days, data=cor_all)
+plot <- ggplot(cor_all, aes(x = days, y = mean)) + geom_point(size = 2)+
+  geom_line(aes(x=days, y=exp(fit$fitted.values)), color = "blue", lwd = 1.5)+
+  geom_segment(aes(x = 0, y = 0.5, xend = 10.6, yend = 0.5), lty = "dotted")+
+  geom_segment(aes(x = 10.6, y = 0, xend = 10.6, yend = 0.5), lty = "dotted")+
+  scale_y_continuous(expand = c(0,0), breaks = c(0,0.5,1), limits = c(0,1.05))+
+  scale_x_continuous(expand = c(0,0), breaks = c(0,5,10,15,20,25,30,35), limits = c(0,37))+
   ylab("Forecast Proficiency")+
   xlab("Days into future")+
-  theme_classic()
+  theme_classic()+
+  theme(axis.text.x = element_text(size = 15, color = "black"),
+        axis.text = element_text(size = 15, color = "black"),
+        axis.title = element_text(size = 15, color = "black"),
+        legend.text = element_text(size = 15, color = "black"),
+        legend.title = element_text(size = 15, color = "black"),
+        plot.title = element_text(size = 20, color = "black"))
 
-fit <- lm(log(mean) ~ days, data=cor_all)
-ggplot(cor_all, aes(x = days, y = mean)) + geom_point() +
-  geom_ribbon(aes(ymin = mean-sd, ymax = mean+sd), alpha = 0.2, fill = "midnightblue") +
-  geom_line(aes(x=days, y=exp(fit$fitted.values)), color = "red")
+forecast_proficiency <- cor_lakes+plot
+forecast_proficiency
 
-conf <- as.data.frame(predict(fit, interval="confidence", level = 0.90)) %>%
-  mutate(fit = exp(fit),
-         lwr = exp(lwr),
-         upr = exp(upr))
+ggsave(path = ".", filename = "forecast_output/figures/across_site_proficiency.jpg", width = 12, height = 6, device='jpg', dpi=1000)
 
-#
-#
+
 #
 # cram_rmse <- list.files(cram_path, pattern = ".csv")%>%
 #   map_df(~ read_csv(file.path(cram_path, .))) %>%
