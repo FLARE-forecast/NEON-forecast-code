@@ -1,4 +1,5 @@
-
+library(hydroGOF)
+library(corrr)
 RMSE = function(m, o){
   sqrt(mean((m - o)^2))
 }
@@ -9,7 +10,7 @@ setwd(here::here())
 cram_path <- "./forecast_output/CRAM"
 cram_forecasts <- list.files(cram_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(cram_path, .))) %>%
-  filter(depth == 0.5)%>%
+  filter(depth <= 0.5)%>%
   group_by(forecast_start_day)%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))
@@ -51,6 +52,7 @@ cram_35dy <- cram_forecasts %>%
 
 cram_eval <- bind_rows(cram_1dy, cram_3dy, cram_7dy, cram_14dy, cram_21dy, cram_28dy, cram_35dy)%>%
   mutate(siteID = "C: CRAM")
+
 
 # Little Rock Lake
 liro_path <- "./forecast_output/LIRO"
@@ -432,113 +434,213 @@ fig2
 
 ggsave(path = ".", filename = "forecast_output/figures/across_site_rmse.jpg", width = 7, height = 10, device='jpg', dpi=1000)
 
-
-
-
-
-cram_rmse <- list.files(cram_path, pattern = ".csv")%>%
-  map_df(~ read_csv(file.path(cram_path, .))) %>%
-  filter(depth == 0.5)%>%
-  group_by(forecast_start_day)%>%
-  filter(date >= forecast_start_day)%>%
-  mutate(days = seq_along(date))%>%
-  group_by(days)%>%
-  summarise(rmse = RMSE(forecast_mean, observed),
-            sd = mean(forecast_sd, na.rm = T))%>%
-  mutate(siteID = "C: CRAM")
-
-liro_rmse <- list.files(liro_path, pattern = ".csv")%>%
-  map_df(~ read_csv(file.path(liro_path, .))) %>%
-  filter(depth == 0.5)%>%
-  group_by(forecast_start_day)%>%
-  filter(date >= forecast_start_day)%>%
-  mutate(days = seq_along(date))%>%
-  group_by(days)%>%
-  summarise(rmse = RMSE(forecast_mean, observed),
-            sd = mean(forecast_sd, na.rm = T))%>%
-  mutate(siteID = "D: LIRO")
-
-prla_rmse <- list.files(prla_path, pattern = ".csv")%>%
+prla_cor <- list.files(prla_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(prla_path, .))) %>%
   filter(depth == 0.5)%>%
   group_by(forecast_start_day)%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))%>%
+  ungroup(.)%>%
   group_by(days)%>%
-  summarise(rmse = RMSE(forecast_mean, observed),
-            sd = mean(forecast_sd, na.rm = T))%>%
-  mutate(siteID = "A: PRLA")
+  summarize(cor =  cor(forecast_mean, observed))%>%
+  mutate(siteID = "A: PRLA")%>%filter(days<=35)
 
-prpo_rmse <- list.files(prpo_path, pattern = ".csv")%>%
+prpo_cor <- list.files(prpo_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(prpo_path, .))) %>%
   filter(depth == 0.5)%>%
   group_by(forecast_start_day)%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))%>%
+  ungroup(.)%>%
   group_by(days)%>%
-  summarise(rmse = RMSE(forecast_mean, observed),
-            sd = mean(forecast_sd, na.rm = T))%>%
-  mutate(siteID = "B: PRPO")
+  summarize(cor =  cor(forecast_mean, observed))%>%
+  mutate(siteID = "B: PRPO")%>%filter(days<=35)
 
-barc_rmse <- list.files(barc_path, pattern = ".csv")%>%
+cram_cor <- list.files(cram_path, pattern = ".csv")%>%
+  map_df(~ read_csv(file.path(cram_path, .))) %>%
+  filter(depth == 0.5)%>%
+  group_by(forecast_start_day)%>%
+  filter(date >= forecast_start_day)%>%
+  mutate(days = seq_along(date))%>%
+  ungroup(.)%>%
+  group_by(days)%>%
+  summarize(cor =  cor(forecast_mean, observed))%>%
+  mutate(siteID = "C: CRAM")%>%
+  filter(days<30)
+
+liro_cor <- list.files(liro_path, pattern = ".csv")%>%
+  map_df(~ read_csv(file.path(liro_path, .))) %>%
+  filter(depth == 0.5)%>%
+  group_by(forecast_start_day)%>%
+  filter(date >= forecast_start_day)%>%
+  mutate(days = seq_along(date))%>%
+  ungroup(.)%>%
+  group_by(days)%>%
+  summarize(cor =  cor(forecast_mean, observed))%>%
+  mutate(siteID = "D: LIRO")%>%filter(days<=35)
+
+barc_cor <- list.files(barc_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(barc_path, .))) %>%
   filter(depth == 0.5)%>%
   group_by(forecast_start_day)%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))%>%
+  ungroup(.)%>%
   group_by(days)%>%
-  summarise(rmse = RMSE(forecast_mean, observed),
-            sd = mean(forecast_sd, na.rm = T))%>%
-  mutate(siteID = "E: BARC")
+  summarize(cor =  cor(forecast_mean, observed))%>%
+  mutate(siteID = "E: BARC")%>%filter(days<=35)
 
-sugg_rmse <- list.files(sugg_path, pattern = ".csv")%>%
+
+sugg_cor <- list.files(sugg_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(sugg_path, .))) %>%
   filter(depth == 0.5)%>%
   group_by(forecast_start_day)%>%
   filter(date >= forecast_start_day)%>%
   mutate(days = seq_along(date))%>%
+  ungroup(.)%>%
   group_by(days)%>%
-  summarise(rmse = RMSE(forecast_mean, observed),
-            sd = mean(forecast_sd, na.rm = T))%>%
-  mutate(siteID = "F: SUGG")
+  summarize(cor =  cor(forecast_mean, observed))%>%
+  mutate(siteID = "F: SUGG")%>%filter(days<=35)
 
-
-rmse_fig_1 <- bind_rows(barc_rmse, sugg_rmse, cram_rmse, liro_rmse, prla_rmse, prpo_rmse) %>%
-  filter(days <= 35) %>%
-  ggplot(., aes(x = days, y = rmse, color = siteID, group = siteID))+
-  geom_line(lwd = 2)+
-  ylab("Forecast RMSE")+
-  xlab("Forecast Horizon (days)")+
-  labs(title = "1 to 35-day forecast horizon RMSE")+
+cor_lakes <- bind_rows(prla_cor, prpo_cor, cram_cor, liro_cor, barc_cor, sugg_cor)%>%
+  ggplot(., aes(days, cor, color = siteID))+
+  geom_line(lwd = 0.5, alpha = 0.4)+
+  geom_hline(yintercept = 0.5, lty = "dashed", lwd = 1)+
+  stat_smooth(method = "nls", formula = y ~ a * exp(x * -b), se = FALSE, lwd = 1)+
+  ylab("Forecast Proficiency")+
+  xlab("Days into future")+
   theme_classic()+
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 15, color = "black"),
-        axis.text = element_text(size = 15, color = "black"),
-        axis.title = element_text(size = 15, color = "black"),
-        legend.text = element_text(size = 15, color = "black"),
-        legend.title = element_text(size = 20, color = "black"),
-        plot.title = element_text(size = 20, color = "black"))+
   viridis::scale_color_viridis(option = "C", discrete = T)
 
-rmse_fig_2 <- bind_rows(barc_rmse, sugg_rmse, cram_rmse, liro_rmse, prla_rmse, prpo_rmse) %>%
-  filter(days <= 35) %>%
-  ggplot(., aes(x = days, y = sd, color = siteID, group = siteID))+
-  geom_line(lwd = 2)+
-  ylab("Forecast SD")+
-  xlab("Forecast Horizon (days)")+
-  labs(title = "1 to 35-day forecast horizon SD")+
-  theme_classic()+
-  theme(legend.position = c(0.1,0.85),
-        axis.text.x = element_text(size = 15, color = "black"),
-        axis.text = element_text(size = 15, color = "black"),
-        axis.title = element_text(size = 15, color = "black"),
-        legend.text = element_text(size = 15, color = "black"),
-        legend.title = element_text(size = 20, color = "black"),
-        plot.title = element_text(size = 20, color = "black"))+
-  viridis::scale_color_viridis(option = "C", discrete = T)
+cor_all <- bind_rows(prla_cor, prpo_cor, cram_cor, liro_cor, barc_cor, sugg_cor)%>%
+  group_by(days)%>%
+  summarise(mean = mean(cor),sd = sd(cor))%>%
+  mutate(mean = ifelse(mean<0,0.1,mean))%>%
+  ggplot(., aes(days, mean))+
+  # geom_ribbon(aes(ymin = mean-sd, ymax = mean+sd), alpha = 0.2, fill = "midnightblue") +
+  geom_line(lwd = 0.5, alpha = 1, color = "midnightblue")+
+  geom_hline(yintercept = 0.5, lty = "dashed", lwd = 1)+
+  stat_smooth(method = "nls", formula = y ~ a * exp(x * -b), se = T, lwd = 1)+
+  ylab("Forecast Proficiency")+
+  xlab("Days into future")+
+  theme_classic()
 
-rmse_together <- rmse_fig_2+rmse_fig_1
-rmse_together
+fit <- lm(log(mean) ~ days, data=cor_all)
+ggplot(cor_all, aes(x = days, y = mean)) + geom_point() +
+  geom_ribbon(aes(ymin = mean-sd, ymax = mean+sd), alpha = 0.2, fill = "midnightblue") +
+  geom_line(aes(x=days, y=exp(fit$fitted.values)), color = "red")
 
-ggsave(path = ".", filename = "forecast_output/figures/aggregated_rmse_sd.jpg", width = 20, height = 8, device='jpg', dpi=1000)
+conf <- as.data.frame(predict(fit, interval="confidence", level = 0.90)) %>%
+  mutate(fit = exp(fit),
+         lwr = exp(lwr),
+         upr = exp(upr))
 
+#
+#
+#
+# cram_rmse <- list.files(cram_path, pattern = ".csv")%>%
+#   map_df(~ read_csv(file.path(cram_path, .))) %>%
+#   filter(depth == 0.5)%>%
+#   group_by(forecast_start_day)%>%
+#   filter(date >= forecast_start_day)%>%
+#   mutate(days = seq_along(date))%>%
+#   group_by(days)%>%
+#   summarise(rmse = rmse(forecast_mean, observed, na.rm = T),
+#             sd = mean(forecast_sd, na.rm = T))%>%
+#   mutate(siteID = "D: CRAM")
+#
+# liro_rmse <- list.files(liro_path, pattern = ".csv")%>%
+#   map_df(~ read_csv(file.path(liro_path, .))) %>%
+#   filter(depth == 0.5)%>%
+#   group_by(forecast_start_day)%>%
+#   filter(date >= forecast_start_day)%>%
+#   mutate(days = seq_along(date))%>%
+#   group_by(days)%>%
+#   summarise(rmse = RMSE(forecast_mean, observed),
+#             sd = mean(forecast_sd, na.rm = T))%>%
+#   mutate(siteID = "D: LIRO")
+#
+# prla_rmse <- list.files(prla_path, pattern = ".csv")%>%
+#   map_df(~ read_csv(file.path(prla_path, .))) %>%
+#   filter(depth == 0.5)%>%
+#   group_by(forecast_start_day)%>%
+#   filter(date >= forecast_start_day)%>%
+#   mutate(days = seq_along(date))%>%
+#   group_by(days)%>%
+#   summarise(rmse = RMSE(forecast_mean, observed),
+#             sd = mean(forecast_sd, na.rm = T))%>%
+#   mutate(siteID = "A: PRLA")
+#
+# prpo_rmse <- list.files(prpo_path, pattern = ".csv")%>%
+#   map_df(~ read_csv(file.path(prpo_path, .))) %>%
+#   filter(depth == 0.5)%>%
+#   group_by(forecast_start_day)%>%
+#   filter(date >= forecast_start_day)%>%
+#   mutate(days = seq_along(date))%>%
+#   group_by(days)%>%
+#   summarise(rmse = rmse(forecast_mean, observed, na.rm = T),
+#             sd = mean(forecast_sd, na.rm = T))%>%
+#   mutate(siteID = "B: PRPO")
+#
+# barc_rmse <- list.files(barc_path, pattern = ".csv")%>%
+#   map_df(~ read_csv(file.path(barc_path, .))) %>%
+#   filter(depth == 0.5)%>%
+#   group_by(forecast_start_day)%>%
+#   filter(date >= forecast_start_day)%>%
+#   mutate(days = seq_along(date))%>%
+#   group_by(days)%>%
+#   summarise(rmse = rmse(forecast_mean, observed, na.rm = T),
+#             sd = mean(forecast_sd, na.rm = T))%>%
+#   mutate(siteID = "E: BARC")
+#
+# sugg_rmse <- list.files(sugg_path, pattern = ".csv")%>%
+#   map_df(~ read_csv(file.path(sugg_path, .))) %>%
+#   filter(depth == 0.5)%>%
+#   group_by(forecast_start_day)%>%
+#   filter(date >= forecast_start_day)%>%
+#   mutate(days = seq_along(date))%>%
+#   group_by(days)%>%
+#   summarise(rmse = RMSE(forecast_mean, observed),
+#             sd = mean(forecast_sd, na.rm = T))%>%
+#   mutate(siteID = "F: SUGG")
+#
+#
+# rmse_fig_1 <- bind_rows(barc_rmse, sugg_rmse, cram_rmse, liro_rmse, prla_rmse, prpo_rmse) %>%
+#   filter(days <= 35) %>%
+#   ggplot(., aes(x = days, y = rmse, color = siteID, group = siteID))+
+#   geom_line(lwd = 2)+
+#   ylab("Forecast RMSE")+
+#   xlab("Forecast Horizon (days)")+
+#   labs(title = "1 to 35-day forecast horizon RMSE")+
+#   theme_classic()+
+#   theme(legend.position = "none",
+#         axis.text.x = element_text(size = 15, color = "black"),
+#         axis.text = element_text(size = 15, color = "black"),
+#         axis.title = element_text(size = 15, color = "black"),
+#         legend.text = element_text(size = 15, color = "black"),
+#         legend.title = element_text(size = 20, color = "black"),
+#         plot.title = element_text(size = 20, color = "black"))+
+#   viridis::scale_color_viridis(option = "C", discrete = T)
+#
+# rmse_fig_2 <- bind_rows(barc_rmse, sugg_rmse, cram_rmse, liro_rmse, prla_rmse, prpo_rmse) %>%
+#   filter(days <= 35) %>%
+#   ggplot(., aes(x = days, y = sd, color = siteID, group = siteID))+
+#   geom_line(lwd = 2)+
+#   ylab("Forecast SD")+
+#   xlab("Forecast Horizon (days)")+
+#   labs(title = "1 to 35-day forecast horizon SD")+
+#   theme_classic()+
+#   theme(legend.position = c(0.1,0.85),
+#         axis.text.x = element_text(size = 15, color = "black"),
+#         axis.text = element_text(size = 15, color = "black"),
+#         axis.title = element_text(size = 15, color = "black"),
+#         legend.text = element_text(size = 15, color = "black"),
+#         legend.title = element_text(size = 20, color = "black"),
+#         plot.title = element_text(size = 20, color = "black"))+
+#   viridis::scale_color_viridis(option = "C", discrete = T)
+#
+# rmse_together <- rmse_fig_2+rmse_fig_1
+# rmse_together
+#
+# ggsave(path = ".", filename = "forecast_output/figures/aggregated_rmse_sd.jpg", width = 20, height = 8, device='jpg', dpi=1000)
+#

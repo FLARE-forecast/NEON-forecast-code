@@ -31,13 +31,13 @@ metadata:
 da_setup:
    da_method: enkf
    par_fit_method: inflate
-   ensemble_size:  100
+   ensemble_size:  200
    localization_distance: .na #distance in meters were covariances in the model error are used
    no_negative_states: TRUE
    assimilate_first_step: FALSE
    use_obs_constraint: TRUE
 model_settings:
-   ncore: 2
+   ncore: 3
    model_name: glm #other is "null"
    base_GLM_nml: glm3_LIRO.nml
    modeled_depths: [0.0,0.1,0.5,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0]

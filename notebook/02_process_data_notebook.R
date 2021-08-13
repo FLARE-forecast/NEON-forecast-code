@@ -22,7 +22,7 @@ buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_tem
           forecast_site = forecast_site)
 
 ##' stack first day to use as met 'obs' for the forecasts.
-average_stacked_forecasts(forecast_dates <- seq.Date(as.Date('2021-04-13'), as.Date('2021-06-01'), by = 'day'), # cycle through historical dates
+average_stacked_forecasts(forecast_dates <- seq.Date(as.Date(run_config$start_datetime), as.Date(run_config$forecast_start_datetime), by = 'day'), # cycle through historical dates
                           site <- siteID, #four digit name in lowercase
                           noaa_stacked_directory <- file.path(lake_directory, "data_raw", "NOAA_data", "noaa", "NOAAGEFS_1hr_stacked"),
                           output_directory <- file.path(lake_directory, "data_processed"),
