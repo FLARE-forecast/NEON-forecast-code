@@ -1,32 +1,48 @@
 ##'
 # Source the Functions to download the NEON and NOAA data
 
+lake_directory <- here::here()
+setwd(lake_directory)
+
 source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
+
+buoy_products <- c("DP1.20264.001",
+                   "DP1.20252.001",
+                   "DP1.20254.001")
+
+neon_database <-  file.path(dirname(lake_directory),"neonstore")
 
 ##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ### DOANLOAD THE NEWEST NOAA DATA ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-setwd(here::here())
 
-date <- as.Date(run_config$forecast_start_datetime)
-cycle <- "00"
+
+use_efi_server <- FALSE
+
+if(use_efi_server){
+
+  date <- as.Date(run_config$forecast_start_datetime)
+  cycle <- "00"
+
+  noaa_data_location <- file.path(dirname(lake_directory), "drivers","noaa","NOAAGEFS_1hr",siteID)
 
   for(p in 1:length(siteID)){
     for(i in 1:length(date)){
       for(g in 1:length(cycle)){
 
         if (length(list.files(file.path(noaa_data_location, date[i], cycle[g]))) != 31){
-        download_noaa_files_s3(siteID = siteID[p],
-                              date = date[i],
-                              cycle = cycle[g],
-                              noaa_directory = noaa_directory,
-                              overwrite = TRUE)
+          download_noaa_files_s3(siteID = siteID[p],
+                                 date = date[i],
+                                 cycle = cycle[g],
+                                 noaa_directory = noaa_directory,
+                                 overwrite = TRUE)
 
-   }
+        }
+      }
+    }
   }
- }
 }
 
 ##'

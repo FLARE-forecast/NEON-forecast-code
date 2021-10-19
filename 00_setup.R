@@ -29,10 +29,6 @@
 if (!require('pacman')) install.packages('pacman'); library('pacman')
 pacman::p_load(tidyverse, naniar,mice, FactoMineR, aws.s3, scattermore,
                reshape2, duckdb, RCurl, here)
-
-##' Just in case, run here function from here package to set your project root as the wd
-lake_directory <- here::here()
-
 ##'
 # Manually download packages from Github
 
@@ -42,25 +38,4 @@ remotes::install_github("rqthomas/noaaGEFSpoint", force = F)
 remotes::install_github("FLARE-forecast/GLM3r", force = F)
 remotes::install_github("FLARE-forecast/FLAREr", force = F)
 
-##'
-# Set up the sites for downloading
 
-run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
-forecast_site <- run_config$forecast_site
-siteID <- forecast_site
-
-##'
-# Set up the directories and databases for processing files
-
-raw_data_directory <- file.path(lake_directory,"data_raw")
-noaa_directory <- file.path(raw_data_directory, "NOAA_data")
-neon_database <-  file.path(raw_data_directory,"neonstore")
-noaa_data_location <- file.path(raw_data_directory,"NOAA_data","noaa","NOAAGEFS_1hr",siteID)
-forecast_location <- file.path(lake_directory, "flare_tempdir")
-
-##'
-# Specify the NEON data products to download
-
-buoy_products <- c("DP1.20264.001",
-                  "DP1.20252.001",
-                  "DP1.20254.001")
