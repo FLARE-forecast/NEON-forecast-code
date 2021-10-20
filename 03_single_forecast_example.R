@@ -7,7 +7,7 @@ source(file.path(lake_directory, "R/post_forecast_functions/plotting.R"))
 # Set up configurations for the forecasts
 
 lake_directory <- here::here()
-run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
+run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configuration_run.yml")))
 forecast_site <- run_config$forecast_site
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")

@@ -7,7 +7,7 @@ setwd(lake_directory)
 source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
-run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
+run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configuration_run.yml")))
 forecast_site <- run_config$forecast_site
 raw_data_directory <- file.path(lake_directory, "data_raw")
 

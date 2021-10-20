@@ -2,7 +2,9 @@ library(tidyverse)
 lake_directory <- dirname(getwd())
 setwd(lake_directory)
 update_run_config <<- TRUE #TRUE is used for an iterative workflow
-configuration_file <<- "configure_flare.yml"
+run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configuration_run.yml")))
+forecast_site <- run_config$forecast_site
+configuration_file <<- paste0("configure_flare_",forecast_site,".yml")
 
 source(file.path("automation/check_noaa_present.R"))
 
