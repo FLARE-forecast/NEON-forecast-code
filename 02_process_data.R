@@ -10,14 +10,16 @@ source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
 ##'
 # Set up configurations for the data processing
 
+run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
+forecast_site <- run_config$forecast_site
+
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
 config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
 #config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
-run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
 config$run_config <- run_config
-forecast_site <- run_config$forecast_site
+
 
 ##'
 # Download the latest "early release" data from Bobby Hensley at NEON
