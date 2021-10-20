@@ -9,6 +9,7 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
 forecast_site <- run_config$forecast_site
+raw_data_directory <- file.path(lake_directory, "data_raw")
 
 buoy_products <- c("DP1.20264.001",
                    "DP1.20252.001",
