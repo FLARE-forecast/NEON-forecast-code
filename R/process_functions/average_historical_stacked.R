@@ -77,8 +77,8 @@ average_stacked_forecasts <- function(forecast_dates, # vector of the date range
 
   if(run_fx){
     # read in stacked 1hr files
-    stacked_directory <- file.path(noaa_directory, "noaa", paste0('NOAAGEFS_', noaa_hour, 'hr_stacked'), site)
-    stacked_files <- list.files(stacked_directory)
+    #stacked_directory <- file.path(noaa_directory, "noaa", paste0('NOAAGEFS_', noaa_hour, 'hr_stacked'), site)
+    stacked_files <- list.files(file.path(noaa_stacked_directory, site))
     stacked_met_all <- NULL
     #run_fx <- TRUE
     #append_data <- FALSE
@@ -86,9 +86,9 @@ average_stacked_forecasts <- function(forecast_dates, # vector of the date range
 
     if(length(stacked_files) > 1){
       for(i in 1:length(stacked_files)){
-        ens <- dplyr::last(unlist(stringr::str_split(basename(stacked_files[i]),"_")))
+        ens <- dplyr::last(unlist(stringr::str_split(string = basename(stacked_files[i]),pattern = "_")))
         ens <- as.numeric(stringr::str_sub(ens,4,5))
-        stacked_met_nc <- ncdf4::nc_open(file.path(stacked_directory, stacked_files[i]))
+        stacked_met_nc <- ncdf4::nc_open(file.path(noaa_stacked_directory, site, stacked_files[i]))
         stacked_met_time <- ncdf4::ncvar_get(stacked_met_nc, "time")
         origin <- stringr::str_sub(ncdf4::ncatt_get(stacked_met_nc, "time")$units, 13, 28)
         origin <- lubridate::ymd_hm(origin)
@@ -108,7 +108,7 @@ average_stacked_forecasts <- function(forecast_dates, # vector of the date range
         stacked_met_all <- rbind(stacked_met_all, stacked_met)
       }
 
-      noaa_met_nc <- ncdf4::nc_open(file.path(stacked_directory, stacked_files[1]))
+      noaa_met_nc <- ncdf4::nc_open(file.path(noaa_stacked_directory, site, stacked_files[1]))
       lat <- ncdf4::ncvar_get(noaa_met_nc, "latitude")
       lon <- ncdf4::ncvar_get(noaa_met_nc, "longitude")
       ncdf4::nc_close(noaa_met_nc)

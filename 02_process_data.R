@@ -15,7 +15,9 @@ config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processe
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
 config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
 #config$file_path$noaa_directory <- file.path(lake_directory, "data_processed","NOAA_data","noaa",config$met$forecast_met_model)
+run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "run_configuration.yml")))
 config$run_config <- run_config
+forecast_site <- run_config$forecast_site
 
 ##'
 # Download the latest "early release" data from Bobby Hensley at NEON
@@ -36,9 +38,10 @@ buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_tem
 
 #dates <- list.files(path = file.path(config$file_path$noaa_directory, config$met$forecast_met_model, siteID))
 
-average_stacked_forecasts(forecast_dates <- seq.Date(as.Date(config$run_config$start_datetime), as.Date(run_config$forecast_start_datetime), by = 'day'), # cycle through historical dates
-                          site <- siteID, #four digit name in lowercase
-                          noaa_stacked_directory <- file.path(dirname(lake_directory), "drivers", "noaa", "NOAAGEFS_1hr_stacked"),
-                          output_directory <- file.path(lake_directory, "data_processed"),
+average_stacked_forecasts(forecast_dates = seq.Date(as.Date(config$run_config$start_datetime), as.Date(run_config$forecast_start_datetime), by = 'day'), # cycle through historical dates
+                          site = forecast_site, #four digit name in lowercase
+                          noaa_stacked_directory = file.path(dirname(lake_directory), "drivers", "noaa", "NOAAGEFS_1hr_stacked"),
+                          output_directory = file.path(lake_directory, "data_processed"),
                           outfile_name = paste0("observed-met_",config$location$site_id),
                           noaa_hour = 1)
+
