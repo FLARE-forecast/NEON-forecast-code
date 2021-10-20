@@ -42,6 +42,6 @@ average_stacked_forecasts(forecast_dates = seq.Date(as.Date(config$run_config$st
                           site = forecast_site, #four digit name in lowercase
                           noaa_stacked_directory = file.path(dirname(lake_directory), "drivers", "noaa", "NOAAGEFS_1hr_stacked"),
                           output_directory = file.path(lake_directory, "data_processed"),
-                          outfile_name = paste0("observed-met_",config$location$site_id),
+                          outfile_name = paste0("observed-met_",forecast_site),
                           noaa_hour = 1)
 
