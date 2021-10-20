@@ -10,7 +10,7 @@ source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
 ##'
 # Set up configurations for the data processing
 
-run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configuration_run.yml")))
+run_config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_run.yml")))
 forecast_site <- run_config$forecast_site
 
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))

@@ -1,12 +1,10 @@
 
-check_noaa_present <- function(lake_directory){
+check_noaa_present <- function(lake_directory, noaa_directory, configuration_file){
   config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
   run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
   config$run_config <- run_config
-
-
-  library(tidyverse)
-  library(lubridate)
+  forecast_site <- run_config$forecast_site
+  config$file_path$run_config <- file.path(lake_directory,"configuration","FLAREr","configure_run.yml")
 
   start_datetime <- lubridate::as_datetime(config$run_config$start_datetime)
   if(is.na(config$run_config$forecast_start_datetime)){
@@ -18,7 +16,7 @@ check_noaa_present <- function(lake_directory){
   }
   forecast_hour <- lubridate::hour(forecast_start_datetime)
   if(forecast_hour < 10){forecast_hour <- paste0("0",forecast_hour)}
-  noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  noaa_forecast_path <- file.path(noaa_directory, config$met$forecast_met_model,forecast_site,lubridate::as_date(forecast_start_datetime),forecast_hour)
 
 
   forecast_files <- list.files(noaa_forecast_path, full.names = TRUE)
