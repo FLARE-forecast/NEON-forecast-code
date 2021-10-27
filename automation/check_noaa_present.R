@@ -59,7 +59,7 @@ check_noaa_present <- function(lake_directory, s3_mode, forecast_site, configura
     noaa_forecasts_ready <- TRUE
   }else{
     if(run_config$forecast_horizon > 0){
-    message(paste0("waiting for NOAA forecast: ", run_config$forecast_start_datetime))
+      message(paste0("waiting for NOAA forecast: ", run_config$forecast_start_datetime))
     }
   }
   #else if(length(forecast_files) != 31){
