@@ -12,10 +12,10 @@ forecast_site <- run_config$forecast_site
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
-config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa", config$met$forecast_met_model)
+config$file_path$noaa_directory <- file.path(lake_directory, "drivers", "noaa", config$met$forecast_met_model)
 config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
 config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
-config$file_path$forecast_output_directory <- file.path(dirname(lake_directory), "forecasts", forecast_site)
+config$file_path$forecast_output_directory <- file.path(lake_directory, "forecasts", forecast_site)
 config$run_config <- run_config
 
 
