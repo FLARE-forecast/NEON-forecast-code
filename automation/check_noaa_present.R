@@ -29,6 +29,7 @@ check_noaa_present <- function(lake_directory, s3_mode, forecast_site, configura
     noaa_forecast_path <- NULL
   }
 
+
   if(run_config$forecast_horizon > 0){
     if(s3_mode){
       Sys.setenv("AWS_DEFAULT_REGION" = "data",
@@ -50,6 +51,7 @@ check_noaa_present <- function(lake_directory, s3_mode, forecast_site, configura
     }
     noaa_forecasts_ready <- FALSE
   }else{
+    forecast_files <- NULL
     noaa_forecasts_ready <- TRUE
   }
 
