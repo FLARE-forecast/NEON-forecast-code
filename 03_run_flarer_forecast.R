@@ -7,7 +7,6 @@ lake_directory <- here::here()
 
 s3_mode <- TRUE
 bucket <- "drivers"
-forecast_site <- "fcre"
 update_run_config <- TRUE
 
 source(file.path(lake_directory, "R/download_functions/s3_functions.R"))
