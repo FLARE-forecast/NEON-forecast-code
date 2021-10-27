@@ -27,7 +27,11 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 # Files to ignore in NEON-forecast
-data_processed/
-flare_tempdir/
-data_raw/
-forecast_output/
+flare_tempdir/*
+forecasts/*
+data_processed/*
+data_raw/*
+drivers/*
+analysis/*
+automation/*.log
+

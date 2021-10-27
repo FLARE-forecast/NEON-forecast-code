@@ -181,7 +181,7 @@ combine_forecast_obs <- function (file_name, qaqc_data_directory, extra_historic
               obs_names = obs_names))
 }
 
-plotting_general_2 <- function (file_name, qaqc_data_directory, ncore = 5, plot_profile = TRUE,
+plotting_general_3 <- function (file_name, qaqc_data_directory, ncore = 5, plot_profile = TRUE,
                                 obs_csv = TRUE)
 {
   pdf_file_name <- paste0(tools::file_path_sans_ext(file_name),

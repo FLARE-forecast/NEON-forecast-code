@@ -2,11 +2,15 @@
 #remotes::install_deps()
 library(cronR)
 
-home_dir <- "/Users/quinn/workfiles/Research/SSC_forecasting/automation_test/FCRE-forecast-code/automation/"
+lake_directory <- here::here()
 
-cmd <- cronR::cron_rscript(rscript = file.path(home_dir, "combined_workflow.R"),
-                           rscript_log = file.path(home_dir, "fcre.log"),
+run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+forecast_site <- run_config$forecast_site
+
+cmd <- cronR::cron_rscript(rscript = file.path(lake_directory, "automation", "combined_workflow.R"),
+                           rscript_log = file.path(lake_directory, "automation", paste0(forecast_site, ".log")),
                            log_append = FALSE,
-                           workdir = file.path(home_dir))
+                           workdir = file.path(lake_directory, "automation"))
 #trailing_arg = "curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/cb249e47-f56b-45da-af7f-9c0c47db1a6c")
-cronR::cron_add(command = cmd,  frequency = 'hourly', id = 'fcre_forecast')
+cronR::cron_add(command = cmd,  frequency = 'hourly', id = paste0(forecast_site, "_forecast"))
+

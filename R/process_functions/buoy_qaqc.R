@@ -1,9 +1,9 @@
-source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 buoy_qaqc <- function(realtime_buoy_file,
                       prop_neon,
                       input_file_tz,
                       local_tzone,
-                      forecast_site){
+                      forecast_site,
+                      processed_filename){
 
   d1 <- readr::read_csv(realtime_buoy_file) %>%
     filter(siteID == forecast_site) %>%
@@ -30,5 +30,5 @@ buoy_qaqc <- function(realtime_buoy_file,
   observations <- bind_rows(d1, d2) %>%
     arrange(date)
 
-  readr::write_csv(observations, file.path(lake_directory, "data_processed", paste0("observations_postQAQC_long_",forecast_site,".csv")))
+  readr::write_csv(observations, processed_filename)
   }
