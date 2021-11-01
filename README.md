@@ -30,7 +30,7 @@ Some packages will need manual compilation <b>if you have a Mac OS with the new 
 
 When this version of udunits2 is downloaded, navigate and place the binaries in the correct path. According to the R download page: "the binaries here live in /opt/R/arm64 to not conflict with Intel builds so you must add /opt/R/arm64/bin to your PATH in order to use them."
 
-You also need to update your .Renviron page so it corerctly builds on your computer. This file is locarted here:
+You also need to update your .Renviron page so it corerctly builds on your computer. This file is located here:
 ```
 /Library/Frameworks/R.framework/Versions/Current/Resources/etc/
 ```
