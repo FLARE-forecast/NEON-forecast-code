@@ -1,6 +1,6 @@
 ##'
 # Load in the required functions for processing the data
-renv::restore()
+#renv::restore()
 s3_mode <- TRUE
 
 library(tidyverse)
@@ -89,14 +89,15 @@ download_s3_objects(lake_directory, bucket = "drivers", prefix = file.path("noaa
 readRenviron(path = "~/.Renviron")
 
 
+stack_file_name <- file.path(lake_directory, "data_processed", paste0("observed-met-noaa_",forecast_site, ".nc"))
+
 average_stacked_forecasts(forecast_dates = seq.Date(as.Date(run_config$start_datetime), as.Date(run_config$forecast_start_datetime), by = 'day'), # cycle through historical dates
                           site = forecast_site, #four digit name in lowercase
+                          noaa_hour = 1,
                           noaa_stacked_directory = file.path(lake_directory, "drivers", "noaa", "NOAAGEFS_1hr_stacked"),
-                          output_directory = file.path(lake_directory, "data_processed"),
-                          outfile_name = paste0("observed-met-noaa_",forecast_site, ".nc"),
-                          noaa_hour = 1)
+                          output_file = stack_file_name)
 
 if(s3_mode){
-  aws.s3::put_object(file = processed_filename, object = file.path(forecast_site, paste0(forecast_site, "-targets-insitu.csv")), bucket = "targets")
-  aws.s3::put_object(file = file.path(config$file_path$qaqc_data_directory, paste0("observed-met-noaa_",forecast_site, ".nc")), object = file.path(forecast_site, paste0("observed-met-noaa_",forecast_site,".nc")), bucket = "targets")
+  aws.s3::put_object(file = processed_filename, object = file.path(forecast_site, basename(processed_filename)), bucket = "targets")
+  aws.s3::put_object(file = stack_file_name , object = file.path(forecast_site, basename(stack_file_name)), bucket = "targets")
 }
