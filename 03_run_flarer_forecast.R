@@ -25,13 +25,14 @@ if(!exists("update_run_config")){
 
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
 forecast_site <- run_config$forecast_site
+sim_name <- run_config$sim_name
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
 
 #Get updated run_config from bucket if one exists
 if(s3_mode){
-  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
+  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, sim_name, "configure_run.yml"), bucket = "restart")
   if(restart_exists){
-    aws.s3::save_object(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+    aws.s3::save_object(object = file.path(forecast_site, sim_name, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
   }
   run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
   forecast_site <- run_config$forecast_site
@@ -225,7 +226,7 @@ if(update_run_config){
   run_config$restart_file <- saved_file
   yaml::write_yaml(run_config, file = file.path(config$file_path$run_config))
   if(s3_mode){
-    aws.s3::put_object(file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"), object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
+    aws.s3::put_object(file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"), object = file.path(forecast_site, sim_name, "configure_run.yml"), bucket = "restart")
   }
 }
 
