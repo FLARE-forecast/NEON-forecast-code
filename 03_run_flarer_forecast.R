@@ -1,4 +1,4 @@
-renv::restore()
+#renv::restore()
 
 library(tidyverse)
 library(lubridate)
@@ -11,16 +11,13 @@ update_run_config <- TRUE
 
 source(file.path(lake_directory, "R/download_functions/s3_functions.R"))
 
-#files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
-#sapply(files.sources, source)
-
 if(file.exists("~/.aws")){
   warning(paste("Detected existing AWS credentials file in ~/.aws,",
                 "Consider renaming these so that automated upload will work"))
 }
 
-Sys.setenv("AWS_DEFAULT_REGION" = "data",
-           "AWS_S3_ENDPOINT" = "rquinnthomas.com")
+Sys.setenv("AWS_DEFAULT_REGION" = "s3",
+           "AWS_S3_ENDPOINT" = "flare-forecast.org")
 
 if(!exists("update_run_config")){
   stop("Missing update_run_config variable")
@@ -29,7 +26,6 @@ if(!exists("update_run_config")){
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
 forecast_site <- run_config$forecast_site
 config <- yaml::read_yaml(file.path(paste0(lake_directory,"/configuration/", "FLAREr/", "configure_flare_",forecast_site,".yml")))
-
 
 #Get updated run_config from bucket if one exists
 if(s3_mode){

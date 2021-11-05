@@ -4,11 +4,7 @@ average_stacked_forecasts <- function(forecast_dates, # vector of the date range
                                       site,
                                       noaa_hour, # numeric; whether you want to average the 1hr or 6hr forecasts
                                       noaa_stacked_directory, # file path of the directory where the stacked ensemble files are stored
-                                      output_directory, # file path where you want the output file to go
-                                      outfile_name # prefix/name of the final output file
-
-
-){
+                                      output_file){ # file  where you want the output to go
 
 
 
@@ -38,7 +34,7 @@ average_stacked_forecasts <- function(forecast_dates, # vector of the date range
 
   #identifier <- paste(outfile_name, sep="_")
   #fname <- paste0(identifier,".nc")
-  output_file <- file.path(output_directory, outfile_name)
+  output_file
 
 
   # look in output directory for existing file
