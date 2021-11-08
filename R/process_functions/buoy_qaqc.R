@@ -31,4 +31,6 @@ buoy_qaqc <- function(realtime_buoy_file,
     arrange(date)
 
   readr::write_csv(observations, processed_filename)
+
+  return(processed_filename)
   }

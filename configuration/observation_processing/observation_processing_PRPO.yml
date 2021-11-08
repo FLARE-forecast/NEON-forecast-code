@@ -1,0 +1,8 @@
+##########################
+# Lake information
+###########################
+site_id: PRPO
+name: Prairie Pothole Lake
+latitude: 47.129839   #Degrees North
+longitude: -99.253147  #Degrees West
+local_tzone: "UTC"
