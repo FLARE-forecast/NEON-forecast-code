@@ -35,4 +35,5 @@ drivers/*
 analysis/*
 automation/*.log
 restart/*
+targets/*
 
