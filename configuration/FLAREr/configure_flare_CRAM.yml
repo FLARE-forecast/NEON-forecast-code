@@ -86,10 +86,10 @@ default_init:
    blue_ice_thickness: 0.0
 inflow:
    use_forecasted_inflow: FALSE
-   forecast_inflow_model: FLOWS-NOAAGEFS-AR1
+   forecast_inflow_model: .na
 met:
    use_forecasted_met: TRUE
-   forecast_met_model: NOAAGEFS_1hr
+   forecast_met_model: noaa/NOAAGEFS_1hr
 uncertainty:
    observation: TRUE
    process: TRUE

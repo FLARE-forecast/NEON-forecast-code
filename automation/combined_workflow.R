@@ -4,15 +4,11 @@ library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
-run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-forecast_site <- run_config$forecast_site
-configuration_file <- paste0("configure_flare_",forecast_site,".yml")
+configure_run_file <- "configure_run.yml"
 
 update_run_config <- TRUE
 
-source(file.path("automation/check_noaa_present.R"))
-
-noaa_ready <- check_noaa_present(lake_directory, s3_mode = TRUE, forecast_site = forecast_site, configuration_file = configuration_file)
+noaa_ready <- FLAREr::check_noaa_present(lake_directory, configure_run_file)
 
 if(noaa_ready){
 
