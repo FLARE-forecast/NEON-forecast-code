@@ -5,7 +5,7 @@ buoy_qaqc <- function(realtime_buoy_file,
                       forecast_site,
                       processed_filename){
 
-  d1 <- readr::read_csv(realtime_buoy_file) %>%
+  d1 <- readr::read_csv(realtime_buoy_file, show_col_types = FALSE) %>%
     filter(siteID == forecast_site) %>%
     select(-siteID)
 

@@ -55,7 +55,7 @@ cram_eval <- bind_rows(cram_1dy, cram_3dy, cram_7dy, cram_14dy, cram_21dy, cram_
 
 
 # Little Rock Lake
-liro_path <- "./forecast_output/LIRO"
+liro_path <- "./forecasts/LIRO"
 liro_forecasts <- list.files(liro_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(liro_path, .))) %>%
   filter(depth == 0.5)%>%
@@ -108,7 +108,7 @@ great_lakes_domain <- bind_rows(cram_eval, liro_eval)%>%
 ### South East Domain
 
 # Lake Barco
-barc_path <- "./forecast_output/BARC"
+barc_path <- "./forecasts/BARC"
 barc_forecasts <- list.files(barc_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(barc_path, .))) %>%
   filter(depth == 0.5)%>%
@@ -155,7 +155,7 @@ barc_eval <- bind_rows(barc_1dy,barc_3dy, barc_7dy, barc_14dy, barc_21dy, barc_2
   mutate(siteID = "E: BARC")
 
 # Lake Suggs
-sugg_path <- "./forecast_output/SUGG"
+sugg_path <- "./forecasts/SUGG"
 sugg_forecasts <- list.files(sugg_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(sugg_path, .))) %>%
   filter(depth == 0.5)%>%
@@ -207,7 +207,7 @@ south_east_domain <- bind_rows(barc_eval, sugg_eval)%>%
 # Northern Plains Domain
 
 # Prairie Pothole Lake
-prpo_path <- "./forecast_output/PRPO"
+prpo_path <- "./forecasts/PRPO"
 prpo_forecasts <- list.files(prpo_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(prpo_path, .))) %>%
   filter(depth == 0.5)%>%
@@ -254,7 +254,7 @@ prpo_eval <- bind_rows(prpo_1dy, prpo_3dy, prpo_7dy, prpo_14dy, prpo_21dy, prpo_
   mutate(siteID = "B: PRPO")
 
 # Prairie Lake
-prla_path <- "./forecast_output/PRLA"
+prla_path <- "./forecasts/PRLA"
 prla_forecasts <- list.files(prla_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(prla_path, .))) %>%
   filter(depth == 0.5)%>%
@@ -368,7 +368,7 @@ geom_boxplot(outlier.colour="black", outlier.shape=21,
 
 fig1 <- np_fig/gl_fig/se_fig
 fig1
-ggsave(path = ".", filename = "forecast_output/figures/across_site_sd.jpg", width = 7, height = 10, device='jpg', dpi=1000)
+ggsave(path = ".", filename = "analysis/figures/across_site_sd.jpg", width = 7, height = 10, device='jpg', dpi=1000)
 
 
 gl_fig_rmse <- ggplot(great_lakes_domain, aes(forecast_horizon, rmse, fill = domain))+
@@ -432,7 +432,7 @@ np_fig_rmse <- ggplot(northern_plains_domain, aes(forecast_horizon, rmse, fill =
 fig2 <- np_fig_rmse/gl_fig_rmse/se_fig_rmse
 fig2
 
-ggsave(path = ".", filename = "forecast_output/figures/across_site_rmse.jpg", width = 7, height = 10, device='jpg', dpi=1000)
+ggsave(path = ".", filename = "analysis/figures/across_site_rmse.jpg", width = 7, height = 10, device='jpg', dpi=1000)
 
 prla_cor <- list.files(prla_path, pattern = ".csv")%>%
   map_df(~ read_csv(file.path(prla_path, .))) %>%
@@ -546,7 +546,7 @@ plot <- ggplot(cor_all, aes(x = days, y = mean)) + geom_point(size = 2)+
 forecast_proficiency <- cor_lakes+plot
 forecast_proficiency
 
-ggsave(path = ".", filename = "forecast_output/figures/across_site_proficiency.jpg", width = 12, height = 6, device='jpg', dpi=1000)
+ggsave(path = ".", filename = "analysis/figures/across_site_proficiency.jpg", width = 12, height = 6, device='jpg', dpi=1000)
 
 
 #

@@ -1,6 +1,5 @@
 ##'
 # Source the Functions to download the NEON and NOAA data
-source(file.path(lake_directory, "R/download_functions/NOAA_downloads.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 ##'
@@ -22,23 +21,13 @@ date <- c(as.Date("2021-05-18"),
           as.Date("2021-07-27"),
           as.Date("2021-08-03"))
 
-cycle <- "00"
+for(i in 1:length(date)){
 
-for(p in 1:length(siteID)){
-  for(i in 1:length(date)){
-    for(g in 1:length(cycle)){
+      noaa_forecast_path <- file.path("noaa", config$met$forecast_met_model, config$location$site_id, date[i], "00")
 
-      if (length(list.files(file.path(noaa_data_location, date[i], cycle[g]))) != 31){
-        download_noaa_files_s3(siteID = siteID[p],
-                               date = date[i],
-                               cycle = cycle[g],
-                               noaa_directory = noaa_directory,
-                               overwrite = TRUE)
-
-      }
-    }
-  }
+      FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
 }
+
 
 ##'
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,5 +45,5 @@ if (file.exists(file.path(neon_database))){
   neonstore::neon_dir()
 }
 
-download_neon_files(siteID = siteID, buoy_products = buoy_products, start_date = as.Date("2021-01-01"), raw_data_directory = raw_data_directory)
+download_neon_files(siteID = config$location$site_id, buoy_products = buoy_products, start_date = as.Date("2021-01-01"), raw_data_directory = config$file_path$data_directory)
 
