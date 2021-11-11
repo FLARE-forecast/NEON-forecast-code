@@ -12,25 +12,25 @@ source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+sites <- c("CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+
 
 sim_names <- "GLM_FLARE"
 config_files <- paste0("configure_flare_",sites,".yml")
 
+num_forecasts <- 13# 20
 days_between_forecasts <- 7
-forecast_horizon <- 32
+forecast_horizon <- 34 #32
 starting_date <- as_date("2021-04-18")
 second_date <- starting_date + months(1) - days(days_between_forecasts)
 
-start_dates <- rep(NA, 13)
-
+start_dates <- rep(NA, num_forecasts)
 start_dates[1:2] <- c(starting_date, second_date)
-
-for(i in 3:13){
+for(i in 3:num_forecasts){
   start_dates[i] <- as_date(start_dates[i-1]) + days(days_between_forecasts)
 }
 
 start_dates <- as_date(start_dates)
-
 forecast_start_dates <- start_dates + days(days_between_forecasts)
 
 configure_run_file <- "configure_run.yml"
@@ -41,11 +41,11 @@ for(j in 1:length(sites)){
 
   run_config <- yaml::read_yaml(file.path(lake_directory, "configuration", "FLAREr", configure_run_file))
   run_config$configure_flare <- config_files[j]
-  run_config$sim_name <- sim_names[j]
+  run_config$sim_name <- sim_names
   yaml::write_yaml(run_config, file = file.path(lake_directory, "configuration", "FLAREr", configure_run_file))
 
-  if(file.exists(file.path(lake_directory, "restart", sites[j], sim_names[j], configure_run_file))){
-    unlink(file.path(lake_directory, "restart", sites[j], sim_names[j], configure_run_file))
+  if(file.exists(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))){
+    unlink(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))
   }
 
   ##'
@@ -135,6 +135,7 @@ for(j in 1:length(sites)){
                                               forecast_dir = forecast_dir,
                                               config = config)
 
+
     #Need to remove the 00 ensemble member because it only goes 16-days in the future
     met_out$filenames <- met_out$filenames[!stringr::str_detect(met_out$filenames, "ens00")]
 
@@ -175,7 +176,8 @@ for(j in 1:length(sites)){
                                                   states_config = states_config,
                                                   obs_config = obs_config,
                                                   da_method = config$da_setup$da_method,
-                                                  par_fit_method = config$da_setup$par_fit_method)
+                                                  par_fit_method = config$da_setup$par_fit_method,
+                                                  debug = TRUE)
 
     saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
                                                 forecast_output_directory = config$file_path$forecast_output_directory,
