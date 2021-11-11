@@ -5,6 +5,9 @@ library(tidyverse)
 library(lubridate)
 set.seed(100)
 
+Sys.setenv("AWS_DEFAULT_REGION" = "s3",
+           "AWS_S3_ENDPOINT" = "flare-forecast.org")
+
 lake_directory <- here::here()
 
 source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))

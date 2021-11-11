@@ -4,5 +4,5 @@ end_datetime: .na
 forecast_start_datetime: 2021-05-11 00:00:00
 forecast_horizon: 0.0
 sim_name: GLM_FLARE
-configure_flare: configure_flare_BARC.yml
+configure_flare: configure_flare_LIRO.yml
 use_s3: no
