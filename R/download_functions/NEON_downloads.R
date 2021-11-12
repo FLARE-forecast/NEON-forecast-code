@@ -7,18 +7,21 @@ download_neon_files <- function(siteID, buoy_products, start_date, raw_data_dire
         # Water temperature by depth
         # ----------------------------------------------------------------------------------------
         water_temp <- neonstore::neon_read(table = "TSD_30_min-basic", site = siteID, start_date = start_date)%>%
-          select(endDateTime, thermistorDepth, tsdWaterTempMean, siteID) %>%
-          arrange(endDateTime, thermistorDepth, siteID)%>%
+          select(startDateTime, thermistorDepth, tsdWaterTempMean, siteID, tsdWaterTempFinalQF) %>%
+          filter(tsdWaterTempFinalQF == 0 | (tsdWaterTempFinalQF == 1 & as_date(startDateTime) > as_date("2020-07-01"))) %>%
+          arrange(startDateTime, thermistorDepth, siteID) %>%
           rename(depth = thermistorDepth)%>%
           rename(value = tsdWaterTempMean)%>%
-          rename(timestamp = endDateTime)%>%
+          rename(timestamp = startDateTime)%>%
           mutate(variable = "temperature",
                  hour = lubridate::hour(timestamp),
                  value = ifelse(is.nan(value), NA, value))%>%
           select(timestamp, hour, depth, value, variable, siteID)%>%
                 mutate(timestamp = as.Date(timestamp))%>%
                 rename(date = timestamp)%>%
-                arrange(siteID, date)
+                arrange(siteID, date) %>%
+          mutate(value = ifelse((siteID == "BARC" & value < 11), NA, value)) %>%
+          mutate(value = ifelse((siteID == "PRLA" & year(date) %in% c("2018","2020")), NA, value))
 
         temp_profiles <- neonstore::neon_read(table = "dep_profileData-basic", site = siteID, start_date = start_date)%>%
                 select(date, sampleDepth, waterTemp, siteID) %>%

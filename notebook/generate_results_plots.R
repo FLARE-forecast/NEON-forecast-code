@@ -7,9 +7,11 @@ RMSE = function(m, o){
 setwd(here::here())
 
 # Cramption Lake
-cram_path <- "./forecast_output/CRAM"
-cram_forecasts <- list.files(cram_path, pattern = ".csv")%>%
-  map_df(~ read_csv(file.path(cram_path, .))) %>%
+cram_path <- "./forecasts/CRAM"
+cram_forecasts <- tibble(files = list.files(cram_path, pattern = ".csv")) %>%
+  filter(stringr::str_detect(files, "GLM_FLARE")) %>%
+  filter(!stringr::str_detect(files, "FLARE_H_")) %>%
+  map_df(~ read_csv(files, .)) %>%
   filter(depth <= 0.5)%>%
   group_by(forecast_start_day)%>%
   filter(date >= forecast_start_day)%>%

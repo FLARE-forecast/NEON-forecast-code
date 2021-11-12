@@ -20,15 +20,19 @@ buoy_qaqc <- function(realtime_buoy_file,
            value = ifelse(is.nan(value), NA, value),
            date = as.Date(date),
            depth = ifelse(depth<=0.5,0.5,depth))%>%
-    select(date, hour, depth, value)%>%
-    group_by(date,hour,depth)%>%
-    summarise_at(c("value"), mean, na.rm = TRUE)%>%
     mutate(variable = "temperature")%>%
-    ungroup(.)%>%
-    arrange(date)
+    na.omit() %>%
+    select(date, hour, depth, value, variable)
 
   observations <- bind_rows(d1, d2) %>%
-    arrange(date)
+    arrange(date) %>%
+    mutate(depth_bins = cut(depth, breaks = seq(0,max(depth), by = 0.5))) %>%
+    group_by(date, hour, depth_bins, variable) %>%
+    summarize(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
+    mutate(lower = as.numeric( sub("\\((.+),.*", "\\1", depth_bins) ),
+           upper = as.numeric( sub("[^,]*,([^]]*)\\]", "\\1", depth_bins)),
+           depth = (lower + upper)/2) %>%
+    select(date, hour, depth, value, variable)
 
   readr::write_csv(observations, processed_filename)
 
