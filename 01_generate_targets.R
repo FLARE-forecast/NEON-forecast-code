@@ -13,7 +13,6 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 configure_run_file <- "configure_run.yml"
 
-
 ##'
 # Set up configurations for the data processing
 config <- FLAREr::set_configuration(configure_run_file,lake_directory)

@@ -47,11 +47,11 @@ siteID <- forecast_site
 ##' Set up the directories and databases for processing files
 
 raw_data_directory <- file.path(lake_directory,"data_raw")
-noaa_directory <- file.path(raw_data_directory, "NOAA_data")
+noaa_directory <- file.path(lake_directory, "drivers")
 neon_database <-  file.path(raw_data_directory,"neonstore")
-noaa_data_location <- file.path(raw_data_directory,"NOAA_data","noaa","NOAAGEFS_1hr",siteID)
+noaa_data_location <- file.path(raw_data_directory,"noaa","NOAAGEFS_1hr",siteID)
 #noaa_data_location <- file.path(getwd(),"data","NOAA_data","noaa","NOAAGEFS_6hr",siteID)
-forecast_location <- file.path(lake_directory, "flare_tempdir")
+forecast_location <- file.path(lake_directory, lake_directory, "flare_tempdir")
 
 ##' Specify the NEON data products to download
 buoy_products <- c("DP1.20264.001",

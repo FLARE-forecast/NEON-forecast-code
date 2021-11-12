@@ -1,9 +1,8 @@
 restart_file: .na
-start_datetime: 2021-10-22 00:00:00
+start_datetime: 2021-04-18 00:00:00
 end_datetime: .na
-forecast_start_datetime: 2021-10-25 00:00:00
+forecast_start_datetime: 2021-05-11 00:00:00
 forecast_horizon: 0.0
-sim_name: BARC_LAKE_2
-configure_flare: configure_flare_BARC.yml
-use_s3: TRUE
-
+sim_name: GLM_FLARE
+configure_flare: configure_flare_LIRO.yml
+use_s3: no

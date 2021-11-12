@@ -1,11 +1,11 @@
 file_path:
-   qaqc_data_directory: inst/example/data_processed/
-   noaa_directory: inst/example/forecasted_drivers/
-   inflow_directory: inst/example/forecasted_drivers/
-   configuration_directory: inst/example/configuration/
-   execute_directory: inst/example/flare_tempdir
-   forecast_output_directory: inst/example/forecast_output
-   run_config: inst/example/configuration/flarer/configure_run.yml
+   qaqc_data_directory: .na
+   noaa_directory: .na
+   inflow_directory: .na
+   configuration_directory: .na
+   execute_directory: .na
+   forecast_output_directory: .na
+   run_config: .na
 location:
    site_id: BARC
    name: Lake Barco
@@ -14,9 +14,9 @@ location:
 metadata:
    generate_eml: TRUE
    forecast_project_id: test
-   abstract: "This is where a longer description of the forest can be added"
-   forecast_title: FLARE
-   intellectualRights: insert license
+   abstract: "This is where a longer description of the forecast can be added"
+   forecast_title: Forecasting Lakes and Reservior Ecosystems
+   intellectualRights: MIT
    model_description:
       forecast_model_id: https://github.com/rqthomas/flare/commit/d1ddcb07b9d28863890597503fc4aa4a4496de56
       name: General Lake Model
@@ -38,7 +38,7 @@ da_setup:
     use_obs_constraint: TRUE
 model_settings:
    ncore: 3
-   model_name: glm #other is "null"
+   model_name: glm
    base_GLM_nml: glm3_BARC.nml
    modeled_depths: [0.00,0.10,0.50,1.00,
                     1.50,2.00,2.50,3.00,
