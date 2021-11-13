@@ -3,7 +3,8 @@ buoy_qaqc <- function(realtime_buoy_file,
                       input_file_tz,
                       local_tzone,
                       forecast_site,
-                      processed_filename){
+                      processed_filename,
+                      depth_bins){
 
   d1 <- readr::read_csv(realtime_buoy_file, show_col_types = FALSE) %>%
     filter(siteID == forecast_site) %>%
@@ -26,12 +27,12 @@ buoy_qaqc <- function(realtime_buoy_file,
 
   observations <- bind_rows(d1, d2) %>%
     arrange(date) %>%
-    mutate(depth_bins = cut(depth, breaks = seq(0,max(depth), by = 0.5))) %>%
-    group_by(date, hour, depth_bins, variable) %>%
+    mutate(depth_cut = cut(depth, breaks = depth_bins)) %>%
+    group_by(date, hour, depth_cut, variable) %>%
     summarize(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
-    mutate(lower = as.numeric( sub("\\((.+),.*", "\\1", depth_bins) ),
-           upper = as.numeric( sub("[^,]*,([^]]*)\\]", "\\1", depth_bins)),
-           depth = (lower + upper)/2) %>%
+    mutate(lower = as.numeric( sub("\\((.+),.*", "\\1", depth_cut) ),
+           upper = as.numeric( sub("[^,]*,([^]]*)\\]", "\\1", depth_cut)),
+           depth = upper) %>%
     select(date, hour, depth, value, variable)
 
   readr::write_csv(observations, processed_filename)

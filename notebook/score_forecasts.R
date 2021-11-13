@@ -5,7 +5,9 @@ source(file.path(lake_directory, "notebook", "read_forecast.R"))
 source(file.path(lake_directory, "notebook", "scoring.R"))
 
 
-sites <- c("BARC", "CRAM")#, "LIRO", "PRLA", "PRPO", "SUGG")
+sites <- c("BARC", "CRAM", "LIRO", "PRLA")#, "PRPO", "SUGG")
+
+#sites <- c("BARC", "CRAM")
 
 for(i in 1:length(sites)){
 
@@ -22,8 +24,7 @@ for(i in 1:length(sites)){
            time = date + lubridate::hours(hour)) %>%
     rename("observed" = value,
            "target" = "variable") %>%
-    select(time, depth, target, observed, theme) %>%
-    mutate(depth = cut(depth, seq(0,max(depth), by = 0.5)))
+    select(time, depth, target, observed, theme)
 
   forecast_files <- list.files(file.path(lake_directory, "forecasts", theme), full.names = TRUE)
   forecast_files <- forecast_files[grepl(paste0(theme, "-"), forecast_files)]
@@ -43,7 +44,6 @@ for(i in 1:length(sites)){
                            rename_at(vars(matches("temp")), ~"temperature") %>%
                            select_forecasts() %>%
                            pivot_forecast() %>%
-                           mutate(depth = cut(depth, seq(0,max(depth), by = 0.5))) %>%
                            crps_logs_score(target) %>%
                            include_horizon() %>%
                            write_scores(dir)

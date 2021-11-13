@@ -1,3 +1,6 @@
+#remotes::install_github("FLARE-forecast/GLMr")
+#remotes::install_github("FLARE-forecast/FLAREr")
+
 ##'
 # Load in the required functions for processing the data
 #renv::restore()
@@ -15,10 +18,11 @@ source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
-sites <- c("CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+#sites <- c("CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+#sites <- c("LIRO", "PRLA", "PRPO", "SUGG")
 
 
-sim_names <- "GLM_FLARE"
+sim_names <- "GLM_FLARE_MS"
 config_files <- paste0("configure_flare_",sites,".yml")
 
 num_forecasts <- 13# 20
@@ -55,6 +59,7 @@ for(j in 1:length(sites)){
   # Set up configurations for the data processing
   config <- FLAREr::set_configuration(configure_run_file,lake_directory)
 
+  depth_bins <- config$default_init$temp_depths
   message("    Downloading NEON data")
 
   buoy_products <- c("DP1.20264.001",
@@ -96,7 +101,8 @@ for(j in 1:length(sites)){
                                    input_file_tz = "UTC",
                                    local_tzone = "UTC",
                                    forecast_site = config$location$site_id,
-                                   processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")))
+                                   processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
+                                   depth_bins)
 
   ##` Download NOAA forecasts`
 
@@ -196,7 +202,7 @@ for(j in 1:length(sites)){
     FLAREr::plotting_general_2(file_name = saved_file,
                                target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
                                ncore = 2,
-                               obs_csv = TRUE)
+                               obs_csv = FALSE)
 
     message(paste0("Metadata and plots generated! Go to NEON-forecast/forecasts/",config$location$site_id," folder to view"))
 
@@ -206,7 +212,7 @@ for(j in 1:length(sites)){
 
       message("   creating climatology forecast")
 
-      forecast_dates <- seq(as_date(config$run_config$forecast_start_datetime),
+      forecast_dates <- seq(as_date(config$run_config$forecast_start_datetime) + days(1),
                             as_date(config$run_config$forecast_start_datetime) + days(forecast_horizon), "1 day")
       forecast_doy <- yday(forecast_dates)
 
@@ -219,7 +225,11 @@ for(j in 1:length(sites)){
       curr_year <- year(config$run_config$forecast_start_datetime)
       start_date <- as_date(paste(curr_year,curr_month, "01", sep = "-"))
 
-      target <- read_csv(cleaned_observations_file_long, show_col_types = FALSE)
+      target <- read_csv(cleaned_observations_file_long, show_col_types = FALSE) %>%
+        filter(hour == 0) %>%
+        group_by(date, hour, depth, variable) %>%
+        summarize(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
+        select(date, hour, depth, value, variable)
 
       target_clim <- target %>%
         filter(date < as_date(config$run_config$forecast_start_datetime),
@@ -228,7 +238,9 @@ for(j in 1:length(sites)){
         group_by(doy, depth) %>%
         summarise(temp_clim = mean(value, na.rm = TRUE),
                   temp_sd = sd(value, na.rm = TRUE), .groups = "drop") %>%
-        mutate(temp_clim = ifelse((is.na(temp_sd) | is.nan(temp_clim)), NA, temp_clim))
+        mutate(temp_sd = mean(temp_sd, na.rm = TRUE)) %>%
+        mutate(temp_clim = ifelse((is.nan(temp_clim)), NA, temp_clim)) %>%
+        na.omit()
 
       clim_forecast <- target_clim %>%
         mutate(doy = as.integer(doy)) %>%
@@ -242,7 +254,7 @@ for(j in 1:length(sites)){
         select(time, depth, statistic, forecast, temperature) %>%
         arrange(depth, time, statistic)
 
-      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "climatology.csv.gz", sep = "-")
+      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "climatology_ms.csv.gz", sep = "-")
 
       write_csv(clim_forecast, file = file.path(config$file_path$forecast_output_directory, forecast_file))
 
@@ -254,12 +266,38 @@ for(j in 1:length(sites)){
         na.omit() %>%
         arrange(rev(date))
 
-      most_recent_obs <- unlist(most_recent_obs$value[1])
+      ens_size <- config$da_setup$ensemble_size
+      walk_sd <- 0.25
+      dates <- unique(clim_forecast$time)
+      ndates <- length(dates) + 1
+      depths <- unique(clim_forecast$depth)
+      random_walk <- array(NA, dim = c(ens_size, ndates, length(depths)))
+      persist_forecast <- NULL
 
-      persist_forecast <- clim_forecast %>%
-        mutate(temperature = ifelse(statistic == "mean", most_recent_obs, temperature))
+      for(k in 1:length(depths)){
 
-      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "presistence.csv.gz", sep = "-")
+        most_recent_obs_depth <- most_recent_obs %>%
+          filter(depth == depths[k])
+
+        random_walk[ ,1,k] <- unlist(most_recent_obs_depth$value[1])
+        for(m in 2:ndates){
+          random_walk[ ,m, k] <- rnorm(ens_size, mean = random_walk[ ,m - 1,k], walk_sd)
+        }
+
+        depth_tibble <-  suppressMessages(as_tibble(t(random_walk[,2:ndates ,k]), .name_repair = "unique"))
+
+        names(depth_tibble) <- as.character(seq(1,ens_size, 1))
+
+        depth_tibble <- bind_cols(time = dates,depth_tibble) %>%
+          pivot_longer(cols = -time, names_to = "ensemble", values_to = "temperature") %>%
+          mutate(forecast = 1,
+                 depth = depths[k]) %>%
+          select(time, depth, ensemble, forecast, temperature)
+
+        persist_forecast <- bind_rows(persist_forecast, depth_tibble)
+      }
+
+      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "presistence_ms.csv.gz", sep = "-")
 
       write_csv(persist_forecast, file = file.path(config$file_path$forecast_output_directory, forecast_file))
     }
