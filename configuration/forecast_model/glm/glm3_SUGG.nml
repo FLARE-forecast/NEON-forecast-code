@@ -2,8 +2,8 @@
    sim_name = 'SUGG'
    max_layers = 500
    min_layer_vol = 0.025
-   min_layer_thick = 0.15
-   max_layer_thick = 0.33
+   min_layer_thick = 0.10
+   max_layer_thick = 0.50
    non_avg = .true.
 /
 &light
@@ -81,7 +81,7 @@
    rain_factor = 1
    cd = 0.0013
    ce = 0.0013
-   ch = 0.001320147
+   ch = 0.0013
    rain_threshold = 0.04
    time_fmt = 'YYYY-MM-DD hh:mm:ss'
 /

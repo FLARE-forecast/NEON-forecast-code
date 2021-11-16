@@ -5,9 +5,11 @@ source(file.path(lake_directory, "notebook", "read_forecast.R"))
 source(file.path(lake_directory, "notebook", "scoring.R"))
 
 
-sites <- c("BARC", "CRAM", "LIRO", "PRLA")#, "PRPO", "SUGG")
+sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
-#sites <- c("BARC", "CRAM")
+sites <- c("BARC", "CRAM")
+
+#sites <- "BARC"
 
 for(i in 1:length(sites)){
 

@@ -2,8 +2,8 @@
    sim_name = 'CRAM'
    max_layers = 500
    min_layer_vol = 0.025
-   min_layer_thick = 0.15
-   max_layer_thick = 1.5
+   min_layer_thick = 0.10
+   max_layer_thick = 0.50
    non_avg = .true.
 /
 &light
@@ -36,8 +36,8 @@
 /
 &time
    timefmt = 2
-   start = '2017-08-06  00:0'
-   stop = '2020-10-01  00:0'
+   start = '2017-08-06  00:00'
+   stop = '2020-10-01  00:00'
    dt = 1800
    num_days = 1
    timezone = -6
@@ -81,9 +81,8 @@
    rain_factor = 1
    cd = 0.0013
    ce = 0.0013
-   ch = 0.0013, 0.6
-   rain_threshold = 0.01220247
-   runoff_coef = 0.3
+   ch = 0.0013
+   rain_threshold = 0.04
    time_fmt = 'YYYY-MM-DD hh:mm:ss'
 /
 &inflow

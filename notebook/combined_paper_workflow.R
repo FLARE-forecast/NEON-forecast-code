@@ -18,14 +18,12 @@ source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
-#sites <- c("CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
-#sites <- c("LIRO", "PRLA", "PRPO", "SUGG")
+sites <- c("CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
-
-sim_names <- "GLM_FLARE_MS"
+sim_names <- "ms_glm_flare"
 config_files <- paste0("configure_flare_",sites,".yml")
 
-num_forecasts <- 13# 20
+num_forecasts <- 20
 days_between_forecasts <- 7
 forecast_horizon <- 34 #32
 starting_date <- as_date("2021-04-18")
@@ -43,6 +41,8 @@ forecast_start_dates <- start_dates + days(days_between_forecasts)
 configure_run_file <- "configure_run.yml"
 
 for(j in 1:length(sites)){
+
+#function(i, sites, lake_directory, sim_names, config_files, )
 
   message(paste0("Running site: ", sites[j]))
 
@@ -254,7 +254,7 @@ for(j in 1:length(sites)){
         select(time, depth, statistic, forecast, temperature) %>%
         arrange(depth, time, statistic)
 
-      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "climatology_ms.csv.gz", sep = "-")
+      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "ms_climatology.csv.gz", sep = "-")
 
       write_csv(clim_forecast, file = file.path(config$file_path$forecast_output_directory, forecast_file))
 
@@ -270,7 +270,7 @@ for(j in 1:length(sites)){
       walk_sd <- 0.25
       dates <- unique(clim_forecast$time)
       ndates <- length(dates) + 1
-      depths <- unique(clim_forecast$depth)
+      depths <- unique(target$depth)
       random_walk <- array(NA, dim = c(ens_size, ndates, length(depths)))
       persist_forecast <- NULL
 
@@ -297,7 +297,7 @@ for(j in 1:length(sites)){
         persist_forecast <- bind_rows(persist_forecast, depth_tibble)
       }
 
-      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "presistence_ms.csv.gz", sep = "-")
+      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "ms_persistence.csv.gz", sep = "-")
 
       write_csv(persist_forecast, file = file.path(config$file_path$forecast_output_directory, forecast_file))
     }
