@@ -7,11 +7,12 @@ source(file.path(lake_directory, "notebook", "scoring.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
-sites <- c("BARC", "CRAM")
 
-#sites <- "BARC"
+forecast_directory <- "/data"
 
 for(i in 1:length(sites)){
+
+  message(sites[i])
 
   theme <- sites[i]
 
@@ -28,7 +29,7 @@ for(i in 1:length(sites)){
            "target" = "variable") %>%
     select(time, depth, target, observed, theme)
 
-  forecast_files <- list.files(file.path(lake_directory, "forecasts", theme), full.names = TRUE)
+  forecast_files <- list.files(file.path(forecast_directory, "forecasts", theme), full.names = TRUE)
   forecast_files <- forecast_files[grepl(paste0(theme, "-"), forecast_files)]
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "pdf")]

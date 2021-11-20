@@ -1,7 +1,9 @@
 lake_directory <- here::here()
 
 #Read in scored forecasts
-scores_files <- fs::dir_ls(file.path(lake_directory,"scores"), type="file", recurse = TRUE)
+scores_files <- fs::dir_ls(file.path(lake_directory,"scores"), type="file",recurse = TRUE)
+
+scores_files <- scores_files[stringr::str_detect(scores_files, "ms_")]
 
 combined <- readr::read_csv(scores_files, progress = FALSE) %>%
   rename("siteID" = theme) %>%
@@ -9,7 +11,7 @@ combined <- readr::read_csv(scores_files, progress = FALSE) %>%
   select(siteID, team, issue_date, time, forecast_start_time, horizon, target,depth, mean, sd, observed, crps, logs, resid, quantile10, quantile90)
 
 skill_logs_table <- combined %>%
-  filter(team != "ms_presistence") %>%
+  filter(team != "ms_persistence") %>%
   select(siteID, team, issue_date, time, forecast_start_time, horizon, target,depth, logs) %>%
   pivot_wider(names_from = team, values_from = logs, values_fill = NA) %>%
   na.omit() %>%
@@ -129,7 +131,7 @@ matching_rmse <- combined %>%
   summarise(rmse = mean(sq_error, na.rm =TRUE),
             .groups = "drop") %>%
   mutate(rmse = sqrt(rmse)) %>%
-  filter(depth <= 3) %>%
+  filter(depth <= 6) %>%
   ggplot(aes(horizon, rmse, col=team)) +
   geom_line() +
   geom_point() +
@@ -156,9 +158,10 @@ matching_skill <- combined %>%
 
 combined %>%
   filter(issue_date == "2021-06-08",
-         depth == 1) %>%
+         depth == 1,
+         team != "ms_persistence") %>%
   ggplot(aes(x = horizon)) +
-  geom_line(aes(y = sd, color = team)) +
+  geom_line(aes(y = logs, color = team)) +
   #geom_point(aes(y = observed)) +
   facet_grid(depth~siteID) +
   theme_bw()

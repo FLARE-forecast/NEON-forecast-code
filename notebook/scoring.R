@@ -343,5 +343,4 @@ score_spec <-
 
 utils::globalVariables(c("observed", "predicted", "value",
                          "variable", "statistic", "sd",
-                         "filename"),
-                       "neon4cast")
+                         "filename"))
