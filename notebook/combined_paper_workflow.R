@@ -17,12 +17,12 @@ source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
 source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
+#sites <- c("BARC", "CRAM", "PRLA", "PRPO", "SUGG")
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
-sites <- c("CRAM")
 
-start_from_scratch <- FALSE
-time_start_index <- 36
+start_from_scratch <- TRUE
+time_start_index <- 1
 
 
 sim_names <- "ms_glm_flare"
@@ -43,7 +43,7 @@ for(i in 3:num_forecasts){
 
 start_dates <- as_date(start_dates)
 forecast_start_dates <- start_dates + days(days_between_forecasts)
-forecast_start_dates <- forecast_start_dates[-1]
+forecast_start_dates <- as_date(c(NA, forecast_start_dates[-1]))
 
 configure_run_file <- "configure_run.yml"
 
@@ -57,8 +57,6 @@ for(j in 1:length(sites)){
   run_config$configure_flare <- config_files[j]
   run_config$sim_name <- sim_names
   yaml::write_yaml(run_config, file = file.path(lake_directory, "configuration", "FLAREr", configure_run_file))
-
-
 
   if(start_from_scratch){
     FLAREr::delete_restart(sites[j], sim_names)
@@ -127,29 +125,20 @@ for(j in 1:length(sites)){
 
   cycle <- "00"
 
-  #for(i in time_start_index:length(forecast_start_dates)){
-  #  noaa_forecast_path <- file.path(config$met$forecast_met_model, config$location$site_id, forecast_start_dates[i], "00")
-  #  FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
-  #}
-
-  #FLAREr::get_stacked_noaa(lake_directory, config, averaged = TRUE)
+  FLAREr::get_stacked_noaa(lake_directory, config, averaged = TRUE)
 
   for(i in time_start_index:length(forecast_start_dates)){
 
-    unlist(file.path(lake_directory, "flare_tempdir"), recursive = TRUE)
-
     config <- FLAREr::set_configuration(configure_run_file,lake_directory)
+
     config <- FLAREr::get_restart_file(config, lake_directory)
 
     message(paste0("     Running forecast that starts on: ", config$run_config$start_datetime, " with index: ",i))
 
-    config$file_path$noaa_directory <- "/data/drivers"
     if(config$run_config$forecast_horizon > 0){
-
-      noaa_forecast_path <- file.path(config$met$forecast_met_model, config$location$site_id, forecast_start_dates[i], "00")
-      #noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
-      #                                                       forecast_model = config$met$forecast_met_model)
-      #FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
+      noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
+                                                            forecast_model = config$met$forecast_met_model)
+      FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
       forecast_dir <- file.path(config$file_path$noaa_directory, noaa_forecast_path)
     }else{
       forecast_dir <- NULL
@@ -159,7 +148,6 @@ for(j in 1:length(sites)){
                                               out_dir = config$file_path$execute_directory,
                                               forecast_dir = forecast_dir,
                                               config = config)
-
 
     #Need to remove the 00 ensemble member because it only goes 16-days in the future
     met_out$filenames <- met_out$filenames[!stringr::str_detect(met_out$filenames, "ens00")]
@@ -171,10 +159,11 @@ for(j in 1:length(sites)){
                                      obs_config,
                                      config)
 
-
     states_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$states_config_file), col_types = readr::cols())
     states_config <- FLAREr::generate_states_to_obs_mapping(states_config, obs_config)
+
     model_sd <- FLAREr::initiate_model_error(config = config, states_config = states_config)
+
 
     ##' Generate initial conditions
     pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
@@ -185,8 +174,6 @@ for(j in 1:length(sites)){
                                                 config,
                                                 restart_file = config$run_config$restart_file,
                                                 historical_met_error = met_out$historical_met_error)
-
-    unlink(config$run_config$restart_file)
 
     ##' Run the forecasts
     message("    Starting Data Assimilation and Forecasting")
@@ -235,7 +222,9 @@ for(j in 1:length(sites)){
 
     FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = days_between_forecasts)
 
-    unlist(forecast_dir, recursive = TRUE)
+    #unlink(config$run_config$restart_file)
+    #unlink(forecast_dir, recursive = TRUE)
+    #unlink(file.path(lake_directory, "flare_tempdir", config$location$site_id, run_config$sim_name), recursive = TRUE)
 
     if(i > 1){
 
