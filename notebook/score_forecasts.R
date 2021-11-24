@@ -5,7 +5,7 @@ source(file.path(lake_directory, "notebook", "read_forecast.R"))
 source(file.path(lake_directory, "notebook", "scoring.R"))
 
 
-sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+sites <- c("BARC") #, "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
 
 forecast_directory <- "/data"
@@ -29,20 +29,25 @@ for(i in 1:length(sites)){
            "target" = "variable") %>%
     select(time, depth, target, observed, theme)
 
-  forecast_files <- list.files(file.path(forecast_directory, "forecasts", theme), full.names = TRUE)
+  forecast_files <- aws.s3::get_bucket(bucket = "forecasts", prefix = sites[i])
+  keys <- vapply(forecast_files, `[[`, "", "Key", USE.NAMES = FALSE)
+  empty <- grepl("/$", keys)
+  forecast_files <- keys[!empty]
+
+  #forecast_files <- list.files(file.path(forecast_directory, "forecasts", theme), full.names = TRUE)
   forecast_files <- forecast_files[grepl(paste0(theme, "-"), forecast_files)]
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "pdf")]
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "FLARE.csv")]
+  forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "persistence")]
 
   ## read, format, and score and write out each forecast file
   suppressMessages({
     furrr::future_walk(forecast_files,
                        function(forecast_file, target){
                          forecast_file %>%
-                           read_forecast(grouping_variables = c("time", "depth"),
-                                         target_variables = "temp",
-                                         reps_col = "ensemble") %>%
+                           read_forecast_s3(grouping_variables = c("time", "depth"),
+                                         target_variables = "temp") %>%
                            mutate(filename = forecast_file) %>%
                            rename_at(vars(matches("temp")), ~"temperature") %>%
                            select_forecasts() %>%

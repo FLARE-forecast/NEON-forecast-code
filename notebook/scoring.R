@@ -310,7 +310,18 @@ write_scores <- function(scores, dir = "scores"){
 
 }
 
-standardize_depths <- function(df, depth_classes)
+read_forecast_s3 <- function(x, grouping_variables, target_variables){
+  aws.s3::s3read_using(FUN = read_forecast,
+                       grouping_variables = grouping_variables,
+                       target_variables = target_variables,
+                       object = x,
+                       bucket = "forecasts",
+                       filename = x,
+                       opts = list(
+                         base_url = "flare-forecast.org",
+                         region = "s3")
+  )
+}
 
 
 score_spec <-

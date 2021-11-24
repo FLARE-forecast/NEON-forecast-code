@@ -18,7 +18,7 @@ source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 #sites <- c("BARC", "CRAM", "PRLA", "PRPO", "SUGG")
-sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+sites <- c("CRAM","PRLA", "PRPO", "SUGG")
 
 
 start_from_scratch <- TRUE
@@ -148,6 +148,7 @@ for(j in 1:length(sites)){
                                               out_dir = config$file_path$execute_directory,
                                               forecast_dir = forecast_dir,
                                               config = config)
+
 
     #Need to remove the 00 ensemble member because it only goes 16-days in the future
     met_out$filenames <- met_out$filenames[!stringr::str_detect(met_out$filenames, "ens00")]
