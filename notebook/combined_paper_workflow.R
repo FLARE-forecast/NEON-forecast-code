@@ -17,8 +17,8 @@ source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
 source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
-#sites <- c("BARC", "CRAM", "PRLA", "PRPO", "SUGG")
-sites <- c("CRAM","PRLA", "PRPO", "SUGG")
+sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+#sites <- c("LIRO","PRLA")
 
 
 start_from_scratch <- TRUE
@@ -223,9 +223,10 @@ for(j in 1:length(sites)){
 
     FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = days_between_forecasts)
 
-    #unlink(config$run_config$restart_file)
-    #unlink(forecast_dir, recursive = TRUE)
-    #unlink(file.path(lake_directory, "flare_tempdir", config$location$site_id, run_config$sim_name), recursive = TRUE)
+    unlink(config$run_config$restart_file)
+    unlink(forecast_dir, recursive = TRUE)
+    setwd(lake_directory)
+    unlink(file.path(lake_directory, "flare_tempdir", config$location$site_id, run_config$sim_name), recursive = TRUE)
 
     if(i > 1){
 

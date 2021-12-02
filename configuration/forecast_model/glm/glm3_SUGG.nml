@@ -22,7 +22,6 @@
    coef_mix_KH = 0.3
    coef_mix_hyp = 0.5
    deep_mixing = 2
-   coef_mix_shreq = 0
 /
 &morphometry
    lake_name = 'SuggsLake'
@@ -38,14 +37,14 @@
    timefmt = 2
    start = '2020-10-16 00:00'
    stop = '2020-10-17 00:00'
-   dt = 1800
+   dt = 3600
    num_days = 1
    timezone = -5
 /
 &output
    out_dir = '.'
    out_fn = 'output'
-   nsave = 48
+   nsave = 24
 /
 &init_profiles
    num_depths = 8
@@ -82,7 +81,6 @@
    cd = 0.0013
    ce = 0.0013
    ch = 0.0013
-   rain_threshold = 0.04
    time_fmt = 'YYYY-MM-DD hh:mm:ss'
 /
 &inflow
