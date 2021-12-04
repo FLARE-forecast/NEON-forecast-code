@@ -1,3 +1,4 @@
+lake_directory <- getwd()
 lake_directory <- here::here()
 library(tidyverse)
 library(lubridate)
@@ -5,7 +6,9 @@ source(file.path(lake_directory, "notebook", "read_forecast.R"))
 source(file.path(lake_directory, "notebook", "scoring.R"))
 
 
-sites <- c("BARC") #, "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+#sites <- c("BARC","CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+
+sites <- c("BARC", "LIRO")
 
 
 forecast_directory <- "/data"
@@ -16,13 +19,18 @@ for(i in 1:length(sites)){
 
   theme <- sites[i]
 
-  targets_file <- file.path(lake_directory, "targets", theme, paste0(theme,"-targets-insitu.csv"))
-  dir <- file.path(lake_directory, "scores")
-  dir.create(dir, FALSE, TRUE)
-  theme <- strsplit(basename(targets_file), "[-_]")[[1]][[1]]
+  targets_file <- file.path(theme, paste0(theme,"-targets-insitu.csv"))
 
-  ## Target is processed only once
-  target <- readr::read_csv(targets_file, show_col_types = FALSE, lazy = FALSE, progress = FALSE) %>%
+  target <- aws.s3::s3read_using(FUN = readr::read_csv,
+                                 show_col_types = FALSE,
+                                 lazy = FALSE,
+                                 progress = FALSE,
+                                 object = targets_file,
+                                 bucket = "targets",
+                                 filename = basename(targets_file),
+                                 opts = list(
+                                   base_url = "flare-forecast.org",
+                                   region = "s3")) %>%
     mutate(theme = theme,
            time = date + lubridate::hours(hour)) %>%
     rename("observed" = value,
@@ -54,7 +62,7 @@ for(i in 1:length(sites)){
                            pivot_forecast() %>%
                            crps_logs_score(target) %>%
                            include_horizon() %>%
-                           write_scores(dir)
+                           write_scores_s3()
                        },
                        target = target
     )

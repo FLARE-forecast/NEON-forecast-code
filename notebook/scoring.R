@@ -310,6 +310,20 @@ write_scores <- function(scores, dir = "scores"){
 
 }
 
+write_scores_s3 <- function(df){
+  r <- utils::head(df,1)
+  output <- paste0(paste("scores", r$theme, r$time, r$team, sep="-"),
+                             ".csv.gz")
+
+  aws.s3::s3write_using(FUN = readr::write_csv,
+                       x = df,
+                       object = file.path(r$theme, output),
+                       bucket = "scores",
+                       opts = list(
+                         base_url = "flare-forecast.org",
+                         region = "s3"))
+}
+
 read_forecast_s3 <- function(x, grouping_variables, target_variables){
   aws.s3::s3read_using(FUN = read_forecast,
                        grouping_variables = grouping_variables,
