@@ -1,7 +1,7 @@
 lake_directory <- here::here()
 
 #Read in scored forecasts
-scores_files <- fs::dir_ls(file.path(lake_directory,"scores"), type="file",recurse = TRUE)
+scores_files <- fs::dir_ls(file.path("/data/scores"), type="file",recurse = TRUE)
 
 scores_files <- scores_files[stringr::str_detect(scores_files, "ms_")]
 
@@ -21,11 +21,14 @@ skill_logs_table <- combined %>%
             .groups = "drop") %>%
   mutate(team = "ms_glm_flare") %>%
   select(siteID, team, forecast_start_time, horizon, target, depth, skill) %>%
-  filter(horizon %in% c(1,5,10, 7,14,21,28,34),
+  filter(horizon %in% seq(1,35,1),
          depth <= 2.0) %>%
   group_by(siteID, horizon) %>%
   summarize(skill = median(100 * skill, na.rm = TRUE)) %>%
   pivot_wider(names_from = siteID, values_from = skill)
+
+skill_logs_table %>%
+  filter()
 
 
 skill_mae_table <- combined %>%
@@ -40,7 +43,7 @@ skill_mae_table <- combined %>%
             .groups = "drop") %>%
   mutate(team = "ms_glm_flare") %>%
   select(siteID, team, forecast_start_time, horizon, target, depth, skill) %>%
-  filter(horizon %in% c(1,5,7,14,21,28,34),
+  filter(horizon %in% seq(1,35,1),
          depth <= 2.0) %>%
   group_by(siteID, horizon) %>%
   summarize(skill = median(100 * skill, na.rm = TRUE)) %>%
@@ -59,7 +62,7 @@ combined %>%
   filter(target == "temperature",
          horizon == 30,
          team != "ms_persistence",
-         depth <= 6) %>%
+         depth == 2) %>%
   #group_by(time, siteID, team, depth) %>%
   ggplot() +
   geom_line(aes(time, mean, col = team)) +
@@ -68,7 +71,7 @@ combined %>%
                   fill = team),
               alpha = 0.2) +
   labs(y = "temperature") +
-  facet_grid(depth~siteID) +
+  facet_wrap(~siteID) +
   theme(axis.text.x = element_text( angle = 90, hjust = 0.5, vjust = 0.5)) +
   ggtitle("30 day ahead forecast")
 
@@ -103,13 +106,17 @@ matching_crps <- combined %>%
   geom_point() +
   labs(x = "score", title = "score by horizon")
 
+
+
+
 matching_logs <- combined %>%
   filter(team != "ms_persistence") %>%
-  select(siteID, team, issue_date, time, forecast_start_time, horizon, target,depth, logs) %>%
+  mutate(season = ifelse(issue_date < as_date("2021-08-01"), "summer", "fall")) %>%
+  select(siteID, team, season, issue_date, time, forecast_start_time, horizon, target,depth, logs) %>%
   pivot_wider(names_from = team, values_from = logs, values_fill = NA) %>%
   na.omit() %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "time", "forecast_start_time", "horizon", "target","depth"), names_to = "team",values_to = "logs") %>%
-  group_by(target, team, horizon, depth) %>%  # average over siteID
+  pivot_longer(cols = -c("siteID", "issue_date","season", "time", "forecast_start_time", "horizon", "target","depth"), names_to = "team",values_to = "logs") %>%
+  group_by(target, season, team, horizon, depth) %>%  # average over siteID
   summarise(mean_logs = mean(logs, na.rm =TRUE),
             .groups = "drop") %>%
   filter(depth <= 2) %>%
@@ -118,26 +125,27 @@ matching_logs <- combined %>%
   geom_point() +
   coord_trans(y='log2') +
   labs(x = "score", title = "score by horizon") +
-  facet_wrap(~depth)
+  facet_grid(season~depth)
 
 matching_rmse <- combined %>%
   filter(team != "ms_persistence") %>%
+  mutate(season = ifelse(issue_date < as_date("2021-08-01"), "summer", "fall")) %>%
   mutate(sq_error = (resid)^2) %>%
-  select(siteID, team, issue_date, time, forecast_start_time, horizon, target,depth, sq_error) %>%
+  select(siteID, team, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
   pivot_wider(names_from = team, values_from = sq_error, values_fill = NA) %>%
   na.omit() %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "time", "forecast_start_time", "horizon", "target","depth"), names_to = "team",values_to = "sq_error") %>%
-  group_by(target, team, horizon, depth, siteID) %>%  # average over siteID
+  filter(depth ==0.1) %>%
+  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth"), names_to = "team",values_to = "sq_error") %>%
+  group_by(target, team, horizon, season, siteID) %>%  # average over siteID
   summarise(rmse = mean(sq_error, na.rm =TRUE),
             .groups = "drop") %>%
   mutate(rmse = sqrt(rmse)) %>%
-  filter(depth <= 6) %>%
   ggplot(aes(horizon, rmse, col=team)) +
   geom_line() +
   geom_point() +
   labs(x = "score", title = "score by horizon") +
   geom_hline(yintercept = 1.48) + #https://www.doi.org/10.3389/fenvs.2021.707874
-  facet_grid(depth~siteID)
+  facet_grid(season~siteID)
 
 matching_skill <- combined %>%
   filter(team != "ms_presistence") %>%
@@ -148,7 +156,7 @@ matching_skill <- combined %>%
   group_by(target, horizon, depth, siteID) %>%  # average over siteID
   summarise(skill = mean(skill, na.rm =TRUE),
             .groups = "drop") %>%
-  filter(depth >= 1 & depth <= 2) %>%
+  filter(depth >= 1 & depth <= 5) %>%
   ggplot(aes(horizon, skill)) +
   geom_smooth() +
   geom_point() +
@@ -157,11 +165,11 @@ matching_skill <- combined %>%
   facet_grid(depth~siteID)
 
 combined %>%
-  filter(issue_date == "2021-06-08",
+  filter(issue_date == "2021-07-01",
          depth == 1,
          team != "ms_persistence") %>%
   ggplot(aes(x = horizon)) +
-  geom_line(aes(y = logs, color = team)) +
-  #geom_point(aes(y = observed)) +
+  geom_line(aes(y = mean, color = team)) +
+  geom_point(aes(y = observed)) +
   facet_grid(depth~siteID) +
   theme_bw()

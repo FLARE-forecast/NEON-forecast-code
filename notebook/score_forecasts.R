@@ -6,10 +6,7 @@ source(file.path(lake_directory, "notebook", "read_forecast.R"))
 source(file.path(lake_directory, "notebook", "scoring.R"))
 
 
-#sites <- c("BARC","CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
-
-sites <- c("BARC", "LIRO")
-
+sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
 forecast_directory <- "/data"
 

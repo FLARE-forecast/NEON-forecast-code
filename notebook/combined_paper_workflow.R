@@ -20,6 +20,8 @@ source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 #sites <- c("LIRO","PRLA")
 
+#sites <- "BARC"
+
 
 start_from_scratch <- TRUE
 time_start_index <- 1
@@ -118,6 +120,8 @@ for(j in 1:length(sites)){
                                    forecast_site = config$location$site_id,
                                    processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
                                    depth_bins)
+  FLAREr::put_targets(sites[j],
+                      cleaned_insitu_file = cleaned_insitu_file, use_s3 = TRUE)
 
   ##` Download NOAA forecasts`
 
