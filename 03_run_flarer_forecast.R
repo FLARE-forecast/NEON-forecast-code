@@ -24,7 +24,7 @@ config <- FLAREr::get_restart_file(config, lake_directory)
 FLAREr::get_targets(lake_directory, config)
 
 noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
-                                               forecast_model = config$met$forecast_met_model)
+                                                       forecast_model = config$met$forecast_met_model)
 
 #inflow_forecast_path <- FLAREr::get_driver_forecast_path(config,
 #                                                 forecast_model = config$inflow$forecast_inflow_model)
@@ -113,7 +113,39 @@ FLAREr::put_forecast(saved_file, eml_file_name, config)
 rm(da_forecast_output)
 gc()
 
-FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 16, day_advance = 1)
+FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 35, day_advance = 1)
+
+#Code to redo assimilation when NEON posts new data each month
+run_config <- yaml::read_yaml(file.path(lake_directory, "restart", config$location$site_id, config$run_config$sim_name, configure_run_file))
+cleaned_observations_file_long = file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv"))
+targets <- readr::read_csv(file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")))
+max_month <- lubridate::month(min(max(targets$date), as_date(run_config$start_datetime)))
+if(!is.na(run_config$last_month_data)){
+  if(run_config$last_month_data < max_month){
+    curr_year <- year(as_date(run_config$start_datetime) - months(1))
+    curr_month <- month(as_date(run_config$start_datetime) - months(1))
+    if(curr_month < 10){curr_month <- paste0("0",curr_month)}
+    curr_date <- as_date(paste(curr_year,curr_month,"01",sep = "-")) - days(1)
+    run_config$start_datetime <- paste0(curr_date, " 00:00:00")
+    run_config$restart_file <- paste0(config$location$site_id, "-",curr_date, "-",config$run_config$sim_name, ".nc")
+    run_config$last_month_data <- max_month
+    yaml::write_yaml(config$run_config, file = file.path(lake_directory,"restart",config$location$site_id,config$run_config$sim_name,configure_run_file))
+    if(run_config$use_s3){
+      aws.s3::put_object(file = file.path(lake_directory,"restart",config$location$site_id,run_config$sim_name, configure_run_file), object = file.path(config$location$site_id,run_config$sim_name, configure_run_file), bucket = "restart")
+    }
+  }
+}else{
+  run_config$last_month_data <- max_month
+  yaml::write_yaml(config$run_config, file = file.path(lake_directory,"restart",config$location$site_id,config$run_config$sim_name,configure_run_file))
+  if(run_config$use_s3){
+    aws.s3::put_object(file = file.path(lake_directory,"restart",config$location$site_id,run_config$sim_name, configure_run_file), object = file.path(config$location$site_id,run_config$sim_name, configure_run_file), bucket = "restart")
+  }
+}
+
+setwd(lake_directory)
+unlink(config$run_config$restart_file)
+unlink(forecast_dir, recursive = TRUE)
+unlink(file.path(lake_directory, "flare_tempdir", config$location$site_id, config$run_config$sim_name), recursive = TRUE)
 
 message(paste0("successfully generated flare forecats for: ", basename(saved_file)))
 
