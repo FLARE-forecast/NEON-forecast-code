@@ -2,8 +2,8 @@
    sim_name = 'CRAM'
    max_layers = 500
    min_layer_vol = 0.025
-   min_layer_thick = 0.15
-   max_layer_thick = 1.5
+   min_layer_thick = 0.10
+   max_layer_thick = 0.50
    non_avg = .true.
 /
 &light
@@ -15,14 +15,13 @@
    Kw = 0.6
 /
 &mixing
-   coef_mix_conv = 0.125
+   coef_mix_conv = 0.2
    coef_wind_stir = 0.23
-   coef_mix_shear = 0.2
+   coef_mix_shear = 0.3
    coef_mix_turb = 0.51
    coef_mix_KH = 0.3
    coef_mix_hyp = 0.5
    deep_mixing = 2
-   coef_mix_shreq = 0
 /
 &morphometry
    lake_name = 'CramptonLake'
@@ -36,16 +35,16 @@
 /
 &time
    timefmt = 2
-   start = '2017-08-06  00:0'
-   stop = '2020-10-01  00:0'
-   dt = 1800
+   start = '2017-08-06  00:00'
+   stop = '2020-10-01  00:00'
+   dt = 3600
    num_days = 1
    timezone = -6
 /
 &output
    out_dir = '.'
    out_fn = 'output'
-   nsave = 48
+   nsave = 24
 /
 &init_profiles
    num_depths = 39
@@ -81,9 +80,7 @@
    rain_factor = 1
    cd = 0.0013
    ce = 0.0013
-   ch = 0.0013, 0.6
-   rain_threshold = 0.01220247
-   runoff_coef = 0.3
+   ch = 0.0013
    time_fmt = 'YYYY-MM-DD hh:mm:ss'
 /
 &inflow

@@ -40,7 +40,10 @@ model_settings:
    ncore: 3
    model_name: glm #other is "null"
    base_GLM_nml: glm3_SUGG.nml
-   modeled_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00]
+   modeled_depths: [0.1,0.25,0.50,0.75,
+                    1.00,1.25,1.50,1.75,
+                    2.00,2.25,2.50,2.75,
+                    3.00]
    par_config_file: parameter_calibration_config_SUGG.csv
    obs_config_file: observations_config_SUGG.csv
    states_config_file: states_config_SUGG.csv

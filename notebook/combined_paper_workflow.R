@@ -1,3 +1,6 @@
+#remotes::install_github("FLARE-forecast/GLMr")
+#remotes::install_github("FLARE-forecast/FLAREr")
+
 ##'
 # Load in the required functions for processing the data
 #renv::restore()
@@ -15,14 +18,21 @@ source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
-sites <- c("CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+#sites <- c("LIRO","PRLA")
+
+#sites <- "BARC"
 
 
-sim_names <- "GLM_FLARE"
+start_from_scratch <- TRUE
+time_start_index <- 1
+
+
+sim_names <- "ms_glm_flare"
 config_files <- paste0("configure_flare_",sites,".yml")
 
-num_forecasts <- 13# 20
-days_between_forecasts <- 7
+#num_forecasts <- 20
+num_forecasts <- 19 * 7 + 1
+days_between_forecasts <- 1
 forecast_horizon <- 34 #32
 starting_date <- as_date("2021-04-18")
 second_date <- starting_date + months(1) - days(days_between_forecasts)
@@ -35,10 +45,13 @@ for(i in 3:num_forecasts){
 
 start_dates <- as_date(start_dates)
 forecast_start_dates <- start_dates + days(days_between_forecasts)
+forecast_start_dates <- as_date(c(NA, forecast_start_dates[-1]))
 
 configure_run_file <- "configure_run.yml"
 
 for(j in 1:length(sites)){
+
+  #function(i, sites, lake_directory, sim_names, config_files, )
 
   message(paste0("Running site: ", sites[j]))
 
@@ -47,14 +60,23 @@ for(j in 1:length(sites)){
   run_config$sim_name <- sim_names
   yaml::write_yaml(run_config, file = file.path(lake_directory, "configuration", "FLAREr", configure_run_file))
 
-  if(file.exists(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))){
-    unlink(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))
+  if(start_from_scratch){
+    FLAREr::delete_restart(sites[j], sim_names)
+    if(file.exists(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))){
+      unlink(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))
+    }
+    config <- FLAREr::set_configuration(configure_run_file,lake_directory)
+    config$run_config$start_datetime <- as.character(paste0(start_dates[1], " 00:00:00"))
+    config$run_config$forecast_start_datetime <- as.character(paste0(start_dates[2], " 00:00:00"))
+    config$run_config$forecast_horizon <- 0
+    config$run_config$restart_file <- NA
+    run_config <- config$run_config
+    yaml::write_yaml(run_config, file = file.path(config$file_path$configuration_directory, "FLAREr", configure_run_file))
+  }else{
+    config <- FLAREr::set_configuration(configure_run_file,lake_directory)
   }
 
-  ##'
-  # Set up configurations for the data processing
-  config <- FLAREr::set_configuration(configure_run_file,lake_directory)
-
+  depth_bins <- config$default_init$temp_depths
   message("    Downloading NEON data")
 
   buoy_products <- c("DP1.20264.001",
@@ -96,7 +118,10 @@ for(j in 1:length(sites)){
                                    input_file_tz = "UTC",
                                    local_tzone = "UTC",
                                    forecast_site = config$location$site_id,
-                                   processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")))
+                                   processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
+                                   depth_bins)
+  FLAREr::put_targets(sites[j],
+                      cleaned_insitu_file = cleaned_insitu_file, use_s3 = TRUE)
 
   ##` Download NOAA forecasts`
 
@@ -104,30 +129,20 @@ for(j in 1:length(sites)){
 
   cycle <- "00"
 
-  for(i in 2:length(forecast_start_dates)){
-    noaa_forecast_path <- file.path(config$met$forecast_met_model, config$location$site_id, forecast_start_dates[i], "00")
-    FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
-  }
-
   FLAREr::get_stacked_noaa(lake_directory, config, averaged = TRUE)
 
-  config$run_config$start_datetime <- as.character(paste0(start_dates[1], " 00:00:00"))
-  config$run_config$forecast_start_datetime <- as.character(paste0(start_dates[2], " 00:00:00"))
-  config$run_config$forecast_horizon <- 0
-  config$run_config$restart_file <- NA
-  run_config <- config$run_config
-  yaml::write_yaml(run_config, file = file.path(config$file_path$configuration_directory, "FLAREr", configure_run_file))
-
-  for(i in 1:length(forecast_start_dates)){
+  for(i in time_start_index:length(forecast_start_dates)){
 
     config <- FLAREr::set_configuration(configure_run_file,lake_directory)
+
     config <- FLAREr::get_restart_file(config, lake_directory)
 
-    message(paste0("     Running forecast that starts on: ", config$run_config$start_datetime))
+    message(paste0("     Running forecast that starts on: ", config$run_config$start_datetime, " with index: ",i))
 
     if(config$run_config$forecast_horizon > 0){
       noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
-                                                             forecast_model = config$met$forecast_met_model)
+                                                            forecast_model = config$met$forecast_met_model)
+      FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
       forecast_dir <- file.path(config$file_path$noaa_directory, noaa_forecast_path)
     }else{
       forecast_dir <- NULL
@@ -149,10 +164,11 @@ for(j in 1:length(sites)){
                                      obs_config,
                                      config)
 
-
     states_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$states_config_file), col_types = readr::cols())
     states_config <- FLAREr::generate_states_to_obs_mapping(states_config, obs_config)
+
     model_sd <- FLAREr::initiate_model_error(config = config, states_config = states_config)
+
 
     ##' Generate initial conditions
     pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
@@ -193,20 +209,34 @@ for(j in 1:length(sites)){
     rm(da_forecast_output)
     gc()
     message("Generating plot")
-    FLAREr::plotting_general_2(file_name = saved_file,
-                               target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
-                               ncore = 2,
-                               obs_csv = TRUE)
+    pdf_file <- FLAREr::plotting_general_2(file_name = saved_file,
+                                           target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
+                                           ncore = 2,
+                                           obs_csv = FALSE)
+
+    FLAREr::put_forecast(saved_file, eml_file_name, config)
+
+    if(config$run_config$use_s3){
+      success <- aws.s3::put_object(file = pdf_file, object = file.path(config$location$site_id, basename(pdf_file)), bucket = "analysis")
+      if(success){
+        unlink(pdf_file)
+      }
+    }
 
     message(paste0("Metadata and plots generated! Go to NEON-forecast/forecasts/",config$location$site_id," folder to view"))
 
     FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = days_between_forecasts)
 
+    unlink(config$run_config$restart_file)
+    unlink(forecast_dir, recursive = TRUE)
+    setwd(lake_directory)
+    unlink(file.path(lake_directory, "flare_tempdir", config$location$site_id, run_config$sim_name), recursive = TRUE)
+
     if(i > 1){
 
       message("   creating climatology forecast")
 
-      forecast_dates <- seq(as_date(config$run_config$forecast_start_datetime),
+      forecast_dates <- seq(as_date(config$run_config$forecast_start_datetime) + days(1),
                             as_date(config$run_config$forecast_start_datetime) + days(forecast_horizon), "1 day")
       forecast_doy <- yday(forecast_dates)
 
@@ -219,7 +249,11 @@ for(j in 1:length(sites)){
       curr_year <- year(config$run_config$forecast_start_datetime)
       start_date <- as_date(paste(curr_year,curr_month, "01", sep = "-"))
 
-      target <- read_csv(cleaned_observations_file_long, show_col_types = FALSE)
+      target <- read_csv(cleaned_observations_file_long, show_col_types = FALSE) %>%
+        filter(hour == 0) %>%
+        group_by(date, hour, depth, variable) %>%
+        summarize(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
+        select(date, hour, depth, value, variable)
 
       target_clim <- target %>%
         filter(date < as_date(config$run_config$forecast_start_datetime),
@@ -228,7 +262,9 @@ for(j in 1:length(sites)){
         group_by(doy, depth) %>%
         summarise(temp_clim = mean(value, na.rm = TRUE),
                   temp_sd = sd(value, na.rm = TRUE), .groups = "drop") %>%
-        mutate(temp_clim = ifelse((is.na(temp_sd) | is.nan(temp_clim)), NA, temp_clim))
+        mutate(temp_sd = mean(temp_sd, na.rm = TRUE)) %>%
+        mutate(temp_clim = ifelse((is.nan(temp_clim)), NA, temp_clim)) %>%
+        na.omit()
 
       clim_forecast <- target_clim %>%
         mutate(doy = as.integer(doy)) %>%
@@ -242,9 +278,18 @@ for(j in 1:length(sites)){
         select(time, depth, statistic, forecast, temperature) %>%
         arrange(depth, time, statistic)
 
-      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "climatology.csv.gz", sep = "-")
+      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "ms_climatology.csv.gz", sep = "-")
 
-      write_csv(clim_forecast, file = file.path(config$file_path$forecast_output_directory, forecast_file))
+      saved_file <- file.path(config$file_path$forecast_output_directory, forecast_file)
+      write_csv(clim_forecast, file = saved_file)
+
+      if (config$run_config$use_s3) {
+        success <- aws.s3::put_object(file = saved_file, object = file.path(config$location$site_id,
+                                                                            basename(saved_file)), bucket = "forecasts")
+        if (success) {
+          unlink(saved_file)
+        }
+      }
 
       message("   creating persistence forecast")
 
@@ -254,14 +299,48 @@ for(j in 1:length(sites)){
         na.omit() %>%
         arrange(rev(date))
 
-      most_recent_obs <- unlist(most_recent_obs$value[1])
+      ens_size <- config$da_setup$ensemble_size
+      walk_sd <- 0.25
+      dates <- unique(clim_forecast$time)
+      ndates <- length(dates) + 1
+      depths <- unique(target$depth)
+      random_walk <- array(NA, dim = c(ens_size, ndates, length(depths)))
+      persist_forecast <- NULL
 
-      persist_forecast <- clim_forecast %>%
-        mutate(temperature = ifelse(statistic == "mean", most_recent_obs, temperature))
+      for(k in 1:length(depths)){
 
-      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "presistence.csv.gz", sep = "-")
+        most_recent_obs_depth <- most_recent_obs %>%
+          filter(depth == depths[k])
 
+        random_walk[ ,1,k] <- unlist(most_recent_obs_depth$value[1])
+        for(m in 2:ndates){
+          random_walk[ ,m, k] <- rnorm(ens_size, mean = random_walk[ ,m - 1,k], walk_sd)
+        }
+
+        depth_tibble <-  suppressMessages(as_tibble(t(random_walk[,2:ndates ,k]), .name_repair = "unique"))
+
+        names(depth_tibble) <- as.character(seq(1,ens_size, 1))
+
+        depth_tibble <- bind_cols(time = dates,depth_tibble) %>%
+          pivot_longer(cols = -time, names_to = "ensemble", values_to = "temperature") %>%
+          mutate(forecast = 1,
+                 depth = depths[k]) %>%
+          select(time, depth, ensemble, forecast, temperature)
+
+        persist_forecast <- bind_rows(persist_forecast, depth_tibble)
+      }
+
+      forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "ms_persistence.csv.gz", sep = "-")
+      saved_file <- file.path(config$file_path$forecast_output_directory, forecast_file)
       write_csv(persist_forecast, file = file.path(config$file_path$forecast_output_directory, forecast_file))
+
+      if (config$run_config$use_s3) {
+        success <- aws.s3::put_object(file = saved_file, object = file.path(config$location$site_id,
+                                                                            basename(saved_file)), bucket = "forecasts")
+        if (success) {
+          unlink(saved_file)
+        }
+      }
     }
   }
 }

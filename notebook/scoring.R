@@ -202,22 +202,43 @@ crps_logs_score <- function(forecast, target){
                 sd = sd(predicted, na.rm =TRUE),
                 crps = crps_sample(observed[[1]], na_rm(predicted)),
                 logs = logs_sample(observed[[1]], na_rm(predicted)),
-                upper95 = stats::quantile(predicted, 0.975, na.rm = TRUE),
-                lower95 = stats::quantile(predicted, 0.025, na.rm = TRUE)
+                quantile02.5 = stats::quantile(predicted, 0.025, na.rm = TRUE),
+                quantile10 = stats::quantile(predicted, 0.10, na.rm = TRUE),
+                quantile20 = stats::quantile(predicted, 0.20, na.rm = TRUE),
+                quantile30 = stats::quantile(predicted, 0.30, na.rm = TRUE),
+                quantile40 = stats::quantile(predicted, 0.40, na.rm = TRUE),
+                quantile50 = stats::quantile(predicted, 0.50, na.rm = TRUE),
+                quantile60 = stats::quantile(predicted, 0.60, na.rm = TRUE),
+                quantile70 = stats::quantile(predicted, 0.70, na.rm = TRUE),
+                quantile80 = stats::quantile(predicted, 0.80, na.rm = TRUE),
+                quantile90 = stats::quantile(predicted, 0.90, na.rm = TRUE),
+                quantile97.5 = stats::quantile(predicted, 0.975, na.rm = TRUE),
                ) %>% ungroup()
 
   } else {
     out <- joined  %>%
       dplyr::mutate(crps = crps_norm(observed, mean, sd),
                     logs = logs_norm(observed, mean, sd),
-                    upper95 = mean + 1.96 * sd,
-                    lower95 = mean - 1.96 * sd)
+                    quantile02.5 = stats::qnorm( 0.025, mean, sd),
+                    quantile10 = stats::qnorm(0.10, mean, sd),
+                    quantile20 = stats::qnorm(0.20, mean, sd),
+                    quantile30 = stats::qnorm(0.30, mean, sd),
+                    quantile40 = stats::qnorm(0.40, mean, sd),
+                    quantile50 = stats::qnorm(0.50, mean, sd),
+                    quantile60 = stats::qnorm(0.60, mean, sd),
+                    quantile70 = stats::qnorm(0.70, mean, sd),
+                    quantile80 = stats::qnorm(0.80, mean, sd),
+                    quantile90 = stats::qnorm(0.90, mean, sd),
+                    quantile97.5 = stats::qnorm(0.975, mean, sd))
 
   }
   ## Ensure both ensemble and stat-based have identical column order:
   out %>% select(any_of(c("theme", "team", "issue_date", "siteID","depth", "time",
                         "target", "mean", "sd", "observed", "crps",
-                        "logs", "upper95", "lower95", "interval",
+                        "logs", "quantile02.5", "quantile10", "quantile20" ,
+                        "quantile30", "quantile40", "quantile50", "quantile60",
+                        "quantile70", "quantile80", "quantile90", "quantile97.5",
+                        "interval",
                         "forecast_start_time")))
 }
 
@@ -289,7 +310,32 @@ write_scores <- function(scores, dir = "scores"){
 
 }
 
-standardize_depths <- function(df, depth_classes)
+write_scores_s3 <- function(df){
+  r <- utils::head(df,1)
+  output <- paste0(paste("scores", r$theme, r$time, r$team, sep="-"),
+                             ".csv.gz")
+
+  aws.s3::s3write_using(FUN = readr::write_csv,
+                       x = df,
+                       object = file.path(r$theme, output),
+                       bucket = "scores",
+                       opts = list(
+                         base_url = "flare-forecast.org",
+                         region = "s3"))
+}
+
+read_forecast_s3 <- function(x, grouping_variables, target_variables){
+  aws.s3::s3read_using(FUN = read_forecast,
+                       grouping_variables = grouping_variables,
+                       target_variables = target_variables,
+                       object = x,
+                       bucket = "forecasts",
+                       filename = x,
+                       opts = list(
+                         base_url = "flare-forecast.org",
+                         region = "s3")
+  )
+}
 
 
 score_spec <-
@@ -305,13 +351,21 @@ score_spec <-
     "observed" = readr::col_double(),
     "crps" = readr::col_double(),
     "logs" = readr::col_double(),
-    "upper95" = readr::col_double(),
-    "lower95" = readr::col_double(),
+    "quantile02.5" = readr::col_double(),
+    "quantile10" = readr::col_double(),
+    "quantile20" = readr::col_double(),
+    "quantile30" = readr::col_double(),
+    "quantile40" = readr::col_double(),
+    "quantile50" = readr::col_double(),
+    "quantile60" = readr::col_double(),
+    "quantile70" = readr::col_double(),
+    "quantile80" = readr::col_double(),
+    "quantile90" = readr::col_double(),
+    "quantile97.5" = readr::col_double(),
     "interval" = readr::col_integer(),
     "forecast_start_time" = readr::col_datetime()
   )
 
 utils::globalVariables(c("observed", "predicted", "value",
                          "variable", "statistic", "sd",
-                         "filename"),
-                       "neon4cast")
+                         "filename"))

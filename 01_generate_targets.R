@@ -54,15 +54,15 @@ cleaned_insitu_file <- buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"
                                  input_file_tz = "UTC",
                                  local_tzone = "UTC",
                                  forecast_site = config$location$site_id,
-                                 processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")))
-
+                                 processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
+                                 depth_bins = config$default_init$temp_depths)
 ##'
 # Stack first day to use as met 'obs' for the forecasts.
 
 message("Successfully generated targets")
 
 FLAREr::put_targets(site_id = config$location$site_id,
-            cleaned_insitu_file,
-            use_s3 = config$run_config$use_s3)
+                    cleaned_insitu_file,
+                    use_s3 = config$run_config$use_s3)
 
 message("Successfully moved targets to s3 bucket")
