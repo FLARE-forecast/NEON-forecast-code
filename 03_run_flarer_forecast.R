@@ -60,6 +60,10 @@ met_out <- FLAREr::generate_glm_met_files(obs_met_file = file.path(config$file_p
                                           forecast_dir = forecast_dir,
                                           config = config)
 
+#Need to remove the 00 ensemble member because it only goes 16-days in the future
+met_out$filenames <- met_out$filenames[!stringr::str_detect(met_out$filenames, "ens00")]
+
+
 #Create observation matrix
 obs <- FLAREr::create_obs_matrix(cleaned_observations_file_long = file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")),
                                  obs_config = obs_config,
@@ -129,14 +133,14 @@ if(!is.na(run_config$last_month_data)){
     run_config$start_datetime <- paste0(curr_date, " 00:00:00")
     run_config$restart_file <- paste0(config$location$site_id, "-",curr_date, "-",config$run_config$sim_name, ".nc")
     run_config$last_month_data <- max_month
-    yaml::write_yaml(config$run_config, file = file.path(lake_directory,"restart",config$location$site_id,config$run_config$sim_name,configure_run_file))
+    yaml::write_yaml(run_config, file = file.path(lake_directory,"restart",config$location$site_id,run_config$sim_name,configure_run_file))
     if(run_config$use_s3){
       aws.s3::put_object(file = file.path(lake_directory,"restart",config$location$site_id,run_config$sim_name, configure_run_file), object = file.path(config$location$site_id,run_config$sim_name, configure_run_file), bucket = "restart")
     }
   }
 }else{
   run_config$last_month_data <- max_month
-  yaml::write_yaml(config$run_config, file = file.path(lake_directory,"restart",config$location$site_id,config$run_config$sim_name,configure_run_file))
+  yaml::write_yaml(run_config, file = file.path(lake_directory,"restart",config$location$site_id,config$run_config$sim_name,configure_run_file))
   if(run_config$use_s3){
     aws.s3::put_object(file = file.path(lake_directory,"restart",config$location$site_id,run_config$sim_name, configure_run_file), object = file.path(config$location$site_id,run_config$sim_name, configure_run_file), bucket = "restart")
   }
