@@ -45,6 +45,7 @@ for(i in 1:length(sites)){
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "pdf")]
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "FLARE.csv")]
   forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "persistence")]
+  forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "test_barc2")]
 
   ## read, format, and score and write out each forecast file
   suppressMessages({

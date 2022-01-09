@@ -18,7 +18,6 @@ source(file.path(lake_directory, "R/process_functions/glmtools.R"))
 source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
-#sites <- c("LIRO","PRLA")
 
 #sites <- "BARC"
 
@@ -31,7 +30,7 @@ sim_names <- "ms_glm_flare"
 config_files <- paste0("configure_flare_",sites,".yml")
 
 #num_forecasts <- 20
-num_forecasts <- 19 * 7 + 1
+num_forecasts <- 23 * 7
 days_between_forecasts <- 1
 forecast_horizon <- 34 #32
 starting_date <- as_date("2021-04-18")
