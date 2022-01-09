@@ -1,0 +1,7 @@
+﻿lake_name,siteID,state,latitude,longitude,elevation_m,max_depth_m,fetch_m,volume_m3,surface_area_km2 ,mean_secchi_depth_m,mixing_regime,mean_annual_temperature_degreeC,mean_annual_precipitation_mm,air_temp_10day_sd_degreeC,mean_hydraulic_residence_time_yrs,catchment_size_km2,catchment_cover,NEON website
+Barco Lake,BARC,Florida,29.675982,-82.008414,27,6,425,256888,0.12,4.08,Polymictic,20.9,1308,1.09,3.3,0.81,shrub/scrub,https://www.neonscience.org/field-sites/barc
+Suggs Lake,SUGG,Florida,29.68778,-82.017745,32,3.1,867,415356,0.31,0.43,Polymictic,20.9,1308,1.09,1.6,36.9,evergreen/forest;woody wetlands,https://www.neonscience.org/field-sites/sugg
+Crampton Lake,CRAM,Wisconsin,46.209675,-89.473688,509,19,782,889734,0.26,4.16,Dimictic,4.3,794,2.86,4.9,0.6,woody wetlands,https://www.neonscience.org/field-sites/cram
+Little Rock Lake,LIRO,Wisconsin,45.998269,-89.704767,501,10,623,466757,0.19,4.37,Dimictic,4.4,796,2.86,3.4,0.9,deciduous forest; mixed forest,https://www.neonscience.org/field-sites/liro
+Prairie Lake,PRLA,North Dakota,47.15909,-99.11388,565,4,"1,010",389429,0.23,0.33,Polymictic,4.9,490,3.34,3.8,4.5,grassland/herbaceous,https://www.neonscience.org/field-sites/prla
+Prairie Pothole,PRPO,North Dakota,47.129839,-99.253147,579,4,511,158520,0.11,0.4,Polymictic,4.9,494,3.39,3.2,1.4,grassland/herbaceous,https://www.neonscience.org/field-sites/prpo
