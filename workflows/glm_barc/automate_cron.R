@@ -3,7 +3,7 @@
 library(cronR)
 
 lake_directory <- here::here()
-config_set_name <- "default"
+config_set_name <- "glm_barc"
 
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration",config_set_name,"configure_run.yml"))
 config <- yaml::read_yaml(file.path(lake_directory,"configuration",config_set_name,run_config$configure_flare))
