@@ -8,6 +8,13 @@ source(file.path(lake_directory, "workflows","neon_lakes_ms", "scoring.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
+sim_names <- list(barc = c("ms_climatology", "ms_glm_flare"),
+                  cram = c("ms_climatology", "ms_glm_flare"),
+                  liro = c("ms_climatology", "ms_glm_flare"),
+                  prla = c("ms_climatology", "ms_glm_flare"),
+                  prpo = c("ms_climatology", "ms_glm_flare"),
+                  sugg = c("ms_climatology", "ms_glm_flare"))
+
 forecast_directory <- "/data"
 
 for(i in 1:length(sites)){
@@ -39,13 +46,15 @@ for(i in 1:length(sites)){
   empty <- grepl("/$", keys)
   forecast_files <- keys[!empty]
 
-  #forecast_files <- list.files(file.path(forecast_directory, "forecasts", theme), full.names = TRUE)
-  forecast_files <- forecast_files[grepl(paste0(theme, "-"), forecast_files)]
-  forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "xml")]
-  forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "pdf")]
-  forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "FLARE.csv")]
-  forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "persistence")]
-  forecast_files <- forecast_files[!stringr::str_detect(forecast_files, "test_barc2")]
+  forecast_files_all <- forecast_files[grepl(paste0(theme, "-"), forecast_files)]
+  forecast_files_all <- forecast_files_all[!stringr::str_detect(forecast_files_all, "xml")]
+  forecast_files_all <- forecast_files_all[!stringr::str_detect(forecast_files_all, "pdf")]
+
+  forecast_files <- NULL
+  for(k in 1:length(sim_names[[i]])){
+    forecast_file_subset <- forecast_files_all[stringr::str_detect(forecast_files_all, sim_names[[i]][k])]
+    forecast_files <- c(forecast_files, forecast_file_subset)
+  }
 
   ## read, format, and score and write out each forecast file
   suppressMessages({
@@ -65,6 +74,5 @@ for(i in 1:length(sites)){
                        target = target
     )
   })
-
 }
 
