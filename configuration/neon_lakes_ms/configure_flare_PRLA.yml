@@ -1,0 +1,75 @@
+file_path:
+   qaqc_data_directory: inst/example/data_processed/
+   noaa_directory: inst/example/forecasted_drivers/
+   inflow_directory: inst/example/forecasted_drivers/
+   configuration_directory: inst/example/configuration/
+   execute_directory: inst/example/flare_tempdir
+   forecast_output_directory: inst/example/forecast_output
+   run_config: inst/example/configuration/flarer/run_configuration_PRLA.yml
+location:
+   site_id: PRLA
+   name: Prairie Lake
+   latitude: 47.15909   #Degrees North
+   longitude: -99.11388  #Degrees West
+metadata:
+   generate_eml: TRUE
+   forecast_project_id: test
+   abstract: ""
+   forecast_title: FLARE
+   intellectualRights: insert license
+   model_description:
+      forecast_model_id: https://github.com/rqthomas/flare/commit/d1ddcb07b9d28863890597503fc4aa4a4496de56
+      name: General Lake Model
+      type: process-based
+      repository: https://github.com/AquaticEcoDynamics/GLM/releases/tag/v3.1.0
+   me:
+      individualName:
+         givenName: "Ryan"
+         surName: "McClure"
+      electronicMailAddress:  "ryan333@vt.edu"
+      id: 0000-0001-6370-3852
+da_setup:
+    da_method: enkf
+    par_fit_method: inflate
+    ensemble_size:  200
+    localization_distance: .na #distance in meters were covariances in the model error are used
+    no_negative_states: TRUE
+    assimilate_first_step: FALSE
+    use_obs_constraint: TRUE
+model_settings:
+   ncore: 3
+   model_name: glm #other is "null"
+   base_GLM_nml: glm3_PRLA.nml
+   modeled_depths: [0.1,0.25,0.50,0.75,
+                    1.00,1.25,1.50,1.75,
+                    2.00,2.25,2.50,2.75,
+                    3.00,3.25,3.50,3.75,
+                    4.00]
+   par_config_file: parameter_calibration_config_PRLA.csv
+   obs_config_file: observations_config_PRLA.csv
+   states_config_file: states_config_PRLA.csv
+   depth_model_sd_config_file: depth_model_sd_PRLA.csv
+default_init:
+   lake_depth: 4.1  #not a modeled state
+   temp: [16,16,16,16,16,16,16,16,16,16]
+   temp_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
+   salinity: 0.0
+   snow_thickness: 0.0
+   white_ice_thickness: 0.0
+   blue_ice_thickness: 0.0
+inflow:
+   use_forecasted_inflow: FALSE
+   forecast_inflow_model: .na
+met:
+   use_forecasted_met: TRUE
+   forecast_met_model: noaa/NOAAGEFS_1hr
+uncertainty:
+   observation: TRUE
+   process: TRUE
+   weather: TRUE
+   initial_condition: TRUE
+   parameter: TRUE
+   met_downscale: TRUE
+   inflow_process: TRUE
+output_settings:
+   diagnostics_names:  [extc_coef]

@@ -1,0 +1,9 @@
+restart_file: .na
+start_datetime: 2021-04-18 00:00:00
+end_datetime: .na
+forecast_start_datetime: 2022-01-10 00:00:00
+forecast_horizon: 0.0
+sim_name: prpo_test2
+configure_flare: configure_flare_PRPO.yml
+use_s3: yes
+last_month_data: .na
