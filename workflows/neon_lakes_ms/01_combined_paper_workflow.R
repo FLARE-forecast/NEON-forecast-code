@@ -13,21 +13,31 @@ run_clim_null <- TRUE
 run_persistence_null <- FALSE
 #Set use_archive = FALSE unless you have read/write credentials for the remote
 #s3 bucket that is set up for running FLARE.
-use_archive <- FALSE 
+use_archive <- TRUE 
+lake_directory <- here::here()
 
 if(use_archive){
+  
+  dir.create(file.path(lake_directory, "drivers"), showWarnings = FALSE)
   
   download.file(url = 'https://zenodo.org/record/5918357/files/noaa.zip',
                 destfile = file.path(lake_directory, 'drivers', 'noaa.zip'),
                 method = 'curl')
   zip::unzip(file.path(lake_directory, 'drivers', 'noaa.zip'),
-             exdir = file.path(lake_directory, 'drivers'))
+             exdir = file.path(lake_directory, 'drivers', 'noaa'))
   
-  download.file(url = 'https://zenodo.org//5918679/files/neonstore.zip',
+  unlink(file.path(lake_directory, 'drivers', 'noaa.zip'))
+  
+  dir.create(file.path(lake_directory, "data_raw"), showWarnings = FALSE)
+  
+  download.file(url = 'https://zenodo.org/record/5918679/files/neonstore.zip',
                 destfile = file.path(lake_directory, 'data_raw', 'neonstore.zip'),
                 method = "curl")
   zip::unzip(file.path(lake_directory, 'data_raw', 'neonstore.zip'),
              exdir = file.path(lake_directory, 'data_raw','neonstore'))
+  
+  unlink(file.path(lake_directory, 'data_raw', 'neonstore.zip'))
+  
   use_s3 <- FALSE
 }else{
   Sys.setenv('AWS_DEFAULT_REGION' = 's3', 
@@ -36,7 +46,6 @@ if(use_archive){
   use_s3 <- TRUE
 }
 
-lake_directory <- here::here()
 
 source(file.path(lake_directory, "R/buoy_qaqc.R"))
 
@@ -93,7 +102,9 @@ for(j in 1:length(sites)){
   yaml::write_yaml(run_config, file = file.path(lake_directory, "configuration", config_set_name, configure_run_file))
   
   if(start_from_scratch){
-    FLAREr::delete_restart(sites[j], sim_names)
+    if(use_s3){
+      FLAREr::delete_restart(sites[j], sim_names)
+    }
     if(file.exists(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))){
       unlink(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))
     }
@@ -109,7 +120,7 @@ for(j in 1:length(sites)){
   }
   
   depth_bins <- config$model_settings$modeled_depths
-
+  
   if(!use_archive){
     message("    Downloading NEON data")
     neonstore::neon_download(product = "DP1.20264.001", site = sites[j], start_date = NA)
@@ -149,7 +160,9 @@ for(j in 1:length(sites)){
   
   cycle <- "00"
   
-  FLAREr::get_stacked_noaa(lake_directory, config, averaged = TRUE)
+  if(!use_archive){
+    FLAREr::get_stacked_noaa(lake_directory, config, averaged = TRUE)
+  }
   
   for(i in time_start_index:length(forecast_start_dates)){
     
@@ -366,6 +379,3 @@ for(j in 1:length(sites)){
     }
   }
 }
-
-
-
