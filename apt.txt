@@ -1,2 +1,2 @@
 jq
-libnetcdf15
+libnetcdf-dev
