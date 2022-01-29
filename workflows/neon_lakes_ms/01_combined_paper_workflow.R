@@ -21,11 +21,11 @@ if(use_archive){
   zip::unzip(file.path(lake_directory, 'drivers', 'noaa.zip'),
         exdir = file.path(lake_directory, 'drivers'))
   
-  download.file(url = 'https://zenodo.org/record/4652076/files/',
+  download.file(url = 'https://zenodo.org//5918679/files/neonstore.zip',
                 destfile = file.path(lake_directory, 'data_raw', 'neonstore.zip'),
                 method = "curl")
   zip::unzip(file.path(lake_directory, 'data_raw', 'neonstore.zip'),
-             exdir = file.path(lake_directory, 'data_raw'))
+             exdir = file.path(lake_directory, 'data_raw','neonstore'))
 
 }else{
   Sys.setenv('AWS_DEFAULT_REGION' = 's3', 
