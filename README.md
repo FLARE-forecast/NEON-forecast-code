@@ -33,7 +33,6 @@ FLAREr has been tested across Windows, Mac, and Linux OS. It also requires R ver
 3. Start a new project: File > New Project
 4. Select: Version Control > Git
 5. Paste the repo's URL into "Repository URL:", keep the project directory name as the default, select "open in new session", and click <b>New Project</b>
-https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/main?urlpath=rstudio
 6. When you have cloned the project into R, run `source("workflows/neon_lakes_ms/install.R")` to install the necessary packages.   
 7. Run `workflows/neon_lakes_ms/01_combined_paper_workflows.R` to generate the forecasts.   
 8. Once the forecasts are generated, run `workflows/neon_lakes_ms/02_score_forecasts.R` to evaluate forecasts.  

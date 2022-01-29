@@ -1,5 +1,5 @@
-remotes::install_github("FLARE-forecast/GLMr", ref = "FLARErv1")
-remotes::install_github("FLARE-forecast/FLAREr", ref = "v2.2.0")
+#remotes::install_github("FLARE-forecast/GLMr", ref = "FLARErv1")
+#remotes::install_github("FLARE-forecast/FLAREr", ref = "v2.2.0")
 
 ##'
 # Load in the required functions for processing the data
@@ -8,29 +8,32 @@ library(tidyverse)
 library(lubridate)
 set.seed(100)
 config_set_name <- "neon_lakes_ms"
-run_glm_flare <- FALSE
+run_glm_flare <- TRUE
 run_clim_null <- TRUE
 run_persistence_null <- FALSE
-use_archive <- TRUE
-use_s3 <- TRUE
+#Set use_archive = FALSE unless you have read/write credentials for the remote
+#s3 bucket that is set up for running FLARE.
+use_archive <- FALSE 
 
 if(use_archive){
+  
   download.file(url = 'https://zenodo.org/record/5918357/files/noaa.zip',
                 destfile = file.path(lake_directory, 'drivers', 'noaa.zip'),
                 method = 'curl')
   zip::unzip(file.path(lake_directory, 'drivers', 'noaa.zip'),
-        exdir = file.path(lake_directory, 'drivers'))
+             exdir = file.path(lake_directory, 'drivers'))
   
   download.file(url = 'https://zenodo.org//5918679/files/neonstore.zip',
                 destfile = file.path(lake_directory, 'data_raw', 'neonstore.zip'),
                 method = "curl")
   zip::unzip(file.path(lake_directory, 'data_raw', 'neonstore.zip'),
              exdir = file.path(lake_directory, 'data_raw','neonstore'))
-
+  use_s3 <- FALSE
 }else{
   Sys.setenv('AWS_DEFAULT_REGION' = 's3', 
              'AWS_S3_ENDPOINT' = 'flare-forecast.org', 
              'USE_HTTPS' = TRUE)
+  use_s3 <- TRUE
 }
 
 lake_directory <- here::here()
@@ -45,7 +48,7 @@ edi_url <- c("https://pasta.lternet.edu/package/data/eml/edi/1071/1/7f8aef451231
              "https://pasta.lternet.edu/package/data/eml/edi/1071/1/2e52d63ba4dc2040d1e5e2d11114aa93",
              "https://pasta.lternet.edu/package/data/eml/edi/1071/1/60df35a34bb948c0ca5e5556d129aa98", 
              "https://pasta.lternet.edu/package/data/eml/edi/1071/1/004857d60d6fe7587b112d714e0380d0")
-             
+
 site_edi_profile <- c("NEON.D03.BARC.DP0.20005.001.01378.csv",
                       "NEON.D05.CRAM.DP0.20005.001.01378.csv",
                       "NEON.D05.LIRO.DP0.20005.001.01378.csv",
@@ -81,8 +84,6 @@ configure_run_file <- "configure_run.yml"
 
 for(j in 1:length(sites)){
   
-  #function(i, sites, lake_directory, sim_names, config_files, )
-  
   message(paste0("Running site: ", sites[j]))
   
   run_config <- yaml::read_yaml(file.path(lake_directory, "configuration", config_set_name, configure_run_file))
@@ -108,10 +109,10 @@ for(j in 1:length(sites)){
   }
   
   depth_bins <- config$model_settings$modeled_depths
-  message("    Downloading NEON data")
-  
+
   if(!use_archive){
-  neonstore::neon_download(product = "DP1.20264.001", site = sites[j], start_date = NA)
+    message("    Downloading NEON data")
+    neonstore::neon_download(product = "DP1.20264.001", site = sites[j], start_date = NA)
   }
   
   neonstore_dir <-  file.path(lake_directory, "data_raw","neonstore")
@@ -162,7 +163,7 @@ for(j in 1:length(sites)){
       noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
                                                              forecast_model = config$met$forecast_met_model)
       if(!use_archive){
-      FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
+        FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
       }
       forecast_dir <- file.path(config$file_path$noaa_directory, noaa_forecast_path)
     }else{
@@ -243,7 +244,7 @@ for(j in 1:length(sites)){
         unlink(pdf_file)
       }
     }
-  
+    
     FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = days_between_forecasts)
     
     unlink(config$run_config$restart_file)
@@ -257,12 +258,10 @@ for(j in 1:length(sites)){
                             as_date(config$run_config$forecast_start_datetime) + days(forecast_horizon), "1 day")
       forecast_doy <- yday(forecast_dates)
       
-      #curr_month <- month(Sys.Date())
       curr_month <- month(config$run_config$forecast_start_datetime)
       if(curr_month < 10){
         curr_month <- paste0("0", curr_month)
       }
-      #curr_year <- year(Sys.Date())
       curr_year <- year(config$run_config$forecast_start_datetime)
       start_date <- as_date(paste(curr_year,curr_month, "01", sep = "-"))
       
