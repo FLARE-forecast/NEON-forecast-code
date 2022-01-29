@@ -8,16 +8,16 @@ source(file.path(lake_directory, "workflows","neon_lakes_ms", "scoring.R"))
 
 sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
-sim_names <- list(barc = c("ms_climatology", "ms_glm_flare"),
-                  cram = c("ms_climatology", "ms_glm_flare"),
-                  liro = c("ms_climatology", "ms_glm_flare"),
-                  prla = c("ms_climatology", "ms_glm_flare"),
-                  prpo = c("ms_climatology", "ms_glm_flare"),
-                  sugg = c("ms_climatology", "ms_glm_flare"))
+sim_names <- list(barc = c("ms_climatology", "ms1_glm_flare"),
+                  cram = c("ms_climatology", "ms1_glm_flare"),
+                  liro = c("ms_climatology", "ms1_glm_flare"),
+                  prla = c("ms_climatology", "ms1_glm_flare"),
+                  prpo = c("ms_climatology", "ms1_glm_flare"),
+                  sugg = c("ms_climatology", "ms1_glm_flare"))
 
 forecast_directory <- "/data"
 
-for(i in 1:length(sites)){
+for(i in 6:length(sites)){
 
   message(sites[i])
 

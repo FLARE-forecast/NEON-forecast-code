@@ -27,11 +27,11 @@ combined <- readr::read_csv(scores_files, progress = FALSE) %>%
          siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG"))) %>%
   rename(Model = team) %>%
   filter(Model != "ms_persistence") %>%
-  mutate(Model = ifelse(Model == "ms_climatology", "climatology", Model),
+  mutate(Model = ifelse(Model == "ms_climatology", "Day-of-year mean", Model),
          Model = ifelse(Model == "ms_glm_flare","FLARE-GLM",Model)) %>%
   mutate(season = ifelse(time < as_date("2021-09-01"), "summer", "fall")) %>%
   filter(time < as_date("2021-10-24")) %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","climatology")))
+  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean")))
 
 horizon10rmse <- combined %>%
   filter(Model == 'FLARE-GLM') %>%
@@ -142,7 +142,7 @@ p <- combined %>%
   summarise(rmse = mean(sq_error, na.rm =TRUE),
             .groups = "drop") %>%
   mutate(rmse = sqrt(rmse)) %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","climatology"))) %>%
+  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
   ggplot(aes(horizon, rmse, col=Model)) +
   geom_line() +
   ylim(0,3.75) +
@@ -181,7 +181,7 @@ p_region <- combined %>%
   ylim(0,3.25) +
   labs(x = "Horizon (days)", y = y_label, tag = "(g)", title = " ") +
   theme_bw() +
-  guides(color = guide_legend(title = "Ecoclimatic\ndomain")) +
+  guides(color = guide_legend(title = "NEON\nDomain")) +
   scale_color_manual(values=c("brown", "purple", "darkgray")) +
   theme(legend.position= c(0.97,0.02),
         legend.justification=c(1,0),
@@ -268,7 +268,7 @@ p <- combined %>%
   summarise(rmse = mean(sq_error, na.rm =TRUE),
             .groups = "drop") %>%
   mutate(rmse = sqrt(rmse)) %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","climatology"))) %>%
+  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
   ggplot(aes(horizon, rmse, col=Model)) +
   geom_line() +
   ylim(0,3.75) +
@@ -304,7 +304,7 @@ p <- combined %>%
   summarise(rmse = mean(sq_error, na.rm =TRUE),
             .groups = "drop") %>%
   mutate(rmse = sqrt(rmse)) %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","climatology"))) %>%
+  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
   ggplot(aes(horizon, rmse, col=Model)) +
   geom_line() +
   ylim(0,3.75) +
@@ -338,7 +338,7 @@ p <- combined %>%
   group_by(target, region, Model, horizon, siteID) %>%  # average over siteID
   summarise(crps = mean(crps, na.rm =TRUE),
             .groups = "drop") %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","climatology"))) %>%
+  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
   ggplot(aes(horizon, crps, col=Model)) +
   geom_line() +
   ylim(0,2) +

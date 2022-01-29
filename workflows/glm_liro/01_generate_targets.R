@@ -7,9 +7,8 @@ library(lubridate)
 lake_directory <- here::here()
 message(lake_directory)
 
-source(file.path(lake_directory, "R/process_functions/buoy_qaqc.R"))
-source(file.path(lake_directory, "R/process_functions/glmtools.R"))
-source(file.path(lake_directory, "R/download_functions/NEON_downloads.R"))
+source(file.path(lake_directory, "R/buoy_qaqc.R"))
+#source(file.path(lake_directory, "R/glmtools.R"))
 
 configure_run_file <- "configure_run.yml"
 
@@ -38,7 +37,7 @@ if (file.exists(file.path(neon_database))){
 
 download_neon_files(siteID = config$location$site_id,
                     buoy_products = buoy_products,
-                    start_date = as.Date("2021-01-01"),
+                    start_date = NA,
                     raw_data_directory = config$file_path$data_directory)
 
 ##'

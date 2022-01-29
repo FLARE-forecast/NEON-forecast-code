@@ -38,8 +38,7 @@ if (file.exists(file.path(neon_database))){
 
 download_neon_files(siteID = config$location$site_id,
                     buoy_products = buoy_products,
-                    start_date = as.Date("2021-01-01"),
-                    raw_data_directory = config$file_path$data_directory)
+                    start_date = NA)
 
 ##'
 # Download the latest "early release" data from Bobby Hensley at NEON
@@ -49,11 +48,7 @@ prop_neon <- readr::read_csv("https://raw.githubusercontent.com/FLARE-forecast/N
 ##'
 # Process the NEON data for the site selected in the original .yml file
 
-cleaned_insitu_file <- buoy_qaqc(realtime_buoy_file = file.path(lake_directory,"data_raw","raw_neon_temp_data.csv"),
-                                 prop_neon = prop_neon,
-                                 input_file_tz = "UTC",
-                                 local_tzone = "UTC",
-                                 forecast_site = config$location$site_id,
+cleaned_insitu_file <- buoy_qaqc(forecast_site = config$location$site_id,
                                  processed_filename = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
                                  depth_bins = config$default_init$temp_depths)
 ##'
