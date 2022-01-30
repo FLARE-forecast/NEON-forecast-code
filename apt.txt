@@ -1,2 +1,3 @@
+apt-utils
 jq
 libnetcdf-dev

@@ -26,7 +26,7 @@ FLAREr has been tested across Windows, Mac, and Linux OS. It also requires R ver
 
 ## Workflow 1: NEON six lake analysis (Thomas et al. In prep)
 
-### On your local computer
+### Generating and scoring the forecasts
 
 1. Go to the [NEON-forecast-code](https://github.com/FLARE-forecast/NEON-forecast-code) repository and copy the repo URL. 
 2. Open R
@@ -36,13 +36,24 @@ FLAREr has been tested across Windows, Mac, and Linux OS. It also requires R ver
 6. When you have cloned the project into R, run `source("workflows/neon_lakes_ms/install.R")` to install the necessary packages.   
 7. Run `workflows/neon_lakes_ms/01_combined_paper_workflows.R` to generate the forecasts.   
 8. Once the forecasts are generated, run `workflows/neon_lakes_ms/02_score_forecasts.R` to evaluate forecasts.  
-9. Once the forecasts are scored, run `workflows/neon_lakes_ms/03_ms_figures.R` to produce the figures and analysis in the manuscript.    
 
-### Using mybinder.org
+Note: Generating the entire set of forecasts for all six lakes runs for 3+ days.
+
+###Analyzing forecasts
+
+The Rmarkdown file `workflows/neon_lakes_ms/analysis_notebook.Rmd` is used to analyze the forecasts and generate plots, tables, and numbers.
+
+You can directory use the Rmd on your local computer or use mybinder.org to run the analysis remotely 
+
+###Using mybinder.org
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/HEAD)
 
 You can run the analysis remotely using a binder that generates an Rstudio environment with the necessary packages installed.
 
+The binder is best used for examining the scored forecasts.  
+
 1. Enter the following url into a web browser: [https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/main?urlpath=rstudio](https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/main?urlpath=rstudio).  
-2. Run `workflows/neon_lakes_ms/01_combined_paper_workflows.R` to generate the forecasts.   
-3. Once the forecasts are generated, run `workflows/neon_lakes_ms/02_score_forecasts.R` to evaluate forecasts.   
-4. Once the foreasts are scored, run `workflows/neon_lakes_ms/03_ms_figures.R` to produce the figures and analysis in the manuscript.   
+2. Open `workflows/neon_lakes_ms/analysis_notebook.Rmd` to explore the analysis 
+
+This will load the scored forecasts from a remote s3 bucket without needing to download the files into the binder.
