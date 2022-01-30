@@ -39,21 +39,24 @@ FLAREr has been tested across Windows, Mac, and Linux OS. It also requires R ver
 
 Note: Generating the entire set of forecasts for all six lakes runs for 3+ days.
 
-###Analyzing forecasts
+### Analyzing forecasts
 
 The Rmarkdown file `workflows/neon_lakes_ms/analysis_notebook.Rmd` is used to analyze the forecasts and generate plots, tables, and numbers.
 
 You can directory use the Rmd on your local computer or use mybinder.org to run the analysis remotely 
 
-###Using mybinder.org
+### Using mybinder.org
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/HEAD)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/HEAD?urlpath=rstudio)
 
 You can run the analysis remotely using a binder that generates an Rstudio environment with the necessary packages installed.
 
 The binder is best used for examining the scored forecasts.  
 
-1. Enter the following url into a web browser: [https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/main?urlpath=rstudio](https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/main?urlpath=rstudio).  
-2. Open `workflows/neon_lakes_ms/analysis_notebook.Rmd` to explore the analysis 
+1. Click on the binder button above
+2. Open `workflows/neon_lakes_ms/analysis_notebook.Rmd` to explore the analysis of the scored forecasts.
 
 This will load the scored forecasts from a remote s3 bucket without needing to download the files into the binder.
+
+If you want to do the full analysis, you can follow steps #7 and #8 above.
+
