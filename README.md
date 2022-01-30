@@ -1,7 +1,7 @@
 # NEON lake forecasts in R using FLAREr (Forecasting Lake And Reservoir Ecosystems)
 
-<a href="url"><img src = "images/FLARE.jpg" align="top" height="200" width="200" ></a>
-<a href="url"><img src = "images/nsf_neon_logo.png" align="top" height="200" width="560" ></a>
+<a href="url"><img src = "images/FLARE.jpg" align="top" height="100" width="100" ></a>
+<a href="url"><img src = "images/nsf_neon_logo.png" align="top" height="100" width="280" ></a>
 
 -----
 
@@ -43,8 +43,6 @@ Note: Generating the entire set of forecasts for all six lakes runs for 3+ days.
 
 The Rmarkdown file `workflows/neon_lakes_ms/analysis_notebook.Rmd` is used to analyze the forecasts and generate plots, tables, and numbers.
 
-You can directory use the Rmd on your local computer or use mybinder.org to run the analysis remotely 
-
 ### Using mybinder.org
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/HEAD?urlpath=rstudio)
@@ -58,5 +56,5 @@ The binder is best used for examining the scored forecasts.
 
 This will load the scored forecasts from a remote s3 bucket without needing to download the files into the binder.
 
-If you want to do the full analysis, you can follow steps #7 and #8 above.
+If you want to do the full analysis, you can follow steps #7 and #8 above in the Rstudio Binder.
 
