@@ -1,4 +1,4 @@
-#remotes::install_github("FLARE-forecast/GLMr", ref = "FLARErv1")
+#remotes::install_github("FLARE-forecast/GLM3r", ref = "FLARErv1")
 #remotes::install_github("FLARE-forecast/FLAREr", ref = "v2.2.0")
 
 ##'

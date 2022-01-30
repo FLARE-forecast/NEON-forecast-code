@@ -7,14 +7,40 @@ library(broom)
 lake_directory <- here::here()
 
 lake_info <- read_csv(file.path(lake_directory,"workflows","neon_lakes_ms", "LakeTable_15Nov2021.csv"))
+score_directory <- "s3"
 
 
+library(arrow)
+library(dplyr)
+source(file.path(lake_directory,"workflows","neon_lakes_ms","scoring.R"))
+
+if(score_directory == "s3"){
+Sys.setenv("AWS_EC2_METADATA_DISABLED"="TRUE")
+Sys.unsetenv("AWS_ACCESS_KEY_ID")
+Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
+Sys.unsetenv("AWS_DEFAULT_REGION")
+Sys.unsetenv("AWS_S3_ENDPOINT")
+
+s <- score_schema()
+s3 <- s3_bucket(bucket = "scores",
+                endpoint_override = "s3.flare-forecast.org",
+                anonymous=TRUE)
+ds <- open_dataset(s3, schema=s, format = "csv", skip_rows = 1)
+
+## Test
+combined <- ds %>% filter(team == "ms1_glm_flare" | team == "ms1_climatology") %>% collect()
+}else{
 #Read in scored forecasts
-scores_files <- fs::dir_ls(file.path("/data/scores"), type="file",recurse = TRUE)
+scores_files <- fs::dir_ls(score_directory, type="file",recurse = TRUE)
 
-scores_files <- scores_files[stringr::str_detect(scores_files, "ms_")]
+scores_files1 <- scores_files[stringr::str_detect(scores_files, "ms1_glm_flare")]
+scores_files2 <- scores_files[stringr::str_detect(scores_files, "ms1_climatology")]
+scores_files <- c(scores_files1, scores_files2)
 
-combined <- readr::read_csv(scores_files, progress = FALSE) %>%
+combined <- readr::read_csv(scores_files, progress = FALSE)
+}
+
+combined <- combined %>%
   rename("siteID" = theme) %>%
   mutate(resid = observed - mean,
          sq_error = (resid)^2) %>%

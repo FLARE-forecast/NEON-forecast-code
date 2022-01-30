@@ -13,9 +13,9 @@ score <- function(forecast,
                   theme = c("aquatics", "beetles",
                             "phenology", "terrestrial_30min",
                             "terrestrial_daily","ticks")){
-
+  
   theme = match.arg(theme)
-
+  
   ## read from file if necessary
   if(is.character(forecast)){
     filename <- forecast
@@ -28,10 +28,10 @@ score <- function(forecast,
   forecast <- forecast %>%
     mutate(theme=theme) %>%
     pivot_forecast()
-
-
+  
+  
   crps_logs_score(forecast, target)
-
+  
 }
 
 
@@ -71,9 +71,9 @@ standardize_format <- function(df) {
       mutate(time = isoweek(time)) %>%
       select(-siteID) %>%
       rename(siteID = plotID)
-
+    
   }
-
+  
   # drop non-standard columns
   df %>% dplyr::select(tidyselect::any_of(VARS))
 }
@@ -81,13 +81,13 @@ standardize_format <- function(df) {
 
 #Select forecasted times using "forecast" flag in standard
 select_forecasts <- function(df){
-
+  
   if("forecast" %in% colnames(df)){
     df <- df %>% dplyr::filter(forecast == 1)
   }
-
+  
   df
-
+  
 }
 
 
@@ -97,25 +97,25 @@ select_forecasts <- function(df){
 
 
 deduplicate_predictions <- function(df){
-
+  
   has_dups <- df %>%
     select(-any_of("predicted")) %>%
     vctrs::vec_group_id() %>%
     vctrs::vec_duplicate_any()
-
+  
   if(has_dups) {
     df <- df %>%
       filter(!is.na(predicted)) %>%
       group_by(across(-any_of("predicted"))) %>%
       filter(dplyr::row_number() == 1L)
   }
-
+  
   df
 }
 
 ## Parses neon4cast challenge forecast filename components.
 split_filename <- function(df){
-
+  
   ## arguably better to split on "-" and unite date components?
   if("filename" %in% colnames(df)) {
     pattern <- "(\\w+)\\-(\\d{4}\\-\\d{2}\\-\\d{2})\\-(\\w+)\\.(csv)?(\\.gz)?(nc)?"
@@ -129,7 +129,7 @@ split_filename <- function(df){
 
 
 pivot_target <- function(df){
-
+  
   df %>%
     standardize_format() %>%
     tidyr::pivot_longer(tidyselect::any_of(TARGET_VARS),
@@ -140,25 +140,25 @@ pivot_target <- function(df){
 
 
 pivot_forecast <- function(df){
-
+  
   df <- df %>%
     split_filename() %>%
     standardize_format() %>%
     tidyr::pivot_longer(tidyselect::any_of(TARGET_VARS),
                         names_to = "target",
                         values_to = "predicted")
-
-
-
-
+  
+  
+  
+  
   df <- deduplicate_predictions(df)
-
+  
   if("statistic" %in% colnames(df)){
     df <- df %>%
       tidyr::pivot_wider(names_from = statistic,
                          values_from = predicted)
   }
-
+  
   df
 }
 
@@ -190,11 +190,11 @@ logs_norm <- function(y, mean, sd) {
 
 ## Requires that forecasts and targets have already been cleaned & pivoted!
 crps_logs_score <- function(forecast, target){
-
+  
   ## FIXME ensure either both or none have "theme", "issue_date", "team"
   # left join will keep predictions even where we have no observations
   joined <- dplyr::left_join(forecast, target)
-
+  
   if("ensemble" %in% colnames(joined)){
     out <- joined %>%
       group_by(across(-any_of(c("ensemble", "predicted")))) %>%
@@ -213,8 +213,8 @@ crps_logs_score <- function(forecast, target){
                 quantile80 = stats::quantile(predicted, 0.80, na.rm = TRUE),
                 quantile90 = stats::quantile(predicted, 0.90, na.rm = TRUE),
                 quantile97.5 = stats::quantile(predicted, 0.975, na.rm = TRUE),
-               ) %>% ungroup()
-
+      ) %>% ungroup()
+    
   } else {
     out <- joined  %>%
       dplyr::mutate(crps = crps_norm(observed, mean, sd),
@@ -230,28 +230,28 @@ crps_logs_score <- function(forecast, target){
                     quantile80 = stats::qnorm(0.80, mean, sd),
                     quantile90 = stats::qnorm(0.90, mean, sd),
                     quantile97.5 = stats::qnorm(0.975, mean, sd))
-
+    
   }
   ## Ensure both ensemble and stat-based have identical column order:
   out %>% select(any_of(c("theme", "team", "issue_date", "siteID","depth", "time",
-                        "target", "mean", "sd", "observed", "crps",
-                        "logs", "quantile02.5", "quantile10", "quantile20" ,
-                        "quantile30", "quantile40", "quantile50", "quantile60",
-                        "quantile70", "quantile80", "quantile90", "quantile97.5",
-                        "interval",
-                        "forecast_start_time")))
+                          "target", "mean", "sd", "observed", "crps",
+                          "logs", "quantile02.5", "quantile10", "quantile20" ,
+                          "quantile30", "quantile40", "quantile50", "quantile60",
+                          "quantile70", "quantile80", "quantile90", "quantile97.5",
+                          "interval",
+                          "forecast_start_time")))
 }
 
 
 
 include_horizon <- function(df){
-
+  
   interval <- df %>%
     group_by(across(any_of(c("theme", "team", "issue_date", "target", "siteID", "depth")))) %>%
     summarise(interval = min(time-dplyr::lag(time), na.rm=TRUE),
               forecast_start_time = min(time) - interval,
               .groups = "drop")
-
+  
   ## add columns for start_time and horizon
   df %>%
     left_join(interval) %>%
@@ -267,33 +267,33 @@ score_it <- function(targets_file,
                      forecast_files,
                      dir = "scores"
 ){
-
+  
   dir.create(dir, FALSE, TRUE)
   theme <- strsplit(basename(targets_file), "[-_]")[[1]][[1]]
-
+  
   ## Target is processed only once
   target <-
     readr::read_csv(targets_file, show_col_types = FALSE,
                     lazy = FALSE, progress = FALSE) %>%
     mutate(theme = theme) %>%
     pivot_target()
-
-    ## read, format, and score and write out each forecast file
-    suppressMessages({
+  
+  ## read, format, and score and write out each forecast file
+  suppressMessages({
     furrr::future_walk(forecast_files,
-      function(forecast_file, target){
-        forecast_file %>%
-          read_forecast() %>%
-          mutate(filename = forecast_file) %>%
-          select_forecasts() %>%
-          pivot_forecast() %>%
-          crps_logs_score(target) %>%
-          include_horizon() %>%
-          write_scores(dir)
-      },
-      target = target
+                       function(forecast_file, target){
+                         forecast_file %>%
+                           read_forecast() %>%
+                           mutate(filename = forecast_file) %>%
+                           select_forecasts() %>%
+                           pivot_forecast() %>%
+                           crps_logs_score(target) %>%
+                           include_horizon() %>%
+                           write_scores(dir)
+                       },
+                       target = target
     )
-    })
+  })
 }
 
 
@@ -304,24 +304,24 @@ write_scores <- function(scores, dir = "scores"){
                       paste0(paste("scores", r$theme, r$time, r$team, sep="-"),
                              ".csv.gz")
   )
-
+  
   readr::write_csv(scores, output)
   invisible(output)
-
+  
 }
 
 write_scores_s3 <- function(df){
   r <- utils::head(df,1)
   output <- paste0(paste("scores", r$theme, r$time, r$team, sep="-"),
-                             ".csv.gz")
-
+                   ".csv.gz")
+  
   aws.s3::s3write_using(FUN = readr::write_csv,
-                       x = df,
-                       object = file.path(r$theme, output),
-                       bucket = "scores",
-                       opts = list(
-                         base_url = "flare-forecast.org",
-                         region = "s3"))
+                        x = df,
+                        object = file.path(r$theme, output),
+                        bucket = "scores",
+                        opts = list(
+                          base_url = "flare-forecast.org",
+                          region = "s3"))
 }
 
 read_forecast_s3 <- function(x, grouping_variables, target_variables){
@@ -334,6 +334,37 @@ read_forecast_s3 <- function(x, grouping_variables, target_variables){
                        opts = list(
                          base_url = "flare-forecast.org",
                          region = "s3")
+  )
+}
+
+score_schema  <- function() {
+  
+  arrow::schema(
+    theme      = arrow::string(),
+    team       = arrow::string(),
+    issue_date = arrow::date32(),
+    siteID     = arrow::string(),
+    time       = arrow::timestamp("s", timezone="UTC"),
+    target     = arrow::string(),
+    mean       = arrow::float64(),
+    sd         = arrow::float64(),
+    observed   = arrow::float64(),
+    crps       = arrow::float64(),
+    logs       = arrow::float64(),
+    quantile02.5 = arrow::float64(),
+    quantile10 =arrow::float64(),
+    quantile20 = arrow::float64(),
+    quantile30 = arrow::float64(),
+    quantile40 = arrow::float64(),
+    quantile50 = arrow::float64(),
+    quantile60 = arrow::float64(),
+    quantile70 = arrow::float64(),
+    quantile80 = arrow::float64(),
+    quantile90 = arrow::float64(),
+    quantile97.5 = arrow::float64(),
+    interval   = arrow::float64(),
+    forecast_start_time = arrow::timestamp("s", timezone="UTC"),
+    horizon    = arrow::float64()
   )
 }
 

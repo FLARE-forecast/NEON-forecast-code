@@ -1,0 +1,169 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Set up analysis
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(patchwork)
+library(egg)
+library(broom)
+lake_directory <- here::here()
+source(file.path(lake_directory,"workflows","neon_lakes_ms","scoring.R"))
+
+```
+
+
+```{r}
+score_directory <- "s3"
+if(score_directory == "s3"){
+  library(arrow)
+  library(dplyr)
+}
+
+```
+
+```{r}
+if(score_directory == "s3"){
+Sys.setenv("AWS_EC2_METADATA_DISABLED"="TRUE")
+Sys.unsetenv("AWS_ACCESS_KEY_ID")
+Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
+Sys.unsetenv("AWS_DEFAULT_REGION")
+Sys.unsetenv("AWS_S3_ENDPOINT")
+
+s <- score_schema()
+s3 <- s3_bucket(bucket = "scores",
+                endpoint_override = "s3.flare-forecast.org",
+                anonymous=TRUE)
+ds <- open_dataset(s3, schema=s, format = "csv", skip_rows = 1)
+
+## Test
+combined <- ds %>% filter(team == "ms1_glm_flare" | team == "ms1_climatology") %>% collect()
+}else{
+#Read in scored forecasts
+scores_files <- fs::dir_ls(score_directory, type="file",recurse = TRUE)
+
+scores_files1 <- scores_files[stringr::str_detect(scores_files, "ms1_glm_flare")]
+scores_files2 <- scores_files[stringr::str_detect(scores_files, "ms1_climatology")]
+scores_files <- c(scores_files1, scores_files2)
+
+combined <- readr::read_csv(scores_files, progress = FALSE)
+}
+```
+
+```{r}
+combined <- combined %>%
+  rename("siteID" = theme) %>%
+  mutate(resid = observed - mean,
+         sq_error = (resid)^2) %>%
+  select(siteID, team, issue_date, time, forecast_start_time, horizon, target,depth, mean, sd, observed, crps, logs, resid, sq_error, quantile10, quantile90) %>%
+  mutate(region = NA,
+         region = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", region),
+         region = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", region),
+         region = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", region),
+         region = factor(region, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG"))) %>%
+  rename(Model = team) %>%
+  filter(Model != "ms_persistence") %>%
+  mutate(Model = ifelse(Model == "ms_climatology", "Day-of-year mean", Model),
+         Model = ifelse(Model == "ms_glm_flare","FLARE-GLM",Model)) %>%
+  mutate(season = ifelse(time < as_date("2021-09-01"), "summer", "fall")) %>%
+  filter(time < as_date("2021-10-24")) %>%
+  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean")))
+```
+
+
+```{r}
+horizon10rmse <- combined %>%
+  filter(Model == 'FLARE-GLM') %>%
+  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
+  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
+  na.omit() %>%
+  filter(depth == 0.1) %>%
+  filter(horizon <= 10) %>%
+  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
+  group_by(target, Model, siteID) %>%  # average over siteID
+  summarise(rmse = mean(sq_error, na.rm =TRUE),
+            .groups = "drop") %>%
+  mutate(rmse = sqrt(rmse)) %>%
+  left_join(lake_info, by = "siteID") %>%
+  rename(region = state)
+```
+
+```{r}
+first10days <- combined %>%
+  filter(Model == 'FLARE-GLM') %>%
+  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
+  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
+  na.omit() %>%
+  filter(depth == 0.1) %>%
+  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
+  group_by(target, Model, siteID, horizon) %>%  # average over siteID
+  summarise(rmse = mean(sq_error, na.rm =TRUE),
+            .groups = "drop") %>%
+  mutate(rmse = sqrt(rmse)) %>%
+  filter(horizon < 10) %>%
+  group_by(siteID)
+```
+
+
+```{r}
+slope10day <- do(first10days, tidy(lm(rmse ~ horizon, data = .))) %>%
+  filter(term == "horizon") %>%
+  rename(slope = estimate) %>%
+  select(siteID, slope)
+horizon10rmse <- left_join(horizon10rmse, slope10day)
+```
+
+```{r}
+corr_table <- matrix(NA, nrow = 10, ncol = 2)
+corr_table[1,1] <- cor(-horizon10rmse$rmse, horizon10rmse$max_depth_m, method = )
+corr_table[2,1] <- cor(-horizon10rmse$rmse, horizon10rmse$fetch_m, method = "spearman")
+corr_table[3,1] <- cor(-horizon10rmse$rmse, horizon10rmse$volume_m3, method = "spearman")
+corr_table[4,1] <- cor(-horizon10rmse$rmse, horizon10rmse$surface_area_km2, method = "spearman")
+corr_table[5,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_secchi_depth_m, method = "spearman")
+corr_table[6,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_annual_temperature_degreeC, method = "spearman")
+corr_table[7,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_annual_precipitation_mm, method = "spearman")
+corr_table[8,1] <- cor(-horizon10rmse$rmse, horizon10rmse$air_temp_10day_sd_degreeC, method = "spearman")
+corr_table[9,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_hydraulic_residence_time_yrs, method = "spearman")
+corr_table[10,1] <- cor(-horizon10rmse$rmse, horizon10rmse$catchment_size_km2, method = "spearman")
+
+corr_table[1,2] <- cor(horizon10rmse$slope, horizon10rmse$max_depth_m, method = "spearman")
+corr_table[2,2] <- cor(horizon10rmse$slope, horizon10rmse$fetch_m, method = "spearman")
+corr_table[3,2] <- cor(horizon10rmse$slope, horizon10rmse$volume_m3, method = "spearman")
+corr_table[4,2] <- cor(horizon10rmse$slope, horizon10rmse$surface_area_km2, method = "spearman")
+corr_table[5,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_secchi_depth_m, method = "spearman")
+corr_table[6,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_annual_temperature_degreeC, method = "spearman")
+corr_table[7,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_annual_precipitation_mm, method = "spearman")
+corr_table[8,2] <- cor(horizon10rmse$slope, horizon10rmse$air_temp_10day_sd_degreeC, method = "spearman")
+corr_table[9,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_hydraulic_residence_time_yrs, method = "spearman")
+corr_table[10,2] <- cor(horizon10rmse$slope, horizon10rmse$catchment_size_km2, method = "spearman")
+```
+
+```{r}
+corr_table_pvalue <- matrix(NA, nrow = 10, ncol = 2)
+corr_table_pvalue[1,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$max_depth_m, method = "spearman")$p.value
+corr_table_pvalue[2,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$fetch_m, method = "spearman")$p.value
+corr_table_pvalue[3,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$volume_m3, method = "spearman")$p.value
+corr_table_pvalue[4,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$surface_area_km2, method = "spearman")$p.value
+corr_table_pvalue[5,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$mean_secchi_depth_m, method = "spearman")$p.value
+corr_table_pvalue[6,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$mean_annual_temperature_degreeC, method = "spearman")$p.value
+corr_table_pvalue[7,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$mean_annual_precipitation_mm, method = "spearman")$p.value
+corr_table_pvalue[8,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$air_temp_10day_sd_degreeC, method = "spearman")$p.value
+corr_table_pvalue[9,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$mean_hydraulic_residence_time_yrs, method = "spearman")$p.value
+corr_table_pvalue[10,1] <- cor.test(-horizon10rmse$rmse, horizon10rmse$catchment_size_km2, method = "spearman")$p.value
+
+corr_table_pvalue[1,2] <- cor.test(horizon10rmse$slope, horizon10rmse$max_depth_m, method = "spearman")$p.value
+corr_table_pvalue[2,2] <- cor.test(horizon10rmse$slope, horizon10rmse$fetch_m, method = "spearman")$p.value
+corr_table_pvalue[3,2] <- cor.test(horizon10rmse$slope, horizon10rmse$volume_m3, method = "spearman")$p.value
+corr_table_pvalue[4,2] <- cor.test(horizon10rmse$slope, horizon10rmse$surface_area_km2, method = "spearman")$p.value
+corr_table_pvalue[5,2] <- cor.test(horizon10rmse$slope, horizon10rmse$mean_secchi_depth_m, method = "spearman")$p.value
+corr_table_pvalue[6,2] <- cor.test(horizon10rmse$slope, horizon10rmse$mean_annual_temperature_degreeC, method = "spearman")$p.value
+corr_table_pvalue[7,2] <- cor.test(horizon10rmse$slope, horizon10rmse$mean_annual_precipitation_mm, method = "spearman")$p.value
+corr_table_pvalue[8,2] <- cor.test(horizon10rmse$slope, horizon10rmse$air_temp_10day_sd_degreeC, method = "spearman")$p.value
+corr_table_pvalue[9,2] <- cor.test(horizon10rmse$slope, horizon10rmse$mean_hydraulic_residence_time_yrs, method = "spearman")$p.value
+corr_table_pvalue[10,2] <- cor.test(horizon10rmse$slope, horizon10rmse$catchment_size_km2, method = "spearman")$p.value
+```
