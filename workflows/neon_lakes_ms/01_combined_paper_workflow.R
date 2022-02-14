@@ -13,7 +13,7 @@ run_clim_null <- TRUE
 run_persistence_null <- FALSE
 #Set use_archive = FALSE unless you have read/write credentials for the remote
 #s3 bucket that is set up for running FLARE.
-use_archive <- TRUE 
+use_archive <- FALSE 
 lake_directory <- here::here()
 
 if(use_archive){
@@ -49,7 +49,9 @@ if(use_archive){
 
 source(file.path(lake_directory, "R/buoy_qaqc.R"))
 
-sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+#sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+
+sites <- c("BARC", "CRAM")
 
 edi_url <- c("https://pasta.lternet.edu/package/data/eml/edi/1071/1/7f8aef451231d5388c98eef889332a4b",
              "https://pasta.lternet.edu/package/data/eml/edi/1071/1/2c8893684d94b9a52394060a76cab798", 
@@ -65,7 +67,6 @@ site_edi_profile <- c("NEON.D03.BARC.DP0.20005.001.01378.csv",
                       "NEON.D09.PRPO.DP0.20005.001.01378.csv",
                       "NEON.D03.SUGG.DP0.20005.001.01378.csv")
 
-
 start_from_scratch <- TRUE
 time_start_index <- 1
 
@@ -73,7 +74,7 @@ sim_names <- "ms1_glm_flare"
 config_files <- paste0("configure_flare_",sites,".yml")
 
 #num_forecasts <- 20
-num_forecasts <- 23 * 7
+num_forecasts <- 23 * 7 - 1
 days_between_forecasts <- 1
 forecast_horizon <- 34 #32
 starting_date <- as_date("2021-04-18")

@@ -1,9 +1,11 @@
 ---
-title: "R Notebook"
+title: "Near-term forecasts of NEON lakes reveal gradients of environmental predictability across the U.S."
 output: html_notebook
 ---
 
 # Set up analysis
+
+The analysis needs the following libraries, environment variables, and sourced R functions.
 
 ```{r}
 library(tidyverse)
@@ -13,11 +15,11 @@ library(egg)
 library(broom)
 library(arrow)
 library(dplyr)
-Sys.setenv("AWS_EC2_METADATA_DISABLED"="TRUE")
-Sys.unsetenv("AWS_ACCESS_KEY_ID")
-Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
-Sys.unsetenv("AWS_DEFAULT_REGION")
-Sys.unsetenv("AWS_S3_ENDPOINT")
+#Sys.setenv("AWS_EC2_METADATA_DISABLED"="TRUE")
+#Sys.unsetenv("AWS_ACCESS_KEY_ID")
+#Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
+#Sys.unsetenv("AWS_DEFAULT_REGION")
+#Sys.unsetenv("AWS_S3_ENDPOINT")
 lake_directory <- here::here()
 source(file.path(lake_directory,"workflows","neon_lakes_ms","scoring.R"))
 
@@ -25,133 +27,255 @@ source(file.path(lake_directory,"workflows","neon_lakes_ms","scoring.R"))
 
 # Reading in scores
 
+The scores (i.e., metrics of how well a forecast predicts an observation) are already calculated from the forecasts using the the `workflows/neon_lakes_ms/02_score_forecasts.R` script. The following code reads the individual forecast files into memory and stacks the the scored forecasts together. The scores are located in a remote s3 bucket and are read into local memory without needing to download the files. The filtering to select only the "teams" of interest (i.e., models run) occurs remotely, thus reducing the size of the data that are transferred.
+
 ```{r}
 s <- score_schema()
 s3 <- s3_bucket(bucket = "scores",
                 endpoint_override = "s3.flare-forecast.org",
                 anonymous=TRUE)
 ds <- open_dataset(s3, schema=s, format = "csv", skip_rows = 1)
-combined <- ds %>% filter(team == "ms_glm_flare" | team == "ms_climatology") %>% collect()
+combined <- ds %>% filter((team == "ms1_glm_flare" | team == "ms1_doymean") & 
+                          time < as_date("2021-10-24")) %>% collect()
 ```
+
 # Clean-up up table of scores
 
+The combined table is cleaned up by renaming of the columns, defining the NEON ecoclimatic domains, expanding the model names, and defining the start of "fall" that is used in later analyses. The squared error is calculated for each forecast-observation pair.
+
 ```{r}
-combined <- combined %>%
+combined1 <- combined %>%
   rename("siteID" = theme) %>%
   mutate(resid = observed - mean,
          sq_error = (resid)^2) %>%
-  select(siteID, team, issue_date, time, forecast_start_time, horizon, target,depth, mean, sd, observed, crps, logs, resid, sq_error, quantile10, quantile90) %>%
-  mutate(region = NA,
-         region = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", region),
-         region = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", region),
-         region = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", region),
-         region = factor(region, levels = c("Northern Plains","Great Lakes","Southeast")),
-         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG"))) %>%
+  select(siteID, team, time, forecast_start_time, issue_date, horizon, depth, mean, observed,sq_error, crps) %>%
   rename(Model = team) %>%
-  mutate(Model = ifelse(Model == "ms_climatology", "Day-of-year mean", Model),
-         Model = ifelse(Model == "ms_glm_flare","FLARE-GLM",Model)) %>%
-  mutate(season = ifelse(time < as_date("2021-09-01"), "summer", "fall")) %>%
-  filter(time < as_date("2021-10-24")) %>%
+  mutate(Model = ifelse(Model == "ms1_doymean", "Day-of-year mean", Model),
+         Model = ifelse(Model == "ms1_glm_flare","FLARE-GLM", Model)) %>%
   mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean")))
 ```
 
-# Building tables
+```{r}
+focal_depth_top <- 0.0
+focal_depth_bottom <- 1.0
+focal_horizon <- 10
+```
+
+```{r}
+combined2 <- combined1 %>% 
+  select(siteID, Model, time, forecast_start_time, issue_date, horizon, depth, sq_error) %>%
+  pivot_wider(names_from = Model, values_from = sq_error) %>%
+  na.omit() %>%
+  select(siteID, time, horizon, depth, `Day-of-year mean`, `FLARE-GLM`) %>% 
+  pivot_longer(cols = -c("siteID","time", "horizon", "depth"), names_to = "Model",values_to = "sq_error") %>%
+  pivot_wider(names_from = horizon, values_from = sq_error) %>% 
+  na.omit() %>% 
+  pivot_longer(cols = -c("siteID","time", "Model", "depth"), names_to = "horizon", values_to = "sq_error")
+
+combined_top <- combined2 %>% 
+  filter(depth == 0.0) %>% 
+  group_by(Model, siteID, horizon) %>%  # average over siteID
+  summarise(rmse = mean(sq_error, na.rm =TRUE),
+            .groups = "drop") %>%
+  mutate(rmse = sqrt(rmse)) %>% 
+  mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG")))
+
+combined_1m <- combined2 %>% 
+  filter(depth >= focal_depth_top,
+         depth <= focal_depth_bottom) %>% 
+  group_by(Model, siteID, horizon) %>%  # average over siteID
+  summarise(rmse = mean(sq_error, na.rm =TRUE),
+            .groups = "drop") %>%
+  mutate(rmse = sqrt(rmse)) %>% 
+  mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG")))
+
+combined_1m_all_sites <- combined2 %>% 
+  filter(depth >= focal_depth_top,
+         depth <= focal_depth_bottom) %>% 
+  group_by(Model, horizon) %>%  # average over siteID
+  summarise(rmse = mean(sq_error, na.rm =TRUE),
+            .groups = "drop") %>%
+  mutate(rmse = sqrt(rmse))
+
+combined_all_depths <- combined2 %>% 
+  group_by(Model, siteID, horizon) %>%  # average over siteID
+  summarise(rmse = mean(sq_error, na.rm =TRUE),
+            .groups = "drop") %>%
+  mutate(rmse = sqrt(rmse)) %>% 
+  mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG")))
+
+combined_1m_crps <- combined1 %>% 
+  select(siteID, Model, time, forecast_start_time, issue_date, horizon, depth, crps) %>%
+  pivot_wider(names_from = Model, values_from = crps) %>%
+  na.omit() %>%
+  select(siteID, time, horizon, depth, `Day-of-year mean`, `FLARE-GLM`) %>% 
+  pivot_longer(cols = -c("siteID","time", "horizon", "depth"), names_to = "Model",values_to = "crps") %>%
+  pivot_wider(names_from = horizon, values_from = crps) %>% 
+  na.omit() %>% 
+  pivot_longer(cols = -c("siteID","time", "Model", "depth"), names_to = "horizon", values_to = "crps") %>% 
+  filter(depth >= focal_depth_top,
+         depth <= focal_depth_bottom) %>% 
+  group_by(Model, siteID, horizon) %>%  # average over siteID
+  summarise(crps = mean(crps, na.rm =TRUE),
+            .groups = "drop") %>%
+  mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG")))
+
+```
+
+
+# Building derived tables
+
+The analysis uses a set of metric that summarize each 35-day forecast at a specific depths (the surface, 0.05m). The first is the RMSE at day 10. We choice the 10-day horizon because it XXXX. The second is the rate of change in RMSE over the first 10-days. This represents the rate that the quality of forecast degrades.
+
+Read in lake characteristic data
+
+```{r}
+lake_info <- read_csv(file.path(lake_directory,"workflows","neon_lakes_ms", "LakeTable_15Nov2021.csv"))
+
+variables <- tibble(variable = c("max_depth_m", "fetch_m", "volume_m3", "surface_area_km2", "mean_secchi_depth_m",
+         "mean_annual_temperature_degreeC", "mean_annual_precipitation_mm", "air_temp_10day_sd_degreeC",
+         "mean_hydraulic_residence_time_yrs", "catchment_size_km2", "latitude"),
+         full_name = c("Maximum\ndepth", "Fetch", "Volume", "Surface\narea","Water clarity\n(Secchi depth)","Mean annual air\ntemperature", "Mean annual\nprecipitation","10-day variance in\n air temperature","Mean hydrologic\nresidence time","Catchment\nsize", "latitude"))
+```
 
 ## RMSE at 10-days ahead
 
 ```{r}
-horizon10rmse <- combined %>%
-  filter(Model == 'FLARE-GLM') %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  filter(horizon <= 10) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(target, Model, siteID) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  left_join(lake_info, by = "siteID") %>%
-  rename(region = state)
+horizon10rmse <- combined_1m %>% 
+  filter(Model == "FLARE-GLM",
+         horizon %in% c(1,10,20,30)) %>% 
+  mutate(horizon = as.character(horizon)) %>% 
+  select(Model, siteID, horizon, rmse)
 ```
 
 ## Slope of at RMSE over first 10-days
 
 ```{r}
-first10days <- combined %>%
-  filter(Model == 'FLARE-GLM') %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(target, Model, siteID, horizon) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  filter(horizon < 10) %>%
-  group_by(siteID)
-
-slope10day <- do(first10days, tidy(lm(rmse ~ horizon, data = .))) %>%
-  filter(term == "horizon") %>%
-  rename(slope = estimate) %>%
-  select(siteID, slope)
+slope10day <- combined_1m %>% 
+  filter(Model == "FLARE-GLM") %>% 
+  group_by(siteID, Model) %>% 
+  summarize(rmse = max(rmse) - min(rmse), .groups = "drop") %>% 
+  mutate(horizon = "slope") %>% 
+  select(Model,siteID, horizon, rmse)
 ```
 
 ## Combine tables together
 
 ```{r}
 
-horizon10rmse <- left_join(horizon10rmse, slope10day)
+horizon10rmse <- bind_rows(horizon10rmse, slope10day) %>% 
+left_join(lake_info, by = "siteID") %>% 
+   mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG")))
 ```
 
 ## Calculate correlations with lake characteristics
 
-Read in lake characteristic data
+
+Correlations with 10-day ahead RMSE and 1-10 day RMSE slope. RMSE is multiplied by -1 so that smaller values equal less accuracy. This allows a positive correlation to mean that accuracy increases with the lake characteristic of interest
 
 ```{r}
-lake_info <- read_csv(file.path(lake_directory,"workflows","neon_lakes_ms", "LakeTable_15Nov2021.csv"))
+horizon10rmse %>% 
+  select(horizon, siteID, rmse, max_depth_m, fetch_m, volume_m3, surface_area_km2, mean_secchi_depth_m,
+         mean_annual_temperature_degreeC, mean_annual_precipitation_mm, air_temp_10day_sd_degreeC,
+         mean_hydraulic_residence_time_yrs, catchment_size_km2, latitude) %>% 
+  pivot_longer(cols = -c("rmse","siteID", "horizon"), names_to = "variable", values_to = "value") %>% 
+  left_join(variables) %>% 
+  filter(horizon == "1") %>% 
+    mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG"))) %>% 
+  ggplot(aes(x = value, y = -rmse, col = siteID, shape = domain)) +
+  geom_point() +
+  facet_wrap(~full_name, scale = "free") +
+  labs(y = "accuracy (-1 * RMSE)") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
 ```
 
-Correlations with 10-day ahead RMSE and 1-10 day RMSE slope.  RMSE is multiplied by -1 so that smaller values equal less accuracy. This allows a positive correlation to mean that accuracy increases with the lake characteristic of interest
+```{r}
+horizon10rmse %>% 
+  select(siteID, rmse, horizon, max_depth_m, fetch_m, volume_m3, surface_area_km2, mean_secchi_depth_m,
+         mean_annual_temperature_degreeC, mean_annual_precipitation_mm, air_temp_10day_sd_degreeC,
+         mean_hydraulic_residence_time_yrs, catchment_size_km2, latitude) %>% 
+  pivot_longer(cols = -c("siteID", "rmse","horizon"), names_to = "variable", values_to = "value") %>% 
+  left_join(variables) %>% 
+  filter(horizon == "slope") %>% 
+  mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG"))) %>% 
+  ggplot(aes(x = value, y = rmse, col = siteID, shape = domain)) +
+  geom_point() +
+  facet_wrap(~full_name, scale = "free", ncol = 2) +
+  theme_bw() +
+    labs(y = "rate of degradation (max RMSE - min RMSE)") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+```
+
+Spearman
 
 ```{r}
-corr_table <- matrix(NA, nrow = 10, ncol = 2)
-corr_table[1,1] <- cor(-horizon10rmse$rmse, horizon10rmse$max_depth_m, method = )
-corr_table[2,1] <- cor(-horizon10rmse$rmse, horizon10rmse$fetch_m, method = "spearman")
-corr_table[3,1] <- cor(-horizon10rmse$rmse, horizon10rmse$volume_m3, method = "spearman")
-corr_table[4,1] <- cor(-horizon10rmse$rmse, horizon10rmse$surface_area_km2, method = "spearman")
-corr_table[5,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_secchi_depth_m, method = "spearman")
-corr_table[6,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_annual_temperature_degreeC, method = "spearman")
-corr_table[7,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_annual_precipitation_mm, method = "spearman")
-corr_table[8,1] <- cor(-horizon10rmse$rmse, horizon10rmse$air_temp_10day_sd_degreeC, method = "spearman")
-corr_table[9,1] <- cor(-horizon10rmse$rmse, horizon10rmse$mean_hydraulic_residence_time_yrs, method = "spearman")
-corr_table[10,1] <- cor(-horizon10rmse$rmse, horizon10rmse$catchment_size_km2, method = "spearman")
+spear_corr_table <- horizon10rmse %>% 
+  select(rmse, horizon, max_depth_m, fetch_m, volume_m3, surface_area_km2, mean_secchi_depth_m,
+         mean_annual_temperature_degreeC, mean_annual_precipitation_mm, air_temp_10day_sd_degreeC,
+         mean_hydraulic_residence_time_yrs, catchment_size_km2, latitude) %>% 
+  pivot_longer(cols = -c("rmse","horizon"), names_to = "variable", values_to = "value") %>% 
+  group_by(variable, horizon) %>% 
+  summarize(rho = cor(rmse, value, method = "spearman"),
+            pvalue = cor.test(rmse, value, method = "spearman")$p.value, .groups = "drop") %>% 
+  left_join(variables) %>% 
+  filter(horizon %in% c("1", "slope")) %>% 
+    mutate(Metric = ifelse(horizon == "1",  "accuracy", "accuracy\ndegradation"),
+           rho = ifelse(Metric == "accuracy", -rho, rho)) %>%
+   arrange(desc(abs(rho)))
 
-corr_table[1,2] <- cor(horizon10rmse$slope, horizon10rmse$max_depth_m, method = "spearman")
-corr_table[2,2] <- cor(horizon10rmse$slope, horizon10rmse$fetch_m, method = "spearman")
-corr_table[3,2] <- cor(horizon10rmse$slope, horizon10rmse$volume_m3, method = "spearman")
-corr_table[4,2] <- cor(horizon10rmse$slope, horizon10rmse$surface_area_km2, method = "spearman")
-corr_table[5,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_secchi_depth_m, method = "spearman")
-corr_table[6,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_annual_temperature_degreeC, method = "spearman")
-corr_table[7,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_annual_precipitation_mm, method = "spearman")
-corr_table[8,2] <- cor(horizon10rmse$slope, horizon10rmse$air_temp_10day_sd_degreeC, method = "spearman")
-corr_table[9,2] <- cor(horizon10rmse$slope, horizon10rmse$mean_hydraulic_residence_time_yrs, method = "spearman")
-corr_table[10,2] <- cor(horizon10rmse$slope, horizon10rmse$catchment_size_km2, method = "spearman")
+corr_names <- rev(as.character(unique(spear_corr_table$full_name)))
 
-variables <- c("Maximum\ndepth", "Fetch", "Volume", "Surface\narea","Water clarity\n(Secchi depth)","Mean annual air\ntemperature", "Mean annual\nprecipitation","10-day variance in\n air temperature","Mean hydrologic\nresidence time","Catchment\nsize")
-corr_tibble <- tibble(rmse = corr_table[,1], slope = corr_table[,2], variable = as.factor(variables)) %>%
-  pivot_longer(cols = -variable, names_to = "Metric",values_to = "value") %>%
-  mutate(Metric = ifelse(Metric == "rmse",  "accuracy", "rate of accuracy\ndegradation")) %>%
-  arrange(desc(abs(value)))
-
-corr_names <- rev(as.character(unique(corr_tibble$variable)))
-
-corr_tibble <- corr_tibble %>%
-  mutate(variable = factor(variable, levels = corr_names))
-
-pivot_wider(corr_tibble, names_from = Metric, values_from = value)
+spear_corr_table <- spear_corr_table %>%
+  mutate(full_name = factor(full_name, levels = corr_names))
+```
+```{r}
+domain_corr_table <- corr_table %>% arrange(variable) %>% 
+  filter(variable %in% c("max_depth_m", "fetch_m", "volume_m3",
+                         "surface_area_km2", "mean_secchi_depth_m",                      "mean_hydraulic_residence_time_yrs","catchment_size_km2")) %>% 
+  select(variable, horizon, domain, rho) %>% 
+  group_by(variable, horizon) %>% 
+  summarize(max = max(rho),
+            min = min(rho), .groups = "drop") %>% 
+  filter(max == min)
 ```
 
 # Generate Figures
@@ -164,122 +288,75 @@ Figure 1 is the map.
 
 ```{r}
 y_label <- expression(paste('RMSE (',degree,'C)', sep = ""))
-p <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(target, region, Model, horizon, siteID) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
-  ggplot(aes(horizon, rmse, col=Model)) +
-  geom_line() +
+cbPalette <- c("#a50026", "#f46d43", "#fdae61", "#fee090","#74add1", "#313695")
+  
+p <- combined_1m %>% 
+  filter(Model == "FLARE-GLM") %>% 
+  mutate(horizon = as.numeric(horizon)) %>% 
+  ggplot(aes(x = horizon, y = rmse, col = siteID, linetype = domain)) +
+  geom_line(size=1) +
   ylim(0,3.75) +
-  #geom_point() +
-  labs(x = "Horizon (days)", y = y_label) +
-  #geom_hline(yintercept = 1.48) + #https://www.doi.org/10.3389/fenvs.2021.707874
-  facet_wrap(~region + siteID, nrow = 3, scale = "free") +
+  labs(x = "Horizon (days)", y = y_label, tag = "(a)", color = "NEON Site ID", linetype = "NEON Domain") +
+  scale_linetype_manual(values=c("solid", "dashed", "dotted")) +
+  scale_color_manual(values = cbPalette) +
   theme_bw() +
-  theme(legend.position="bottom",
-        panel.grid.major = element_blank(),
+  theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.justification="center",
-        #legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid', size = 0.15),
+                legend.text = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.3, "cm"),
+        legend.position = "bottom",
         legend.margin=margin(0,0,0,0),
-        legend.box.margin=margin(-10,-10,-10,-10))
+        plot.tag.position = c(0.25,0.88))
 
-
-p <- tag_facet(p, fontface = 1)
-p <- p + theme(strip.text = element_text())
-
-p_region <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  filter(Model == "FLARE-GLM") %>%
-  group_by(target, Model, horizon, region) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  ggplot(aes(horizon, rmse, col = region)) +
-  geom_line() +
-  #geom_point() +
-  ylim(0,3.25) +
-  labs(x = "Horizon (days)", y = y_label, tag = "(g)", title = " ") +
+p_skill <- combined_1m %>% 
+  mutate(horizon = as.numeric(horizon)) %>% 
+  mutate(domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast"))) %>% 
+  pivot_wider(names_from = Model, values_from = rmse) %>% 
+  mutate(rmse_skill =  (`Day-of-year mean` - `FLARE-GLM`)) %>% 
+  ggplot(aes(horizon, rmse_skill, color = siteID, linetype = domain)) +
+  geom_line(size=1) +
+  geom_hline(aes(yintercept = 0)) +
+  ylim(-1.1,3.2) +
+  labs(x = "Horizon (days)", y = "RMSE Skill (Null - FLARE)", tag = "(b)", title = " ", color = "NEON Site ID", linetype = "NEON Domain") +
+  annotate("text", x=20, y=3.1, label = "FLARE performs better", size = 3) +
+  annotate("text", x=20, y=-1.1, label = "Null performs better", size = 3) +
+  scale_color_manual(values = cbPalette) +
   theme_bw() +
-  guides(color = guide_legend(title = "NEON\nDomain")) +
-  scale_color_manual(values=c("brown", "purple", "darkgray")) +
-  theme(legend.position= c(0.97,0.02),
-        legend.justification=c(1,0),
-        legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid', size = 0.15),
-        legend.key = element_rect(fill = "white"),
-        legend.key.width = unit(0.2, "cm"),
-        legend.key.height = unit(0.2, "cm"),
+  scale_linetype_manual(values=c("solid", "dashed", "dotted")) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom",
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.3, "cm"),
         legend.text = element_text(size = 8),
         legend.title = element_text(size = 8),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        plot.tag.position = c(0.25,0.83))
+        legend.margin=margin(0,0,0,0),
+        plot.tag.position = c(0.25,0.88))
 
-p_season <- combined %>%
-  select(siteID, Model, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth"),
-               names_to = "Model",
-               values_to = "sq_error") %>%
-  filter(Model == "FLARE-GLM") %>%
-  group_by(target, Model, horizon, season) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  ggplot(aes(horizon, rmse, col = season)) +
-  geom_line() +
-  #geom_point() +
-  ylim(0,3.25) +
-  labs(x = "Horizon (days)", y = y_label, tag = "(h)", title = " ") +
-  theme_bw()+
-  scale_color_manual(values=c("black", "green")) +
-  guides(color = guide_legend(title = "Season")) +
-  theme(legend.position= c(0.97,0.02),
-        legend.justification=c(1,0),
-        legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid', size = 0.15),
-        legend.key = element_rect(fill = "white"),
-        legend.key.width = unit(0.2, "cm"),
-        legend.key.height = unit(0.2, "cm"),
-        legend.text = element_text(size = 8),
-        legend.title = element_text(size = 8),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.text.y=element_blank(),
-        axis.title.y = element_blank(),
-        plot.tag.position = c(0.13,0.83))
+p_combined <- p + p_skill + plot_layout(guides = 'collect') & theme(legend.position = "bottom") &   guides(color=guide_legend(nrow=2, title.position = "top"),linetype = guide_legend(nrow=3,byrow=TRUE, title.position = "top"))
 
-p_combined <- p / (p_region + p_season) 
 p_combined
 ```
-
 ```{r}
-p_combined <- p_combined + plot_layout(widths = c(4.5, 4.5), heights = unit(c(4, 1), c('in', 'null')))
-ggsave(filename = file.path(lake_directory, "notebook","Figure2.jpg"), device = "jpeg", plot = p_combined, width = 4.5, height = 7.5, units = "in")
+ggsave(filename = file.path(lake_directory, "notebook","Figure2.jpg"), device = "jpeg", plot = p_combined, width = 4.5, height = 3.5, units = "in", dpi = 350)
 ```
 
 ## Figure 3
 
-```{r}
-p<- ggplot(corr_tibble, aes(x = value, y = variable, col = Metric)) +
+```{r} 
+p <- spear_corr_table %>% 
+  #mutate(rho = ifelse(abs(rho) >= 0.5, rho, NA)) %>% 
+  #mutate(rho = ifelse(pvalue < 0.05, rho, NA)) %>% 
+  filter(horizon %in% c("1","slope")) %>% 
+  ggplot(aes(x = rho, y = full_name, col = Metric)) +
   geom_point() +
   geom_vline(xintercept = 0.5) +
   geom_vline(xintercept = -0.5) +
   geom_hline(yintercept = 4.5, linetype = "dashed") +
   xlim(-1,1) +
-  labs(x = "Spearman's correlation coefficient") +
+  labs(x = "Spearman's correlation coefficient", y = "variable") +
   scale_color_manual(values=c("red", "blue")) +
   theme_bw() +
   theme(panel.grid.major = element_blank(),
@@ -291,54 +368,29 @@ p
 ```
 
 ```{r}
-ggsave(filename = file.path(lake_directory, "notebook","Figure3.jpg"), device = "jpeg", plot = p, width = 4.5, height = 4.5, units = "in")
+ggsave(filename = file.path(lake_directory, "notebook","Figure3.jpg"), device = "jpeg", plot = p, width = 4.5, height = 4.5, units = "in", dpi = 350)
 ```
 
 ## Values in text
 
+Number of forecasts used in analysis
 ```{r}
-rmse_all_mean <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(Model, horizon) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  filter(Model == "FLARE-GLM")
+length(unique(combined1$time))
+combined2 %>% select(siteID, Model, horizon, depth) %>% filter(horizon == 1, Model == "FLARE-GLM", depth == 0.0) %>% group_by(siteID) %>% count()
+```
+```{r}
+rmse_all_mean <- combined_1m %>% 
+  filter(Model == "FLARE-GLM") %>% 
+  arrange(desc(rmse))
 
 rmse_all_mean
 ```
 
-```{r}
-rmse_site_mean <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(Model, siteID, horizon) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  filter(Model == "FLARE-GLM") %>%
-  pivot_wider(names_from = siteID, values_from = rmse)
-rmse_site_mean
-```
+
 
 ```{r}
-clim_vs_flare_horizon <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(Model, horizon, siteID) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
+clim_vs_flare_horizon <- combined_1m %>% 
+  select(-domain) %>% 
   pivot_wider(names_from = Model, values_from = rmse) %>%
   mutate(diff = `Day-of-year mean` - `FLARE-GLM`) %>%
   filter(diff < 0) %>%
@@ -347,123 +399,150 @@ clim_vs_flare_horizon <- combined %>%
 clim_vs_flare_horizon
 ```
 
+
 ```{r}
-slope10day
+rmse_site_mean <- combined_1m %>% 
+  filter(Model == "FLARE-GLM") %>%
+  select(-domain) %>% 
+  #pivot_wider(names_from = siteID, values_from = rmse) %>% 
+  filter(horizon %in% c(1, 7, 21, 34)) %>% 
+  mutate(horizon = as.numeric(horizon)) %>% 
+  group_by(horizon) %>% 
+  summarize(min = min(rmse),
+            max = max(rmse),
+            mean = mean(rmse))
+rmse_site_mean %>% 
+  arrange(horizon)
+
+```
+
+
+```{r}
+d <- horizon10rmse %>% 
+  filter(horizon == "slope") %>% 
+  mutate(domain = ifelse(domain == "Southeast", "south", "north")) %>% 
+  group_by(domain) %>% 
+  summarize(mean = mean(rmse)) %>% 
+  pivot_wider(names_from = domain, values_from = mean)
+
+d$north/d$south
+
+  
+  
+```
+
+
+```{r}
+d1 <- domain_corr_table %>% 
+  mutate(direction = ifelse(max == 1, 1, -1)) %>% 
+  mutate(analysis = "domain") %>% 
+  mutate(rho = NA,
+         pvalue = NA) %>% 
+  select(variable, analysis, direction, horizon, rho, pvalue)
+d2 <- spear_corr_table %>% 
+  filter(abs(rho) > 0.5) %>%   
+  mutate(direction = ifelse(rho > 0, 1, -1))%>% 
+  mutate(analysis = "spearmen")%>% 
+  select(variable, analysis, direction, horizon, rho, pvalue)
+
+d <- bind_rows(d1,d2) %>% 
+  rename(metric = horizon) %>% 
+  mutate(metric = ifelse(metric == 1, "accuracy","degradation")) %>% 
+  arrange(metric, variable)
+
+d
+
 ```
 
 #Supplemental Information Figures
 
-## Figure SI1 (<= 2 m)
-
-Averaging all scores for depths less or equal to 2 m
-
-```{r}
-y_label <- expression(paste('RMSE (',degree,'C)', sep = ""))
-p <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth <= 2) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(target, region, Model, horizon, siteID) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
-  ggplot(aes(horizon, rmse, col=Model)) +
-  geom_line() +
-  ylim(0,3.75) +
-  #geom_point() +
-  labs(x = "Horizon (days)", y = y_label) +
-  #geom_hline(yintercept = 1.48) + #https://www.doi.org/10.3389/fenvs.2021.707874
-  facet_wrap(~region + siteID, nrow = 3, scale = "free") +
-  theme_bw() +
-  theme(legend.position="bottom",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        legend.justification="center",
-        #legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid', size = 0.15),
-        legend.margin=margin(0,0,0,0),
-        legend.box.margin=margin(-10,-10,-10,-10))
-
-
-p <- tag_facet(p, fontface = 1)
-p <- p + theme(strip.text = element_text())
-
-ggsave(filename = file.path(lake_directory, "notebook","FigureSI1_2mless.jpg"), device = "jpeg", plot = p, width = 4.5, height = 4.5, units = "in")
-```
-
-## Figure SI2 (all depths)
+## Figure SI1 (all depths)
 
 Averaging all scores for all depths within each lake
 
 ```{r}
 y_label <- expression(paste('RMSE (',degree,'C)', sep = ""))
-p <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, sq_error) %>%
-  pivot_wider(names_from = Model, values_from = sq_error, values_fill = NA) %>%
-  na.omit() %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "sq_error") %>%
-  group_by(target, region, Model, horizon, siteID) %>%  # average over siteID
-  summarise(rmse = mean(sq_error, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(rmse = sqrt(rmse)) %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
-  ggplot(aes(horizon, rmse, col=Model)) +
-  geom_line() +
-  ylim(0,3.75) +
-  #geom_point() +
-  labs(x = "Horizon (days)", y = y_label) +
-  #geom_hline(yintercept = 1.48) + #https://www.doi.org/10.3389/fenvs.2021.707874
-  facet_wrap(~region + siteID, nrow = 3, scale = "free") +
+p1 <- combined_all_depths %>% 
+  filter(Model == "FLARE-GLM") %>% 
+  mutate(horizon = as.numeric(horizon)) %>% 
+  ggplot(aes(x = horizon, y = rmse, col = siteID, linetype = domain)) +
+  geom_line(size = 1) +
+  ylim(0,4) +
+  labs(x = "Horizon (days)", y = y_label, tag = "(a)", color = "NEON Site ID", linetype = "NEON Domain") +
+  scale_color_manual(values = cbPalette) +
+  scale_linetype_manual(values=c("solid", "dashed", "dotted")) +
   theme_bw() +
-  theme(legend.position="bottom",
-        panel.grid.major = element_blank(),
+  theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.justification="center",
-        #legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid', size = 0.15),
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.2, "cm"),
+        legend.text = element_text(size = 7.5),
+        legend.title = element_text(size = 7.5),
+        legend.position = "bottom",
         legend.margin=margin(0,0,0,0),
-        legend.box.margin=margin(-10,-10,-10,-10))
+        plot.tag.position = c(0.25,0.93)) +
+  guides(color=guide_legend(nrow=2,byrow=TRUE, 
+                            title.position = "top"),
+         linetype = guide_legend(nrow=2,byrow=TRUE, 
+                                 title.position = "top")) 
 
-p <- tag_facet(p, fontface = 1)
-p <- p + theme(strip.text = element_text())
+y_label <- expression(paste('Continous Ranked Probability Score (',degree,'C)', sep = ""))
+p2 <- combined_1m_crps %>% 
+  filter(Model == "FLARE-GLM") %>% 
+  mutate(horizon = as.numeric(horizon)) %>% 
+  ggplot(aes(x = horizon, y = crps, col = siteID, linetype = domain)) +
+  geom_line(size = 1) +
+  ylim(0,1.75) +
+  labs(x = "Horizon (days)", y = y_label, tag = "(b)", color = "NEON Site ID", linetype = "NEON Domain") +
+  scale_color_manual(values = cbPalette) +
+  scale_linetype_manual(values=c("solid", "dashed", "dotted")) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.2, "cm"),
+        legend.text = element_text(size = 7.5),
+        legend.title = element_text(size = 7.5),
+        legend.position = "bottom",
+        legend.margin=margin(0,0,0,0),
+        plot.tag.position = c(0.3,0.93)) +
+  guides(color=guide_legend(nrow=2,byrow=TRUE, 
+                            title.position = "top"),
+         linetype = guide_legend(nrow=2,byrow=TRUE, 
+                                 title.position = "top")) 
 
-ggsave(filename = file.path(lake_directory, "notebook","FigureSI2_alldepths.jpg"), device = "jpeg", plot = p, width = 4.5, height = 4.5, units = "in")
+p3 <- p1 + p2 + plot_layout(guides = 'collect') & theme(legend.position = "bottom") &   guides(color=guide_legend(nrow=2, title.position = "top"),linetype = guide_legend(nrow=2,byrow=TRUE, title.position = "top"))
+
+ggsave(filename = file.path(lake_directory, "notebook","FigureS1.jpg"), device = "jpeg", plot = p3, width = 4.5, height = 4.0, units = "in", dpi = 350)
 ```
 
-## Continuous Ranked Probability Score for 0.05 m
+
 
 ```{r}
-y_label <- expression(paste('Continous Ranked Probability Score (',degree,'C)', sep = ""))
-p <- combined %>%
-  select(siteID, Model, region, issue_date, time, season, forecast_start_time, horizon, target,depth, crps) %>%
-  pivot_wider(names_from = Model, values_from = crps, values_fill = NA) %>%
-  na.omit() %>%
-  filter(depth == 0.1) %>%
-  pivot_longer(cols = -c("siteID", "issue_date", "season", "time", "forecast_start_time", "horizon", "target","depth", "region"), names_to = "Model",values_to = "crps") %>%
-  group_by(target, region, Model, horizon, siteID) %>%  # average over siteID
-  summarise(crps = mean(crps, na.rm =TRUE),
-            .groups = "drop") %>%
-  mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean"))) %>%
-  ggplot(aes(horizon, crps, col=Model)) +
-  geom_line() +
-  ylim(0,2) +
-  #geom_point() +
-  labs(x = "Horizon (days)", y = y_label) +
-  facet_wrap(~region + siteID, nrow = 3, scale = "free") +
+y_label <- expression(paste('Accurancy (-RMSE) (',degree,'C)', sep = ""))
+cbPalette <- c("#a50026", "#f46d43", "#fdae61", "#fee090","#74add1", "#313695")
+p4 <- horizon10rmse %>% 
+  select(horizon, siteID, rmse, max_depth_m, fetch_m, volume_m3, surface_area_km2, mean_secchi_depth_m,
+         mean_annual_temperature_degreeC, mean_annual_precipitation_mm, air_temp_10day_sd_degreeC,
+         mean_hydraulic_residence_time_yrs, catchment_size_km2, latitude) %>% 
+  pivot_longer(cols = -c("rmse","siteID", "horizon"), names_to = "variable", values_to = "value") %>% 
+  left_join(variables) %>% 
+  filter(horizon == "1") %>% 
+    mutate(domain = NA,
+         domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
+         domain = ifelse(siteID %in% c("CRAM","LIRO"), "Great Lakes", domain),
+         domain = ifelse(siteID %in% c("PRLA","PRPO"), "Northern Plains", domain),
+         domain = factor(domain, levels = c("Northern Plains","Great Lakes","Southeast")),
+         siteID = factor(siteID, levels = c("PRLA","PRPO","CRAM","LIRO","BARC","SUGG"))) %>% 
+  ggplot(aes(x = value, y = -rmse, col = siteID, shape = domain)) +
+  geom_point() +
+  scale_color_manual(values = cbPalette) +
+  facet_wrap(~full_name, scale = "free", ncol = 2) +
+  labs(y = "accuracy (-1 * RMSE)") +
   theme_bw() +
-  theme(legend.position="bottom",
-        panel.grid.major = element_blank(),
+  theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.justification="center",
-        #legend.background = element_rect(colour = 'black', fill = 'white', linetype='solid', size = 0.15),
-        legend.margin=margin(0,0,0,0),
-        legend.box.margin=margin(-10,-10,-10,-10))
-
-
-p <- tag_facet(p, fontface = 1)
-p <- p + theme(strip.text = element_text())
-
-ggsave(filename = file.path(lake_directory, "notebook","FigureSI3_crps0.1.jpg"), device = "jpeg", plot = p, width = 4.5, height = 4.5, units = "in")
+        strip.text = element_text(),
+        legend.position = "bottom")
+ggsave(filename = file.path(lake_directory, "notebook","FigureS2.jpg"), device = "jpeg", plot = p4, width = 4.5, height = 7.5, units = "in", dpi = 350)
 ```
-
