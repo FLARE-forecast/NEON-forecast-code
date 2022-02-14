@@ -52,7 +52,7 @@ You can run the analysis remotely using a binder that generates an Rstudio envir
 The binder is best used for examining the scored forecasts.  
 
 1. Click on the binder button above
-2. Open `workflows/neon_lakes_ms/analysis_notebook.Rmd` to explore the analysis of the scored forecasts.
+2. Open `analysis_notebook.Rmd` to explore the analysis of the scored forecasts.
 
 This will load the scored forecasts from a remote s3 bucket without needing to download the files into the binder.
 

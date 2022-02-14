@@ -15,14 +15,14 @@ library(egg)
 library(broom)
 library(arrow)
 library(dplyr)
-#Sys.setenv("AWS_EC2_METADATA_DISABLED"="TRUE")
-#Sys.unsetenv("AWS_ACCESS_KEY_ID")
-#Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
-#Sys.unsetenv("AWS_DEFAULT_REGION")
-#Sys.unsetenv("AWS_S3_ENDPOINT")
-Sys.setenv('AWS_DEFAULT_REGION' = 's3', 
-             'AWS_S3_ENDPOINT' = 'flare-forecast.org', 
-             'USE_HTTPS' = TRUE)
+Sys.setenv("AWS_EC2_METADATA_DISABLED"="TRUE")
+Sys.unsetenv("AWS_ACCESS_KEY_ID")
+Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
+Sys.unsetenv("AWS_DEFAULT_REGION")
+Sys.unsetenv("AWS_S3_ENDPOINT")
+#Sys.setenv('AWS_DEFAULT_REGION' = 's3', 
+#             'AWS_S3_ENDPOINT' = 'flare-forecast.org', 
+#             'USE_HTTPS' = TRUE)
 lake_directory <- here::here()
 source(file.path(lake_directory,"workflows","neon_lakes_ms","scoring.R"))
 dir.create("notebook", showWarnings = FALSE)
@@ -157,7 +157,8 @@ lake_info <- read_csv(file.path(lake_directory,"workflows","neon_lakes_ms", "Lak
 variables <- tibble(variable = c("max_depth_m", "fetch_m", "volume_m3", "surface_area_km2", "mean_secchi_depth_m",
          "mean_annual_temperature_degreeC", "mean_annual_precipitation_mm", "air_temp_10day_sd_degreeC",
          "mean_hydraulic_residence_time_yrs", "catchment_size_km2", "latitude"),
-         full_name = c("Maximum\ndepth", "Fetch", "Volume", "Surface\narea","Water clarity\n(Secchi depth)","Mean annual air\ntemperature", "Mean annual\nprecipitation","10-day variance in\n air temperature","Mean hydrologic\nresidence time","Catchment\nsize", "latitude"))
+         full_name = c("Maximum\ndepth", "Fetch", "Volume", "Surface\narea","Water clarity\n(Secchi depth)","Mean annual air\ntemperature", "Mean annual\nprecipitation","10-day variance in\n air temperature","Mean hydrologic\nresidence time","Catchment\nsize", "latitude"),
+         full_name_1line = c("Maximum depth", "Fetch", "Volume", "Surface area","Water clarity (Secchi depth)","Mean annual air temperature", "Mean annual precipitation","10-day variance in air temperature","Mean hydrologic residence time","Catchment size", "latitude") )
 ```
 
 ## RMSE at 1-day ahead
@@ -380,13 +381,18 @@ d$north/d$south
 
 
 ```{r}
-spear_corr_table %>% 
+TableS1 <- spear_corr_table %>% 
   filter(abs(rho) > 0.5) %>%   
   mutate(analysis = "spearmen")%>% 
-  select(variable, analysis, direction, horizon, rho, pvalue)
+  select(variable, horizon, rho, pvalue) %>% 
   rename(metric = horizon) %>% 
   mutate(metric = ifelse(metric == 1, "accuracy","degradation")) %>% 
-  arrange(metric, variable)
+  arrange(metric, variable) %>% 
+  left_join(variables) %>% 
+  select(full_name_1line, metric, rho, pvalue) %>% 
+  rename(variable = full_name_1line,
+         `p-value` = pvalue)
+knitr::kable(TableS1)
 
 ```
 
@@ -410,17 +416,13 @@ FigS1a <- combined_all_depths %>%
   theme_bw() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.key.width = unit(1, "cm"),
-        legend.key.height = unit(0.2, "cm"),
-        legend.text = element_text(size = 7.5),
-        legend.title = element_text(size = 7.5),
         legend.position = "bottom",
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.3, "cm"),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 8),
         legend.margin=margin(0,0,0,0),
-        plot.tag.position = c(0.25,0.93)) +
-  guides(color=guide_legend(nrow=2,byrow=TRUE, 
-                            title.position = "top"),
-         linetype = guide_legend(nrow=2,byrow=TRUE, 
-                                 title.position = "top")) 
+        plot.tag.position = c(0.30,0.95))
 
 y_label <- expression(paste('Continuous Ranked Probability Score (',degree,'C)', sep = ""))
 FigS1b <- combined_1m_crps %>% 
@@ -435,21 +437,19 @@ FigS1b <- combined_1m_crps %>%
   theme_bw() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.key.width = unit(1, "cm"),
-        legend.key.height = unit(0.2, "cm"),
-        legend.text = element_text(size = 7.5),
-        legend.title = element_text(size = 7.5),
         legend.position = "bottom",
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.3, "cm"),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 8),
         legend.margin=margin(0,0,0,0),
-        plot.tag.position = c(0.3,0.93)) +
-  guides(color=guide_legend(nrow=2,byrow=TRUE, 
-                            title.position = "top"),
-         linetype = guide_legend(nrow=2,byrow=TRUE, 
-                                 title.position = "top")) 
+        plot.tag.position = c(0.30,0.95))
 
-FigS1 <- FigS1a + FigS1b + plot_layout(guides = 'collect') & theme(legend.position = "bottom") &   guides(color=guide_legend(nrow=2, title.position = "top"),linetype = guide_legend(nrow=2,byrow=TRUE, title.position = "top"))
+FigS1 <- FigS1a + FigS1b + plot_layout(guides = 'collect') & theme(legend.position = "bottom") &   guides(color=guide_legend(nrow=2, title.position = "top"),linetype = guide_legend(nrow=3,byrow=TRUE, title.position = "top"))
 
-ggsave(filename = file.path(lake_directory, "notebook","FigureS1.jpg"), device = "jpeg", plot = FigS1, width = 4.5, height = 4.0, units = "in", dpi = 350)
+FigS1
+
+ggsave(filename = file.path(lake_directory, "notebook","FigureS1.jpg"), device = "jpeg", plot = FigS1, width = 4.5, height = 4.1, units = "in", dpi = 350)
 ```
 
 Relationship between the 1-day RMSE and the lake characteristic with colors representing the sites and shapes representing the 3 domains
@@ -473,14 +473,28 @@ FigS2 <- day1_max_min %>%
   ggplot(aes(x = value, y = -rmse, col = siteID, shape = domain)) +
   geom_point() +
   scale_color_manual(values = cbPalette) +
-  facet_wrap(~full_name, scale = "free", ncol = 2) +
-  labs(y = "accuracy (-1 * RMSE)") +
+  facet_wrap(~full_name_1line, scale = "free", ncol = 2) +
+  labs(y = "accuracy (-RMSE)", color = "NEON Site ID", shape = "NEON Domain") +
   theme_bw() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        strip.text = element_text(),
-        legend.position = "bottom")
-ggsave(filename = file.path(lake_directory, "notebook","FigureS2.jpg"), device = "jpeg", plot = FigS2, width = 4.5, height = 7.5, units = "in", dpi = 350)
+        axis.text = element_text(size = 7),
+        legend.spacing.x = unit(0.01,"cm"),
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.2, "cm"),
+        legend.text = element_text(size = 7),
+        legend.title = element_text(size = 7),
+        strip.text = element_text(size = 7),
+        strip.background = element_blank(),
+        strip.text.x = element_text(margin = margin(0,0,0,0, "cm")),
+        legend.position = "bottom",
+        legend.margin=margin(0,0,0,0),
+        plot.tag.position = c(0.3,0.93)) +
+  guides(color=guide_legend(nrow=2,byrow=TRUE, 
+                            title.position = "top"),
+         shape = guide_legend(nrow=2,byrow=TRUE, 
+                                 title.position = "top")) 
+ggsave(filename = file.path(lake_directory, "notebook","FigureS2.jpg"), device = "jpeg", plot = FigS2, width = 4.5, height = 6.5, units = "in", dpi = 350)
 ```
 
 Relationship between the 1-day RMSE and the lake characteristic with colors representing the sites and shapes representing the 3 domains
@@ -504,14 +518,28 @@ FigS3 <- day1_max_min %>%
   ggplot(aes(x = value, y = -rmse, col = siteID, shape = domain)) +
   geom_point() +
   scale_color_manual(values = cbPalette) +
-  facet_wrap(~full_name, scale = "free", ncol = 2) +
-  labs(y = "accuracy (-1 * RMSE)") +
+  facet_wrap(~full_name_1line, scale = "free", ncol = 2) +
+  labs(y = y_label, color = "NEON Site ID", shape = "NEON Domain") +
   theme_bw() +
-  theme(panel.grid.major = element_blank(),
+ theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        strip.text = element_text(),
-        legend.position = "bottom")
-ggsave(filename = file.path(lake_directory, "notebook","FigureS3.jpg"), device = "jpeg", plot = FigS3, width = 4.5, height = 7.5, units = "in", dpi = 350)
+        axis.text = element_text(size = 7),
+        legend.spacing.x = unit(0.01,"cm"),
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(0.2, "cm"),
+        legend.text = element_text(size = 7),
+        legend.title = element_text(size = 7),
+        strip.text = element_text(size = 7),
+        strip.background = element_blank(),
+        strip.text.x = element_text(margin = margin(0,0,0,0, "cm")),
+        legend.position = "bottom",
+        legend.margin=margin(0,0,0,0),
+        plot.tag.position = c(0.3,0.93)) +
+  guides(color=guide_legend(nrow=2,byrow=TRUE, 
+                            title.position = "top"),
+         shape = guide_legend(nrow=2,byrow=TRUE, 
+                                 title.position = "top")) 
+ggsave(filename = file.path(lake_directory, "notebook","FigureS3.jpg"), device = "jpeg", plot = FigS3, width = 4.5, height = 6.5, units = "in", dpi = 350)
 ```
 
 ```
