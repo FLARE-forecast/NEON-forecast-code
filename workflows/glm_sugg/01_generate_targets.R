@@ -38,7 +38,7 @@ if (file.exists(file.path(neon_database))){
 
 download_neon_files(siteID = config$location$site_id,
                     buoy_products = buoy_products,
-                    start_date = as.Date("2021-01-01"),
+                    start_date = NA,
                     raw_data_directory = config$file_path$data_directory)
 
 ##'
