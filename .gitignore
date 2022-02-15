@@ -5,6 +5,7 @@
 .RData
 # User-specific files
 .Ruserdata
+.Rprofile
 # Example code in package build process
 *-Ex.R
 # Output files from R CMD build

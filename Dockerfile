@@ -18,6 +18,7 @@ RUN echo "Checking for 'apt.txt'..." \
 USER ${NB_USER}
 
 RUN R -e "install.packages('renv')"
+RUN R -e 'renv::activate()'
 RUN R -e 'renv::restore()'
 
 ## Run an install.R script, if it exists.
