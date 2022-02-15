@@ -1,6 +1,9 @@
 ---
-title: "Near-term forecasts of NEON lakes reveal gradients of environmental predictability across the U.S."
-output: html_notebook
+title: Near-term forecasts of NEON lakes reveal gradients of environmental predictability
+  across the U.S.
+output:
+  word_document: default
+  html_notebook: default
 ---
 
 # Set up analysis
@@ -391,8 +394,11 @@ TableS1 <- spear_corr_table %>%
   left_join(variables) %>% 
   select(full_name_1line, metric, rho, pvalue) %>% 
   rename(variable = full_name_1line,
-         `p-value` = pvalue)
-knitr::kable(TableS1)
+         `p-value` = pvalue) %>% 
+  mutate(rho = round(rho, 2),
+         `p-value` = round(`p-value`,2))
+
+  knitr::kable(TableS1)
 
 ```
 
