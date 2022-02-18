@@ -160,8 +160,8 @@ lake_info <- read_csv(file.path(lake_directory,"workflows","neon_lakes_ms", "Lak
 variables <- tibble(variable = c("max_depth_m", "fetch_m", "volume_m3", "surface_area_km2", "mean_secchi_depth_m",
          "mean_annual_temperature_degreeC", "mean_annual_precipitation_mm", "air_temp_10day_sd_degreeC",
          "mean_hydraulic_residence_time_yrs", "catchment_size_km2", "latitude"),
-         full_name = c("Maximum\ndepth", "Fetch", "Volume", "Surface\narea","Water clarity\n(Secchi depth)","Mean annual air\ntemperature", "Mean annual\nprecipitation","10-day variance in\n air temperature","Mean hydrologic\nresidence time","Catchment\nsize", "latitude"),
-         full_name_1line = c("Maximum depth", "Fetch", "Volume", "Surface area","Water clarity (Secchi depth)","Mean annual air temperature", "Mean annual precipitation","10-day variance in air temperature","Mean hydrologic residence time","Catchment size", "latitude") )
+         full_name = c("Maximum\ndepth", "Fetch", "Volume", "Surface\narea","Water clarity\n(Secchi depth)","Mean annual air\ntemperature", "Mean annual\nprecipitation","10-day variance in\n air temperature","Mean hydrologic\nresidence time","Catchment\nsize", "Latitude"),
+         full_name_1line = c("Maximum depth", "Fetch", "Volume", "Surface area","Water clarity (Secchi depth)","Mean annual air temperature", "Mean annual precipitation","10-day variance in air temperature","Mean hydrologic residence time","Catchment size", "Latitude") )
 ```
 
 ## RMSE at 1-day ahead
@@ -455,7 +455,7 @@ FigS1 <- FigS1a + FigS1b + plot_layout(guides = 'collect') & theme(legend.positi
 
 FigS1
 
-ggsave(filename = file.path(lake_directory, "notebook","FigureS1.jpg"), device = "jpeg", plot = FigS1, width = 4.5, height = 4.1, units = "in", dpi = 350)
+ggsave(filename = file.path(lake_directory, "notebook","FigureS2.jpg"), device = "jpeg", plot = FigS1, width = 4.5, height = 4.1, units = "in", dpi = 350)
 ```
 
 Relationship between the 1-day RMSE and the lake characteristic with colors representing the sites and shapes representing the 3 domains
@@ -492,7 +492,7 @@ FigS2 <- day1_max_min %>%
         legend.title = element_text(size = 7),
         strip.text = element_text(size = 7),
         strip.background = element_blank(),
-        strip.text.x = element_text(margin = margin(0,0,0,0, "cm")),
+        strip.text.x = element_text(margin = margin(0.0,0,0.1,0, "cm")),
         legend.position = "bottom",
         legend.margin=margin(0,0,0,0),
         plot.tag.position = c(0.3,0.93)) +
@@ -500,7 +500,7 @@ FigS2 <- day1_max_min %>%
                             title.position = "top"),
          shape = guide_legend(nrow=2,byrow=TRUE, 
                                  title.position = "top")) 
-ggsave(filename = file.path(lake_directory, "notebook","FigureS2.jpg"), device = "jpeg", plot = FigS2, width = 4.5, height = 6.5, units = "in", dpi = 350)
+ggsave(filename = file.path(lake_directory, "notebook","FigureS3.jpg"), device = "jpeg", plot = FigS2, width = 4.5, height = 6.5, units = "in", dpi = 350)
 ```
 
 Relationship between the 1-day RMSE and the lake characteristic with colors representing the sites and shapes representing the 3 domains
@@ -537,7 +537,7 @@ FigS3 <- day1_max_min %>%
         legend.title = element_text(size = 7),
         strip.text = element_text(size = 7),
         strip.background = element_blank(),
-        strip.text.x = element_text(margin = margin(0,0,0,0, "cm")),
+        strip.text.x = element_text(margin = margin(0.0,0,0.1,0, "cm")),
         legend.position = "bottom",
         legend.margin=margin(0,0,0,0),
         plot.tag.position = c(0.3,0.93)) +
@@ -545,7 +545,7 @@ FigS3 <- day1_max_min %>%
                             title.position = "top"),
          shape = guide_legend(nrow=2,byrow=TRUE, 
                                  title.position = "top")) 
-ggsave(filename = file.path(lake_directory, "notebook","FigureS3.jpg"), device = "jpeg", plot = FigS3, width = 4.5, height = 6.5, units = "in", dpi = 350)
+ggsave(filename = file.path(lake_directory, "notebook","FigureS4.jpg"), device = "jpeg", plot = FigS3, width = 4.5, height = 6.5, units = "in", dpi = 350)
 ```
 
 ```
