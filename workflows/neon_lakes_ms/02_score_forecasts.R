@@ -8,15 +8,15 @@ Sys.setenv('AWS_DEFAULT_REGION' = 's3',
            'AWS_S3_ENDPOINT' = 'flare-forecast.org', 
            'USE_HTTPS' = TRUE)
 
-sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
+sites <- c("BARC", "CRAM", "LIRO", "SUGG", "PRLA", "PRPO")
 
 
-sim_names <- list(barc = c("ms1_doymean", "ms1_glm_flare"),
-                  cram = c("ms1_doymean", "ms1_glm_flare"),
-                  liro = c("ms1_doymean", "ms1_glm_flare"),
-                  prla = c("ms1_doymean", "ms1_glm_flare"),
-                  prpo = c("ms1_doymean", "ms1_glm_flare"),
-                  sugg = c("ms1_doymean", "ms1_glm_flare"))
+sim_names <- list(barc = c("ms2_doymean", "ms2_glm_flare"),
+                  cram = c("ms2_doymean", "ms2_glm_flare"),
+                  liro = c("ms2_doymean", "ms2_glm_flare"),
+                  sugg = c("ms2_doymean", "ms2_glm_flare"),
+                  prla = c("ms2_doymean", "ms2_glm_flare"),
+                  prpo = c("ms2_glm_flare", "ms2_doymean"))
 
 forecast_directory <- "/data"
 

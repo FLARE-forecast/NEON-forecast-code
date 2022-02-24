@@ -4,6 +4,7 @@ title: Near-term forecasts of NEON lakes reveal gradients of environmental predi
 output:
   word_document: default
   html_notebook: default
+  pdf_document: default
 ---
 
 # Set up analysis
@@ -46,7 +47,7 @@ s3 <- arrow::s3_bucket(bucket = "scores",
                 endpoint_override = "s3.flare-forecast.org",
                 anonymous=TRUE)
 ds <- open_dataset(s3, schema=s, format = "csv", skip_rows = 1)
-combined <- ds %>% filter((team == "ms1_glm_flare" | team == "ms1_doymean") & 
+combined <- ds %>% filter((team == "ms2_glm_flare" | team == "ms2_doymean") & 
                           time < as_date("2021-10-24")) %>% collect()
 ```
 
@@ -61,8 +62,8 @@ combined1 <- combined %>%
          sq_error = (resid)^2) %>%
   select(siteID, team, time, forecast_start_time, issue_date, horizon, depth, mean, observed,sq_error, crps) %>%
   rename(Model = team) %>%
-  mutate(Model = ifelse(Model == "ms1_doymean", "Day-of-year mean", Model),
-         Model = ifelse(Model == "ms1_glm_flare","FLARE-GLM", Model)) %>%
+  mutate(Model = ifelse(Model == "ms2_doymean", "Day-of-year mean", Model),
+         Model = ifelse(Model == "ms2_glm_flare","FLARE-GLM", Model)) %>%
   mutate(Model = factor(Model, levels = c("FLARE-GLM","Day-of-year mean")))
 ```
 
@@ -212,14 +213,14 @@ spear_corr_table <- day1_max_min %>%
          mean_annual_temperature_degreeC, mean_annual_precipitation_mm, air_temp_10day_sd_degreeC,
          mean_hydraulic_residence_time_yrs, catchment_size_km2, latitude) %>% 
   pivot_longer(cols = -c("rmse","horizon"), names_to = "variable", values_to = "value") %>% 
-  group_by(variable, horizon) %>% 
-  summarize(rho = cor(rmse, value, method = "spearman"),
-            pvalue = cor.test(rmse, value, method = "spearman")$p.value, .groups = "drop") %>% 
-  left_join(variables) %>% 
   filter(horizon %in% c("1", "max_min")) %>% 
+  group_by(horizon, variable) %>% 
+  summarize(rho = cor(rmse, value, method = "spearman"), 
+            .groups = "drop") %>% 
     mutate(Metric = ifelse(horizon == "1",  "accuracy", "accuracy\ndegradation"),
            rho = ifelse(Metric == "accuracy", -rho, rho)) %>%
-   arrange(desc(abs(rho)))
+   arrange(desc(abs(rho))) %>% 
+    left_join(variables)
 
 corr_names <- rev(as.character(unique(spear_corr_table$full_name)))
 
@@ -244,7 +245,7 @@ Fig2a <- combined_1m %>%
   mutate(horizon = as.numeric(horizon)) %>% 
   ggplot(aes(x = horizon, y = rmse, col = siteID, linetype = domain)) +
   geom_line(size=1) +
-  ylim(0,3.75) +
+  ylim(0,2.75) +
   labs(x = "Horizon (days)", y = y_label, tag = "(a)", color = "NEON Site ID", linetype = "NEON Domain") +
   scale_linetype_manual(values=c("solid", "dashed", "dotted")) +
   scale_color_manual(values = cbPalette) +
@@ -267,10 +268,10 @@ Fig2b <- combined_1m %>%
   ggplot(aes(horizon, rmse_skill, color = siteID, linetype = domain)) +
   geom_line(size=1) +
   geom_hline(aes(yintercept = 0)) +
-  ylim(-1.1,3.2) +
+  ylim(-1.5,3.4) +
   labs(x = "Horizon (days)", y = "RMSE Skill (Null - FLARE)", tag = "(b)", title = " ", color = "NEON Site ID", linetype = "NEON Domain") +
-  annotate("text", x=20, y=3.1, label = "FLARE performs better", size = 3) +
-  annotate("text", x=20, y=-1.1, label = "Null performs better", size = 3) +
+  annotate("text", x=20, y=3.15, label = "FLARE performs better", size = 3) +
+  annotate("text", x=20, y=-1.45, label = "Null performs better", size = 3) +
   scale_color_manual(values = cbPalette) +
   theme_bw() +
   scale_linetype_manual(values=c("solid", "dashed", "dotted")) +
@@ -295,14 +296,13 @@ ggsave(filename = file.path(lake_directory, "notebook","Figure2.jpg"), device = 
 
 ```{r} 
 Fig3 <- spear_corr_table %>% 
-  #mutate(rho = ifelse(abs(rho) >= 0.5, rho, NA)) %>% 
-  #mutate(rho = ifelse(pvalue < 0.05, rho, NA)) %>% 
+  mutate(rho = ifelse(variable == "mean_secchi_depth_m" & horizon == "1", rho + 0.006, rho)) %>% 
   filter(horizon %in% c("1","max_min")) %>% 
   ggplot(aes(x = rho, y = full_name, col = Metric)) +
   geom_point() +
   geom_vline(xintercept = 0.5) +
   geom_vline(xintercept = -0.5) +
-  geom_hline(yintercept = 4.5, linetype = "dashed") +
+  geom_hline(yintercept = 5.5, linetype = "dashed") +
   xlim(-1,1) +
   labs(x = "Spearman's correlation coefficient", y = "variable") +
   scale_color_manual(values=c("red", "blue")) +
@@ -353,8 +353,7 @@ What are the RMSEs at different horizons for the different lakes?
 rmse_site_mean <- combined_1m %>% 
   filter(Model == "FLARE-GLM") %>%
   select(-domain) %>% 
-  #pivot_wider(names_from = siteID, values_from = rmse) %>% 
-  filter(horizon %in% c(1, 7, 21, 34)) %>% 
+  filter(horizon %in% c(1, 7, 21, 35)) %>% 
   mutate(horizon = as.numeric(horizon)) %>% 
   group_by(horizon) %>% 
   summarize(min = min(rmse),
@@ -387,16 +386,14 @@ d$north/d$south
 TableS1 <- spear_corr_table %>% 
   filter(abs(rho) > 0.5) %>%   
   mutate(analysis = "spearmen")%>% 
-  select(variable, horizon, rho, pvalue) %>% 
+  select(variable, horizon, rho) %>% 
   rename(metric = horizon) %>% 
   mutate(metric = ifelse(metric == 1, "accuracy","degradation")) %>% 
   arrange(metric, variable) %>% 
   left_join(variables) %>% 
-  select(full_name_1line, metric, rho, pvalue) %>% 
-  rename(variable = full_name_1line,
-         `p-value` = pvalue) %>% 
-  mutate(rho = round(rho, 2),
-         `p-value` = round(`p-value`,2))
+  select(full_name_1line, metric, rho) %>% 
+  rename(variable = full_name_1line) %>% 
+  mutate(rho = round(rho, 2))
 
   knitr::kable(TableS1)
 
@@ -415,7 +412,7 @@ FigS1a <- combined_all_depths %>%
   mutate(horizon = as.numeric(horizon)) %>% 
   ggplot(aes(x = horizon, y = rmse, col = siteID, linetype = domain)) +
   geom_line(size = 1) +
-  ylim(0,4) +
+  ylim(0,3) +
   labs(x = "Horizon (days)", y = y_label, tag = "(a)", color = "NEON Site ID", linetype = "NEON Domain") +
   scale_color_manual(values = cbPalette) +
   scale_linetype_manual(values=c("solid", "dashed", "dotted")) +

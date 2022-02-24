@@ -49,9 +49,7 @@ if(use_archive){
 
 source(file.path(lake_directory, "R/buoy_qaqc.R"))
 
-#sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
-
-sites <- c("BARC", "CRAM")
+sites <- c("BARC", "CRAM", "LIRO", "PRLA", "PRPO", "SUGG")
 
 edi_url <- c("https://pasta.lternet.edu/package/data/eml/edi/1071/1/7f8aef451231d5388c98eef889332a4b",
              "https://pasta.lternet.edu/package/data/eml/edi/1071/1/2c8893684d94b9a52394060a76cab798", 
@@ -70,13 +68,13 @@ site_edi_profile <- c("NEON.D03.BARC.DP0.20005.001.01378.csv",
 start_from_scratch <- TRUE
 time_start_index <- 1
 
-sim_names <- "ms1_glm_flare"
+sim_names <- "ms2_glm_flare"
 config_files <- paste0("configure_flare_",sites,".yml")
 
 #num_forecasts <- 20
 num_forecasts <- 23 * 7 - 1
 days_between_forecasts <- 1
-forecast_horizon <- 34 #32
+forecast_horizon <- 35 #32
 starting_date <- as_date("2021-04-18")
 second_date <- starting_date + months(1) - days(days_between_forecasts)
 
@@ -311,7 +309,7 @@ for(j in 1:length(sites)){
           select(time, depth, statistic, forecast, temperature) %>%
           arrange(depth, time, statistic)
         
-        forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "ms1_doymean.csv.gz", sep = "-")
+        forecast_file <- paste(sites[j], as_date(config$run_config$forecast_start_datetime), "ms2_doymean.csv.gz", sep = "-")
         
         saved_file <- file.path(config$file_path$forecast_output_directory, forecast_file)
         write_csv(clim_forecast, file = saved_file)
