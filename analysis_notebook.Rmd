@@ -1,6 +1,16 @@
 ---
 title: Near-term forecasts of NEON lakes reveal gradients of environmental predictability
   across the U.S.
+author:
+  - R. Quinn Thomas
+  - Ryan P. McClure
+  - Tadhg N. Moore
+  - Whitney M. Woelmer
+  - Carl Boettiger
+  - Renato J. Figueiredo
+  - Robert T. Hensley
+  - Cayelan C. Carey
+date: "`r Sys.Date()`"
 output:
   word_document: default
   html_notebook: default
@@ -24,13 +34,9 @@ Sys.unsetenv("AWS_ACCESS_KEY_ID")
 Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
 Sys.unsetenv("AWS_DEFAULT_REGION")
 Sys.unsetenv("AWS_S3_ENDPOINT")
-#Sys.setenv('AWS_DEFAULT_REGION' = 's3', 
-#             'AWS_S3_ENDPOINT' = 'flare-forecast.org', 
-#             'USE_HTTPS' = TRUE)
 lake_directory <- here::here()
 source(file.path(lake_directory,"workflows","neon_lakes_ms","scoring.R"))
 dir.create("notebook", showWarnings = FALSE)
-
 ```
 
 # Generation of forecasts
@@ -202,7 +208,6 @@ left_join(lake_info, by = "siteID") %>%
 
 ## Calculate correlations with lake characteristics
 
-
 Correlations with 1-day ahead RMSE and max - min RMSE. 1-day ahead RMSE is multiplied by -1 so that smaller values equal less accuracy. This allows a positive correlation to mean that accuracy increases with the lake characteristic of interest
 
 Calculate Spearmean's Rho
@@ -220,7 +225,7 @@ spear_corr_table <- day1_max_min %>%
     mutate(Metric = ifelse(horizon == "1",  "accuracy", "accuracy\ndegradation"),
            rho = ifelse(Metric == "accuracy", -rho, rho)) %>%
    arrange(desc(abs(rho))) %>% 
-    left_join(variables)
+    left_join(variables, by = "variable")
 
 corr_names <- rev(as.character(unique(spear_corr_table$full_name)))
 
@@ -318,20 +323,22 @@ ggsave(filename = file.path(lake_directory, "notebook","Figure3.jpg"), device = 
 
 ```
 
-## Values in text
+# Values in text
 
-Number of forecasts used in analysis
+Number of days that had forecasts produced
 
 ```{r}
-length(unique(combined1$time))
-combined2 %>% select(siteID, Model, horizon, depth) %>% filter(horizon == 1, Model == "FLARE-GLM", depth == 0.0) %>% group_by(siteID) %>% count()
+length(unique(combined1$forecast_start_time))
 ```
+
+What is the max RMSE for all horizon and lakes
+
 ```{r}
 rmse_all_mean <- combined_1m %>% 
   filter(Model == "FLARE-GLM") %>% 
   arrange(desc(rmse))
 
-rmse_all_mean
+round(max(rmse_all_mean$rmse),4)
 ```
 
 Horizon where climatology starts to perform better than FLARE.  If a site is not included in the table below that means that FLARE is better across all horizon.
@@ -347,7 +354,7 @@ clim_vs_flare_horizon <- combined_1m %>%
 clim_vs_flare_horizon
 ```
 
-What are the RMSEs at different horizons for the different lakes?
+What are the RMSEs at different horizons for the different lakes? The 1 and 35 day means are in the abstract
 
 ```{r}
 rmse_site_mean <- combined_1m %>% 
@@ -356,9 +363,9 @@ rmse_site_mean <- combined_1m %>%
   filter(horizon %in% c(1, 7, 21, 35)) %>% 
   mutate(horizon = as.numeric(horizon)) %>% 
   group_by(horizon) %>% 
-  summarize(min = min(rmse),
-            max = max(rmse),
-            mean = mean(rmse))
+  summarize(mean = round(mean(rmse), 2),
+            min = round(min(rmse), 2),
+            max = round(max(rmse), 2))
 rmse_site_mean %>% 
   arrange(horizon)
 
@@ -375,10 +382,8 @@ d <- day1_max_min %>%
   summarize(mean = mean(rmse)) %>% 
   pivot_wider(names_from = domain, values_from = mean)
 
-d$north/d$south
+round(d$north/d$south, 2)
 
-  
-  
 ```
 
 
@@ -395,13 +400,17 @@ TableS1 <- spear_corr_table %>%
   rename(variable = full_name_1line) %>% 
   mutate(rho = round(rho, 2))
 
-  knitr::kable(TableS1)
+knitr::kable(TableS1)
 
 ```
 
 #Supplemental Information Figures
 
-## Figure SI1 (all depths)
+## Figure S1 
+
+Figure S1 is the workflow diagram
+
+## Figure S2
 
 Averaging all scores for all depths within each lake (Panel a) and for top 1m using the Continous Ranked Probablity Score
 
@@ -455,6 +464,8 @@ FigS1
 ggsave(filename = file.path(lake_directory, "notebook","FigureS2.jpg"), device = "jpeg", plot = FigS1, width = 4.5, height = 4.1, units = "in", dpi = 350)
 ```
 
+## Figure S3
+
 Relationship between the 1-day RMSE and the lake characteristic with colors representing the sites and shapes representing the 3 domains
 
 ```{r}
@@ -465,7 +476,7 @@ FigS2 <- day1_max_min %>%
          mean_annual_temperature_degreeC, mean_annual_precipitation_mm, air_temp_10day_sd_degreeC,
          mean_hydraulic_residence_time_yrs, catchment_size_km2, latitude) %>% 
   pivot_longer(cols = -c("rmse","siteID", "horizon"), names_to = "variable", values_to = "value") %>% 
-  left_join(variables) %>% 
+  left_join(variables, by = "variable") %>% 
   filter(horizon == "1") %>% 
     mutate(domain = NA,
          domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
@@ -500,6 +511,8 @@ FigS2 <- day1_max_min %>%
 ggsave(filename = file.path(lake_directory, "notebook","FigureS3.jpg"), device = "jpeg", plot = FigS2, width = 4.5, height = 6.5, units = "in", dpi = 350)
 ```
 
+## Figure S4
+
 Relationship between the 1-day RMSE and the lake characteristic with colors representing the sites and shapes representing the 3 domains
 
 ```{r}
@@ -510,7 +523,7 @@ FigS3 <- day1_max_min %>%
          mean_annual_temperature_degreeC, mean_annual_precipitation_mm, air_temp_10day_sd_degreeC,
          mean_hydraulic_residence_time_yrs, catchment_size_km2, latitude) %>% 
   pivot_longer(cols = -c("rmse","siteID", "horizon"), names_to = "variable", values_to = "value") %>% 
-  left_join(variables) %>% 
+  left_join(variables, by = "variable") %>% 
   filter(horizon == "max_min") %>% 
     mutate(domain = NA,
          domain = ifelse(siteID %in% c("BARC","SUGG"), "Southeast", domain),
