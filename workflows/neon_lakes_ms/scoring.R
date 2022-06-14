@@ -324,6 +324,14 @@ write_scores_s3 <- function(df){
                           region = "s3"))
 }
 
+write_scores <- function(df, dir){
+  r <- utils::head(df,1)
+  output <- paste0(paste("scores", r$theme, r$time, r$team, sep="-"),
+                   ".csv.gz")
+  
+  readr::write_csv(x = df, file = file.path(dir, r$theme, output))
+}
+
 read_forecast_s3 <- function(x, grouping_variables, target_variables){
   aws.s3::s3read_using(FUN = read_forecast,
                        grouping_variables = grouping_variables,

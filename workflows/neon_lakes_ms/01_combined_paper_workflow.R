@@ -11,14 +11,17 @@ config_set_name <- "neon_lakes_ms"
 run_glm_flare <- TRUE
 run_clim_null <- TRUE
 run_persistence_null <- FALSE
-#Set use_archive = FALSE unless you have read/write credentials for the remote
+#If you set use_archive = FALSE it requires read/write credentials for the remote
 #s3 bucket that is set up for running FLARE.
-use_archive <- FALSE 
+use_archive <- TRUE 
 lake_directory <- here::here()
 
 if(use_archive){
   
   dir.create(file.path(lake_directory, "drivers"), showWarnings = FALSE)
+  
+  obj <- contentid::resolve("hash://md5/786ccc31d5721656e938dba409c656b1", store=TRUE)
+  unzip(obj,exdir = file.path(lake_directory, 'drivers', 'noaa'))
   
   download.file(url = 'https://zenodo.org/record/5918357/files/noaa.zip',
                 destfile = file.path(lake_directory, 'drivers', 'noaa.zip'),
@@ -26,7 +29,7 @@ if(use_archive){
   zip::unzip(file.path(lake_directory, 'drivers', 'noaa.zip'),
              exdir = file.path(lake_directory, 'drivers', 'noaa'))
   
-  unlink(file.path(lake_directory, 'drivers', 'noaa.zip'))
+  #unlink(file.path(lake_directory, 'drivers', 'noaa.zip'))
   
   dir.create(file.path(lake_directory, "data_raw"), showWarnings = FALSE)
   
@@ -36,7 +39,10 @@ if(use_archive){
   zip::unzip(file.path(lake_directory, 'data_raw', 'neonstore.zip'),
              exdir = file.path(lake_directory, 'data_raw','neonstore'))
   
-  unlink(file.path(lake_directory, 'data_raw', 'neonstore.zip'))
+  obj <- contentid::resolve("hash://md5/786ccc31d5721656e938dba409c656b1", store=TRUE)
+  unzip(obj,exdir = file.path(lake_directory, 'data_raw','neonstore'))
+  
+  #unlink(file.path(lake_directory, 'data_raw', 'neonstore.zip'))
   
   use_s3 <- FALSE
 }else{
