@@ -19,31 +19,13 @@ lake_directory <- here::here()
 if(use_archive){
   
   dir.create(file.path(lake_directory, "drivers"), showWarnings = FALSE)
-  
-  obj <- contentid::resolve("hash://md5/786ccc31d5721656e938dba409c656b1", store=TRUE)
+  obj <- contentid::resolve("hash://md5/8b531c15eef9115d224b45cf8977dec5", store=TRUE)
   unzip(obj,exdir = file.path(lake_directory, 'drivers', 'noaa'))
   
-  download.file(url = 'https://zenodo.org/record/5918357/files/noaa.zip',
-                destfile = file.path(lake_directory, 'drivers', 'noaa.zip'),
-                method = 'curl')
-  zip::unzip(file.path(lake_directory, 'drivers', 'noaa.zip'),
-             exdir = file.path(lake_directory, 'drivers', 'noaa'))
-  
-  #unlink(file.path(lake_directory, 'drivers', 'noaa.zip'))
-  
-  dir.create(file.path(lake_directory, "data_raw"), showWarnings = FALSE)
-  
-  download.file(url = 'https://zenodo.org/record/5918679/files/neonstore.zip',
-                destfile = file.path(lake_directory, 'data_raw', 'neonstore.zip'),
-                method = "curl")
-  zip::unzip(file.path(lake_directory, 'data_raw', 'neonstore.zip'),
-             exdir = file.path(lake_directory, 'data_raw','neonstore'))
-  
-  obj <- contentid::resolve("hash://md5/786ccc31d5721656e938dba409c656b1", store=TRUE)
+  dir.create(file.path(lake_directory, "data_raw", "neonstore"), showWarnings = FALSE)
+  obj <- contentid::resolve("hash://md5/d32fbbcd5cbbb3aeda6a2270811ea0b5", store=TRUE)
   unzip(obj,exdir = file.path(lake_directory, 'data_raw','neonstore'))
-  
-  #unlink(file.path(lake_directory, 'data_raw', 'neonstore.zip'))
-  
+
   use_s3 <- FALSE
 }else{
   Sys.setenv('AWS_DEFAULT_REGION' = 's3', 

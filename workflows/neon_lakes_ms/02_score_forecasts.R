@@ -10,25 +10,12 @@ if(!use_archive){
              'AWS_S3_ENDPOINT' = 'flare-forecast.org', 
              'USE_HTTPS' = TRUE)
 }else{
-  obj <- contentid::resolve("hash://md5/786ccc31d5721656e938dba409c656b1", store=TRUE)
+  dir.create("targets")
+  obj <- contentid::resolve("hash://md5/b72fbb716b76d1e1a333d53971e85d12", store=TRUE)
   unzip(obj,exdir = "targets")
   
-  dir.create("targets")
-  download.file(url = 'https://sandbox.zenodo.org/record/1073834/files/targets.zip',
-                destfile = 'targets.zip',
-                mode = 'wb')
-  unzip("targets.zip",exdir = "targets")
-  
   dir.create("forecasts")
-  options(timeout=120)
-  download.file(url = 'https://sandbox.zenodo.org/record/1073834/files/forecasts.zip',
-                destfile = 'forecasts.zip',
-                mode = 'wget',
-  )
-  unzip("forecasts.zip",exdir = "forecasts")
-  
-  
-  obj <- contentid::resolve("hash://md5/786ccc31d5721656e938dba409c656b1", store=TRUE)
+  obj <- contentid::resolve("hash://md5/f54e3fff939dbd8679a0695947afdf49", store=TRUE)
   unzip(obj,exdir = "forecasts")
   
 }

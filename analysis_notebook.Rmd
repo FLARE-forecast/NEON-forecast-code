@@ -56,10 +56,6 @@ if(!use_archive){
                          anonymous=TRUE)
 }else{
   dir.create("scores")
-  #download.file(url = 'https://sandbox.zenodo.org/record/1073825/files/scores.zip?download=1',
-  #              destfile = 'scores.zip',
-  #              mode = 'wb')
-  
   obj <- contentid::resolve("hash://md5/786ccc31d5721656e938dba409c656b1", store=TRUE)
   unzip(obj,exdir = "scores")
   s3 <- arrow::SubTreeFileSystem$create("scores")
