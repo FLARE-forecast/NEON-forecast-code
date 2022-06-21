@@ -1,60 +1,41 @@
-# NEON lake forecasts in R using FLAREr (Forecasting Lake And Reservoir Ecosystems)
+# Water temperature forecasts at National Ecological Observatory Network (NEON) lakes using FLARE (Forecasting Lake And Reservoir Ecosystems)
 
-<a href="url"><img src = "images/FLARE.jpg" align="top" height="100" width="100" ></a>
-<a href="url"><img src = "images/nsf_neon_logo.png" align="top" height="100" width="280" ></a>
+<a href="url"><img src="images/FLARE.jpg" align="top" height="100" width="100"/></a> <a href="url"><img src="images/nsf_neon_logo.png" align="top" height="100" width="280"/></a>
 
------
+------------------------------------------------------------------------
 
+:busts_in_silhouette: R. Quinn Thomas, Ryan P. McClure, Tadhg N. Moore, Whitney M. Woelmer, Carl Boettiger, Renato J. Figueiredo, Robert T. Hensley, Cayelan C. Carey
 
-:busts_in_silhouette: Ryan McClure, Quinn Thomas, Tadhg Moore, Cayelan Carey, Renato Figueiredo, Whitney Woelmer, Heather Wander, Vahid Daneshmand   
+Questions? :envelope: [rqthomas\@vt.edu](mailto:rqthomas@vt.edu)
 
-:busts_in_silhouette: Special thanks to: Carl Boettiger, Bobby Hensley, Eric Sokol, Kathleen Weathers
-
-Questions?  :email: ryan333@vt.edu, rqthomas@vt.edu, cayelan@vt.edu, or tadhgm@vt.edu
-
------
+------------------------------------------------------------------------
 
 ## Motivation
 
-Thank you for checking out NEON-forecast-code. Freshwater lakes globally are increasingly threatened as a result of rapidly changing land use and climate ([Carpenter et al., 2011](https://www.annualreviews.org/doi/abs/10.1146/annurev-environ-021810-094524)). In response, developing forecast workflows has has emerged as a powerful tool to predict future environmental conditions in lakes in order to make informed management decisions for safety, health, and conservation ([Carey et al., 2021](); [Baracchini et al., 2020](https://www.sciencedirect.com/science/article/pii/S0043135420300658); [Page et al., 2018](https://www.sciencedirect.com/science/article/pii/S0043135418300605)). However, the discipline of forecasting in lakes is still in the early stages of making forecasts that are robust and reproducible. As a result, there is a dire need for open-source forecast workflows that are broadly applicable to many different lake ecosystems and flexible to different datastreams and local needs.
+Freshwater lakes globally are increasingly threatened as a result of rapidly changing land use and climate ([Carpenter et al., 2011](https://www.annualreviews.org/doi/abs/10.1146/annurev-environ-021810-094524)). In response, developing forecast workflows has has emerged as a powerful tool to predict future environmental conditions in lakes in order to make informed management decisions for safety, health, and conservation ([Carey et al., 2021](); [Baracchini et al., 2020](https://www.sciencedirect.com/science/article/pii/S0043135420300658); [Page et al., 2018](https://www.sciencedirect.com/science/article/pii/S0043135418300605)). However, the discipline of forecasting in lakes is still in the early stages of making forecasts that are robust and reproducible. As a result, there is a dire need for open-source forecast workflows that are broadly applicable to many different lake ecosystems and flexible to different datastreams and local needs.
 
-Here, we applied the FLAREr forecasting system ([Thomas et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2019WR026138)) to six NEON lakes to test FLAREr's robustness and scalability to other sites. The NEON lakes serve as an exemplar case to test FLARE because they have reliable, open-source datastreams in which new data can be acquired at relatively low latencies (<1.5 months). The goal of our forecast scaling study was to show that FLAREr is scalable to other lake ecosystems and can produce robust forecasts of water temperatures up to 35-days into the future. Altogether, we hope this workflow is a first step to building a community of lake and reservoir forecast practitioners that develop reliable forecast workflows and make informed decisions for future lake conservation and management.
+Here, we applied the FLAREr forecasting system ([Thomas et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2019WR026138)) to six NEON lakes to test FLAREr's robustness and scalability to other sites. The NEON lakes serve as an exemplar case to test FLARE because they have reliable, open-source datastreams in which new data can be acquired at relatively low latencies (\<1.5 months). The goal of our forecast scaling study was to show that FLAREr is scalable to other lake ecosystems and can produce robust forecasts of water temperatures up to 35-days into the future. Altogether, we hope this workflow is a first step to building a community of lake and reservoir forecast practitioners that develop reliable forecast workflows and make informed decisions for future lake conservation and management.
 
 ## Prerequisites
 
 FLAREr has been tested across Windows, Mac, and Linux OS. It also requires R version 4.0.x or higher.
 
-## Workflow 1: NEON six lake analysis (Thomas et al. In prep)
+## Workflow
 
-### Generating and scoring the forecasts
+We have provided all code used to generate forecasts, analyze forecasts, and recreate figures in this manuscript as a GitHub repository that has been archived on Zenodo (Thomas et al. 2022a). There are three steps to the analysis that are documented as separate R scripts within the repository. First, the `01_combined_paper_workflow.R` in the `workflows/neon_lakes_ms/` directory of the repository obtains the NEON data and NOAA GEFS weather forecasts and then runs FLARE on the six sites. Since this script runs 159 separate 35-day horizon forecasts for the six lakes, the time required to generate all forecasts depends on the number and speed of computer processors available and can be a multi-day execution. This first step produces a set of output files for the GLM-based and day-of-year null forecasts in a "forecasts" directory.
 
-1. Go to the [NEON-forecast-code](https://github.com/FLARE-forecast/NEON-forecast-code) repository and copy the repo URL. 
-2. Open R
-3. Start a new project: File > New Project
-4. Select: Version Control > Git
-5. Paste the repo's URL into "Repository URL:", keep the project directory name as the default, select "open in new session", and click <b>New Project</b>
-6. When you have cloned the project into R, run `source("workflows/neon_lakes_ms/install.R")` to install the necessary packages.   
-7. Run `workflows/neon_lakes_ms/01_combined_paper_workflows.R` to generate the forecasts.   
-8. Once the forecasts are generated, run `workflows/neon_lakes_ms/02_score_forecasts.R` to evaluate forecasts.  
+Second, each ensemble forecast from the first step is aggregated to a mean with predictive intervals and scored (by matching to the corresponding observation, if available), with the summary statistics and observations saved as a set of scored files (one per output file) in a `scores` directory in the repository. The scoring is generated by the "02_score_forecasts.R" script located in the `workflows/neon_lakes_ms/` directory of the repository. While the scores can be generated using output files from the first step, we also provide the output files as an additional Zenodo repository (Thomas et al. 2022b) that can be downloaded and scored using the script without needing to re-run the forecasts.
 
-Note: Generating the entire set of forecasts for all six lakes runs for 3+ days.
+Third, the scored files are analyzed using an Rmarkdown script located in the main directory of repository (`analysis_notebook.Rmd`) to produce the figures and data reported in the text. The Rmarkdown script can use the scored files produced by the second step or the scores files available in the additional Zenodo repository (Thomas et al. 2022b).
 
-### Analyzing forecasts
+Our analysis can be reproduced by downloading the Zenodo GitHub repository and running the three scripts associated with the steps described above. Re-running the full analysis requires downloading R, Rstudio, and all the required packages, and as noted above, can take multiple days of execution, depending on the computation available. We provide a script that downloads the required packages (\`install.R1 in the main directory of the repository). However, there is no guarantee that other versions of R and packages will produce the same results as presented here.
 
-The Rmarkdown file `workflows/neon_lakes_ms/analysis_notebook.Rmd` is used to analyze the forecasts and generate plots, tables, and numbers.
+To enable greater reproducibility, we adapted the GitHub repository (Thomas et al. 2022a) to generate a Binder that is produced by [mybinder.org](mybinder.org). Mybinder.org provides a web-based version of Rstudio for re-running our GitHub repository code that uses the same version of R and R packages that we used in this analysis (<https://mybinder.org/v2/zenodo/10.5281/zenodo.6267616/?urlpath=rstudio>). As a result, there is more confidence that the analysis can be reproduced by harnessing the Binder infrastructure, which directly re-runs the analysis on a remote server and provides an Rstudio interface via a web browser for running the scripts described above for each of the three analysis steps.
 
-### Using mybinder.org
+There are important caveats to using the Binder. First, at the time of this analysis, [mybinder.org](mybinder.org) is free to use, and therefore its computational resources have limits and processing times can be slow. Consequently, we do not recommend running the full generation of the 35-day forecasts in the Binder. The Binder is ideally suited for exploring the scored forecasts and reproducing the figures and values presented in the text (i.e., the `analysis_notebook.Rmd` script described in the third step above). Second, at the time of this analysis, the Binder does not always consistently launch when accessing the Binder link and occasionally the connection times out. It may require accessing the Binder link again to get a successful launch of the R studio interface.
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rqthomas/NEON-forecast-code/HEAD?urlpath=rstudio)
+## References
 
-You can run the analysis remotely using a binder that generates an Rstudio environment with the necessary packages installed.
+Thomas RQ, McClure RP, Moore TM, et al. 2022a Near-term forecasts of NEON lakes reveal gradients of environmental predictability across the U.S.: code (v1.0). Zenodo repository. <https://doi.org/10.5281/zenodo>. zenodo.6267616
 
-The binder is best used for examining the scored forecasts.  
-
-1. Click on the binder button above
-2. Open `analysis_notebook.Rmd` to explore the analysis of the scored forecasts.
-
-This will load the scored forecasts from a remote s3 bucket without needing to download the files into the binder.
-
-If you want to do the full analysis, you can follow steps #7 and #8 above in the Rstudio Binder.
-
+Thomas RQ, McClure RP, Moore TM, et al. 2022b. Near-term forecasts of NEON lakes reveal gradients of environmental predictability across the U.S.: data, forecasts, and scores. Zenodo repository. <https://doi.org/10.5281/zenodo.6643596>
