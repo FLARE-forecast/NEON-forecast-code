@@ -1,10 +1,16 @@
+args <- commandArgs(trailingOnly=TRUE)
 readRenviron("~/.Renviron") # MUST come first
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
-forecast_site <- c("BARC")
-configure_run_file <- "configure_run.yml"
+if(length(args) == 0){
+ forecast_site <- c("BARC")
+}else{
+  print("here")
+  forecast_site <- args[1]
+}
+configure_run_file <- paste0("configure_run_",forecast_site,".yml")
 config_set_name <- "default"
 
 message("Checking for NOAA forecasts")

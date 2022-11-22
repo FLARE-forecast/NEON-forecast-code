@@ -5,5 +5,5 @@ forecast_start_datetime: 2021-05-17 00:00:00
 forecast_horizon: 0.0
 sim_name: test
 configure_flare: configure_flare_BARC.yml
-use_s3: FALSE
+use_s3: TRUE
 
