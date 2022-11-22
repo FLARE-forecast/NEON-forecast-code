@@ -27,6 +27,7 @@ vignettes/*.pdf
 *.knit.md
 # R Environment Variables
 .Renviron
+configuration/.DS_Store
 # Files to ignore in NEON-forecast
 flare_tempdir/*
 forecasts/*
