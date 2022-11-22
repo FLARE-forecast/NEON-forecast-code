@@ -77,13 +77,18 @@ if(noaa_ready){
                               configure_run_file = configure_run_file,
                               config_set_name = config_set_name)
   
+  
+  forecast_start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) + lubridate::days(1)
+  start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) - lubridate::days(5)
+  restart_file <- paste0(config$location$site_id,"-", lubridate::as_date(start_datetime), "-",config$run_config$sim_name ,".nc")
+  
   FLAREr::update_run_config2(lake_directory = lake_directory,
                      configure_run_file = configure_run_file, 
-                     restart_file = basename(output$restart_file), 
-                     start_datetime = lubridate::as_datetime(config$run_config$start_datetime) + lubridate::days(1), 
+                     restart_file = restart_file, 
+                     start_datetime = start_datetime, 
                      end_datetime = NA, 
-                     forecast_start_datetime = lubridate::as_datetime(config$run_config$forecast_start_datetime) + lubridate::days(1),  
-                     forecast_horizon = config$run_config$forecast_horizon,
+                     forecast_start_datetime = forecast_start_datetime,  
+                     forecast_horizon = 16.0, #config$run_config$forecast_horizon,
                      sim_name = config$run_config$sim_name, 
                      site_id = config$location$site_id,
                      configure_flare = config$run_config$configure_flare, 
