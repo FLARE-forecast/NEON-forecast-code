@@ -1,46 +1,43 @@
-file_path:
-   qaqc_data_directory: .na
-   noaa_directory: .na
-   inflow_directory: .na
-   configuration_directory: .na
-   execute_directory: .na
-   forecast_output_directory: .na
-   run_config: .na
+s3:
+  drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers/noaa/gefs-v12
+  inflow_drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers/inflow/neon/parquet
+  targets:
+    endpoint: s3.flare-forecast.org
+    bucket: targets/neon
+  forecasts:
+    endpoint: s3.flare-forecast.org
+    bucket: forecasts
+  forecasts_parquet:
+    endpoint: s3.flare-forecast.org
+    bucket: forecasts/parquet
+  warm_start:
+    endpoint: s3.flare-forecast.org
+    bucket: restart/neon
+  scores:
+    endpoint: s3.flare-forecast.org
+    bucket: scores/parquet
 location:
    site_id: BARC
    name: Lake Barco
    latitude: 29.67562   #Degrees North
    longitude: -82.0085  #Degrees West
-metadata:
-   generate_eml: TRUE
-   forecast_project_id: test
-   abstract: "This is where a longer description of the forecast can be added"
-   forecast_title: Forecasting Lakes and Reservior Ecosystems
-   intellectualRights: MIT
-   model_description:
-      forecast_model_id: https://github.com/rqthomas/flare/commit/d1ddcb07b9d28863890597503fc4aa4a4496de56
-      name: General Lake Model
-      type: process-based
-      repository: https://github.com/AquaticEcoDynamics/GLM/releases/tag/v3.1.0
-   me:
-      individualName:
-         givenName: "Ryan"
-         surName: "McClure"
-      electronicMailAddress:  "ryan333@vt.edu"
-      id: 0000-0001-6370-3852
 da_setup:
     da_method: enkf
-    par_fit_method: inflate
-    ensemble_size:  200
-    localization_distance: .na #distance in meters were covariances in the model error are used
+    par_fit_method: perturb_const
+    ensemble_size:  256
     no_negative_states: TRUE
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
+    obs_filename: BARC-targets-insitu.csv
 model_settings:
-   ncore: 3
+   ncore: 4
    model_name: glm
    base_GLM_nml: glm3_BARC.nml
-   modeled_depths: [0.1,0.25,0.50,0.75,
+   modeled_depths: [0.00,0.25,0.50,0.75,
                     1.00,1.25,1.50,1.75,
                     2.00,2.25,2.50,2.75,
                     3.00,3.25,3.50,3.75,
@@ -65,11 +62,18 @@ default_init:
    white_ice_thickness: 0.0
    blue_ice_thickness: 0.0
 inflow:
+   include_inflow: FALSE
    use_forecasted_inflow: FALSE
-   forecast_inflow_model: .na
+   forecast_inflow_model: NA
+   observed_inflow_filename: NA
+   inflow_variables: NA
+   use_ler_vars: FALSE
 met:
    use_forecasted_met: TRUE
-   forecast_met_model: noaa/NOAAGEFS_1hr
+   use_observed_met: FALSE
+   local_directory: .na
+   observed_met_filename: .na
+   use_ler_vars: FALSE
 uncertainty:
    observation: TRUE
    process: TRUE
@@ -79,4 +83,6 @@ uncertainty:
    met_downscale: TRUE
    inflow_process: TRUE
 output_settings:
-   diagnostics_names:  [extc_coef]
+   diagnostics_names:  [extc]
+   evaluate_past: FALSE
+   variables_in_scores: [state, parameter]
