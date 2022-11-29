@@ -1,9 +1,9 @@
-restart_file: SUGG-2022-11-17-test_runS3.nc
+restart_file: .na
 start_datetime: 2022-11-17 00:00:00
 end_datetime: .na
 forecast_start_datetime: 2022-11-18 00:00:00
 forecast_horizon: 0.0
 sim_name: test_runS3
 configure_flare: configure_flare_SUGG.yml
-use_s3: TRUE
+use_s3: FALSE
 
