@@ -5,7 +5,7 @@ library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
 if(length(args) == 0){
- forecast_site <- c("BARC")
+ forecast_site <- c("SUGG")
 }else{
   print("here")
   forecast_site <- args[1]
@@ -49,7 +49,7 @@ if(noaa_ready){
   
   cleaned_insitu_file <- file.path(lake_directory, "targets", config$location$site_id, config$da_setup$obs_filename)
   readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatics-expanded-observations.csv.gz", show_col_types = FALSE) |> 
-    filter(site_id == "BARC") |> 
+    filter(site_id == forecast_site) |> 
     dplyr::mutate(cuts = cut(depth, breaks = config$model_settings$modeled_depths, include.lowest = TRUE, right = FALSE, labels = FALSE)) |>
     dplyr::filter(lubridate::hour(datetime) == 0) |>
     dplyr::group_by(cuts, variable, datetime, site_id) |>
@@ -80,7 +80,7 @@ if(noaa_ready){
   
   forecast_start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) + lubridate::days(1)
   start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) - lubridate::days(5)
-  restart_file <- paste0(config$location$site_id,"-", lubridate::as_date(start_datetime), "-",config$run_config$sim_name ,".nc")
+  restart_file <- paste0(config$location$site_id,"-", (lubridate::as_date(forecast_start_datetime)- days(1)), "-",config$run_config$sim_name ,".nc")
   
   FLAREr::update_run_config2(lake_directory = lake_directory,
                      configure_run_file = configure_run_file, 
