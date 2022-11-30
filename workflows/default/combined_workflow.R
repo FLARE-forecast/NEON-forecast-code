@@ -5,7 +5,7 @@ library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
 if(length(args) == 0){
- forecast_site <- c("BARC")
+ forecast_site <- c("SUGG")
 }else{
   print("here")
   forecast_site <- args[1]
@@ -80,7 +80,7 @@ if(noaa_ready){
   
   forecast_start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) + lubridate::days(1)
   start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) - lubridate::days(5)
-  restart_file <- paste0(config$location$site_id,"-", lubridate::as_date(start_datetime), "-",config$run_config$sim_name ,".nc")
+  restart_file <- paste0(config$location$site_id,"-", (lubridate::as_date(forecast_start_datetime)- days(1)), "-",config$run_config$sim_name ,".nc")
   
   FLAREr::update_run_config2(lake_directory = lake_directory,
                      configure_run_file = configure_run_file, 
