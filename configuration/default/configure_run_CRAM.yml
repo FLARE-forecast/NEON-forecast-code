@@ -1,4 +1,4 @@
-restart_file: CRAM-2022-11-17-test_runS3.nc
+restart_file: .na
 start_datetime: 2022-12-01 00:00:00
 end_datetime: .na
 forecast_start_datetime: 2022-11-01 00:00:00
