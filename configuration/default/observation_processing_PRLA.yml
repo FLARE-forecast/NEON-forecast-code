@@ -2,10 +2,10 @@
 # Lake information
 ###########################
 
-lake_name_code: BARC
-lake_name: Barco Lake
-lake_latitude: 29.67562   #Degrees North
-lake_longitude: -82.0085  #Degrees West
+lake_name_code: PRLA
+lake_name: Prairie Lake
+lake_latitude: 47.15909  #Degrees North
+lake_longitude: -99.11388  #Degrees West
 
 #Time zone that GLM is run in
 #Currently needed to be GMT so that it interfaces with the NOAA forecast
@@ -14,7 +14,7 @@ lake_longitude: -82.0085  #Degrees West
 
 local_tzone: "UTC"
 
-noaa_location: BARC
+noaa_location: PRLA
 
 met_raw_obs_fname:
     - met_data_w_gaps.csv
@@ -29,7 +29,7 @@ downscaling_coeff: debiased.coefficients.2018_07_12_2019_07_11.RData
 #Init depth of lake
 lake_depth_init: 6.1  #not a modeled state
 
-depths_bins_top: [0.00,0.1,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6]
+depths_bins_top: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
 
 realtime_met_station_location: data
 realtime_temp_location: data
