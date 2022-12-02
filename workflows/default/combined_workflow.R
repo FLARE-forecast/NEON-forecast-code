@@ -88,7 +88,7 @@ if(noaa_ready){
                      start_datetime = start_datetime, 
                      end_datetime = NA, 
                      forecast_start_datetime = forecast_start_datetime,  
-                     forecast_horizon = 16.0, #config$run_config$forecast_horizon,
+                     forecast_horizon = config$run_config$forecast_horizon,
                      sim_name = config$run_config$sim_name, 
                      site_id = config$location$site_id,
                      configure_flare = config$run_config$configure_flare, 
