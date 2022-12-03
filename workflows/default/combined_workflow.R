@@ -7,9 +7,9 @@ setwd(lake_directory)
 if(length(args) == 0){
  forecast_site <- c("SUGG")
 }else{
-  print("here")
   forecast_site <- args[1]
 }
+message(paste0("Running site: ", forecast_site))
 configure_run_file <- paste0("configure_run_",forecast_site,".yml")
 config_set_name <- "default"
 
