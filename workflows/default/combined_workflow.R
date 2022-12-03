@@ -5,7 +5,7 @@ library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
 if(length(args) == 0){
- forecast_site <- c("SUGG")
+ forecast_site <- c("BARC")
 }else{
   forecast_site <- args[1]
 }
