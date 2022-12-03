@@ -1,5 +1,7 @@
 args <- commandArgs(trailingOnly=TRUE)
-readRenviron("~/.Renviron") # MUST come first
+print("arg")
+print(args)
+#readRenviron("~/.Renviron") # MUST come first
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
