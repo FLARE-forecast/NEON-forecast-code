@@ -14,8 +14,6 @@ noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory,
                                                configure_run_file,
                                                config_set_name = config_set_name)
 
-noaa_ready <- TRUE
-
 if(!noaa_ready){
   config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
   lapsed_time <- as.numeric(as.duration(Sys.time() - lubridate::as_datetime(config$run_config$forecast_start_datetime)))/(60*60)
