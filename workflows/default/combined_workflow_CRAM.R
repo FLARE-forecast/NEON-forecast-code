@@ -1,16 +1,10 @@
-args <- commandArgs(trailingOnly=TRUE)
-print("arg")
-print(args)
-#readRenviron("~/.Renviron") # MUST come first
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
-if(length(args) == 0){
- forecast_site <- c("BARC")
-}else{
-  forecast_site <- args[1]
-}
+
+forecast_site <- "CRAM" 
+
 message(paste0("Running site: ", forecast_site))
 configure_run_file <- paste0("configure_run_",forecast_site,".yml")
 config_set_name <- "default"
@@ -19,8 +13,6 @@ message("Checking for NOAA forecasts")
 noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory,
                                                configure_run_file,
                                                config_set_name = config_set_name)
-
-noaa_ready <- TRUE
 
 if(!noaa_ready){
   config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)

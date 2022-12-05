@@ -67,6 +67,7 @@ met:
    local_directory: .na
    observed_met_filename: .na
    use_ler_vars: FALSE
+   forecast_lag_days: 1
 uncertainty:
    observation: TRUE
    process: TRUE

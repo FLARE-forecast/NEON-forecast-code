@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
   schedule:
-  - cron: "0 11 * * *"
+#  - cron: "0 11 * * *"
 
 jobs:
   build:
@@ -20,5 +20,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run:  | 
-          /usr/local/bin/r $GITHUB_WORKSPACE/workflows/default/combined_workflow.R LIRO
+          /usr/local/bin/r $GITHUB_WORKSPACE/workflows/default/combined_workflow_LIRO.R
           
