@@ -88,6 +88,9 @@
 /
 &outflow
    num_outlet = 0
+   seepage = .true.
+   seepage_rate = 0.000
+=======
 /
 &snowice
    snow_albedo_factor = 1
