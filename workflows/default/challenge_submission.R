@@ -10,13 +10,13 @@ Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 
 team_name <- 'FLARE'
 
-
+# get the forecast from the FLARE bucket
 forecasts <- arrow::s3_bucket(bucket = "forecasts/parquet",
                               endpoint_override = "s3.flare-forecast.org",
                               anonymous=TRUE)
 
 today <- paste(Sys.Date(), '00:00:00')
-yesterday <- paste((Sys.Date() - days(1)), '00:00:00')
+# yesterday <- paste((Sys.Date() - days(1)), '00:00:00')
 
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
   dplyr::filter(field_site_subtype == 'Lake') %>%
@@ -25,14 +25,14 @@ NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4c
 
 open_ds <- arrow::open_dataset(forecasts) %>%
   filter(site_id %in% NEON_sites, 
-         reference_datetime == yesterday,
+         reference_datetime == today,
          forecast == 1,
          depth <= 1) %>% 
   collect() 
 
 challenge_submission <- open_ds %>%
   filter(variable == "temperature",
-         datetime >= yesterday) %>%
+         datetime >= today) %>%
   # FLARE output at multiple depths
   # Need a single "surface" average
   group_by(site_id, datetime, parameter, reference_datetime,
