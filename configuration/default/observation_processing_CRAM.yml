@@ -5,7 +5,7 @@
 lake_name_code: CRAM
 lake_name: Crampton Lake
 lake_latitude: 46.209675   #Degrees North
-lake_longitude: --89.473688  #Degrees West
+lake_longitude: -89.473688  #Degrees West
 
 #Time zone that GLM is run in
 #Currently needed to be GMT so that it interfaces with the NOAA forecast
