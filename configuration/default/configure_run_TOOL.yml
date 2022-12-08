@@ -1,9 +1,9 @@
 restart_file: .na
-start_datetime: 2022-07-01 00:00:00
+start_datetime: 2022-09-01 00:00:00
 end_datetime: .na
-forecast_start_datetime: 2022-08-02 00:00:00
+forecast_start_datetime: 2022-12-08 00:00:00
 forecast_horizon: 30.0
 sim_name: test_runS3
 configure_flare: configure_flare_TOOL.yml
-use_s3: FALSE
+use_s3: TRUE
 
