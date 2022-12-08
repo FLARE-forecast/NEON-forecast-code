@@ -42,7 +42,8 @@ challenge_submission <- open_ds %>%
            family, variable) %>%
   dplyr::summarise(prediction = mean(prediction)) %>% 
   dplyr::mutate(model_id = model_name, 
-                reference_datetime = gsub(' 00:00:00', '', reference_datetime))%>%
+                reference_datetime = gsub(' 00:00:00', '', reference_datetime),
+                site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
   
   dplyr::select(c('datetime', 'reference_datetime', 'site_id', 'family',
                   'parameter', 'variable', 'prediction', 'model_id'))  
