@@ -2,10 +2,10 @@
 # Lake information
 ###########################
 
-lake_name_code: CRAM
-lake_name: Crampton Lake
-lake_latitude: 46.209675   #Degrees North
-lake_longitude: -89.473688  #Degrees West
+lake_name_code: TOOL
+lake_name: Toolik Lake
+lake_latitude: 68.63069   #Degrees North
+lake_longitude: -149.6106  #Degrees West
 
 #Time zone that GLM is run in
 #Currently needed to be GMT so that it interfaces with the NOAA forecast
@@ -14,7 +14,7 @@ lake_longitude: -89.473688  #Degrees West
 
 local_tzone: "UTC"
 
-noaa_location: CRAM
+noaa_location: TOOL
 
 met_raw_obs_fname:
     - met_data_w_gaps.csv
@@ -27,7 +27,7 @@ downscaling_coeff: debiased.coefficients.2018_07_12_2019_07_11.RData
 #Depths used in the EnKF
 #This are the depths that are saved between days
 #Init depth of lake
-lake_depth_init: 6.1  #not a modeled state
+lake_depth_init: 26.2  #not a modeled state
 
 depths_bins_top: [0.00, 0.10, 0.50, 1.00,
                   1.50, 2.00, 2.50,
@@ -41,7 +41,12 @@ depths_bins_top: [0.00, 0.10, 0.50, 1.00,
                   13.5, 14.0, 14.5,
                   15.0, 15.5, 16.0,
                   16.5, 17.0, 17.5,
-                  18.0, 18.5, 19.0]
+                  18.0, 18.5, 19.0,
+                  19.5, 20.0, 20.5,
+                  21.0, 21.5, 22.0, 
+                  22.5, 23.0, 23.5,
+                  24.0, 24.5, 25.0, 
+                  25.5, 26.0]
 
 realtime_met_station_location: data
 realtime_temp_location: data
