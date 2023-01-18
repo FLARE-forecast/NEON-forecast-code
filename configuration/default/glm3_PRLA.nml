@@ -1,5 +1,5 @@
 &glm_setup
-   sim_name = 'BARC'
+   sim_name = 'PRLA'
    max_layers = 500
    min_layer_vol = 0.025
    min_layer_thick = 0.10
@@ -12,7 +12,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.35
+   Kw = 1.5
 /
 &mixing
    coef_mix_conv = 0.2
@@ -24,14 +24,14 @@
    deep_mixing = 2
 /
 &morphometry
-   lake_name = 'BarcoLake'
-   latitude = 29.67562
-   longitude = -82.0085
-   bsn_len = 422
-   bsn_wid = 421
-   bsn_vals = 14
-   H = 18.2, 18.3, 18.7, 19.2, 19.7, 20.2, 20.7, 21.2, 21.7, 22.2, 22.7, 23.2, 23.7, 24.5
-   A = 0, 26359.09, 33107.17, 39855.27, 45689.51, 51523.74, 55807.51, 60091.27, 66851.66, 73612.06, 87672.69, 101733.34, 110733.24, 119733.14
+   lake_name = 'PrairieLake'
+   latitude = 47.15909
+   longitude = -99.11388
+   bsn_len = 1053
+   bsn_wid = 526
+   bsn_vals = 10
+   H = 561, 561.5, 562, 562.5, 563, 563.5, 564, 564.5, 564.9, 565
+   A = 5.752306919, 24.71221307, 51598.59447, 113370.2667, 137979.8383, 164923.9439, 194412.0957, 213294.4509, 221846.2199, 227434.2199
 /
 &time
    timefmt = 2
@@ -47,19 +47,19 @@
    nsave = 24
 /
 &init_profiles
-   num_depths = 14
-   lake_depth = 6
-   the_depths = 0, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6
-   the_temps = 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
-   the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   num_depths = 10
+   lake_depth = 4
+   the_depths = 0, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4
+   the_temps = 20, 20, 20, 20, 20, 20, 20, 20, 20, 20
+   the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
    num_wq_vars = 0
    wq_names = 'OXY_oxy'
-   wq_init_vals = 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300
+   wq_init_vals = 300, 300, 300, 300, 300, 300, 300, 300, 300, 300
    snow_thickness = 0
    white_ice_thickness = 0
    blue_ice_thickness = 0
    avg_surf_temp = 20
-   restart_variables = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   restart_variables = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 /
 &meteorology
    met_sw = .true.
@@ -70,7 +70,7 @@
    rad_mode = 1
    albedo_mode = 1
    cloud_mode = 4
-   meteo_fl = 'BARC_met_final.csv'
+   meteo_fl = 'PRLA_met_final.csv'
    subdaily = .true.
    wind_factor = 1
    sw_factor = 1
@@ -101,10 +101,10 @@
    benthic_mode = 2
    sed_heat_model = 1
    n_zones = 1
-   zone_heights = 6.5
-   sed_heat_Ksoil = 0.2
+   zone_heights = 4.5
+   sed_heat_Ksoil = 1.2
    sed_temp_depth = 0.5
-   sed_temp_mean = 25
+   sed_temp_mean = 16
    sed_temp_amplitude = 0
-   sed_temp_peak_doy = 210
+   sed_temp_peak_doy = 278.438
 /

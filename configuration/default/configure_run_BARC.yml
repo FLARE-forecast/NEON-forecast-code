@@ -1,0 +1,9 @@
+restart_file: .na
+start_datetime: 2022-10-01 00:00:00
+end_datetime: .na
+forecast_start_datetime: 2022-11-01 00:00:00
+forecast_horizon: 30.0
+sim_name: test_runS3
+configure_flare: configure_flare_BARC.yml
+use_s3: TRUE
+
