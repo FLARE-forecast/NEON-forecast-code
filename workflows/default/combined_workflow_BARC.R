@@ -1,9 +1,16 @@
+args <- commandArgs(trailingOnly=TRUE)
+print("arg")
+print(args)
+#readRenviron("~/.Renviron") # MUST come first
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
-
-forecast_site <- "BARC"
+if(length(args) == 0){
+ forecast_site <- c("BARC")
+}else{
+  forecast_site <- args[1]
+}
 
 message(paste0("Running site: ", forecast_site))
 configure_run_file <- paste0("configure_run_",forecast_site,".yml")
@@ -97,4 +104,6 @@ if(noaa_ready){
   RCurl::url.exists("https://hc-ping.com/31c3e142-8f8c-42ae-9edc-d277adb94b31", timeout = 5)
   
   
+}else{
+stop("Missing NOAA forecast")  
 }
