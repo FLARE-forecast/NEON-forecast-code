@@ -1,16 +1,9 @@
-args <- commandArgs(trailingOnly=TRUE)
-print("arg")
-print(args)
-#readRenviron("~/.Renviron") # MUST come first
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
-if(length(args) == 0){
- forecast_site <- c("BARC")
-}else{
-  forecast_site <- args[1]
-}
+
+forecast_site <- "BARC"
 
 message(paste0("Running site: ", forecast_site))
 configure_run_file <- paste0("configure_run_",forecast_site,".yml")
@@ -73,4 +66,4 @@ readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatic
                      endpoint = config$s3$warm_start$endpoint,
                      use_https = TRUE)
   
-  RCurl::url.exists("https://hc-ping.com/31c3e142-8f8c-42ae-9edc-d277adb94b31", timeout = 5)
+  RCurl::url.exists("https://hc-ping.com/6f2ee700-7da2-483f-aaea-425155d092da", timeout = 5)
