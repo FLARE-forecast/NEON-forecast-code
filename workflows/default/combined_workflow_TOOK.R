@@ -4,7 +4,8 @@ lake_directory <- here::here()
 setwd(lake_directory)
 
 forecast_site <- "TOOL"
-
+ping_url <- 'https://hc-ping.com/97a2f542-bfd0-42d1-9200-c2741699de1b'
+  
 message(paste0("Running site: ", forecast_site))
 configure_run_file <- paste0("configure_run_",forecast_site,".yml")
 config_set_name <- "default"
@@ -95,7 +96,7 @@ if(noaa_ready){
                              endpoint = config$s3$warm_start$endpoint,
                              use_https = TRUE)
   
-  RCurl::url.exists("https://hc-ping.com/31c3e142-8f8c-42ae-9edc-d277adb94b31", timeout = 5)
+  RCurl::url.exists(ping_url, timeout = 5)
   
   
 }

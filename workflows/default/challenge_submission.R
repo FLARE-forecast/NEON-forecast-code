@@ -58,3 +58,5 @@ readr::write_csv(challenge_submission, forecast_file)
 neon4cast::forecast_output_validator(forecast_file)
 neon4cast::submit(forecast_file = forecast_file,
                   ask = F, s3_region = 'data', s3_endpoint = 'ecoforecast.org')
+
+RCurl::url.exists("https://hc-ping.com/7c570e66-6ea3-4f62-b196-ae7d299773ae", timeout = 5)
