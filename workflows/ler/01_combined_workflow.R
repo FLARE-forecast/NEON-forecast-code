@@ -184,14 +184,14 @@ if(model != "GLM"){
 }
 
 # Save forecast
-if(sims$model[i] != "GLM"){
+if(model != "GLM"){
   message("writing netcdf")
   saved_file <- FLARErLER::write_forecast_netcdf_ler(da_forecast_output = da_forecast_output,
                                                      forecast_output_directory = config$file_path$forecast_output_directory,
                                                      use_short_filename = TRUE)
   message("writing arrow forecast")
   forecast_df <- FLARErLER::write_forecast_arrow_ler(da_forecast_output = da_forecast_output,
-                                                     use_s3 = use_s3,
+                                                     use_s3 = config$run_config$use_s3,
                                                      bucket = config$s3$forecasts_parquet$bucket,
                                                      endpoint = config$s3$forecasts_parquet$endpoint,
                                                      local_directory = file.path(lake_directory, config$s3$forecasts_parquet$bucket))
@@ -203,7 +203,7 @@ if(sims$model[i] != "GLM"){
                                               use_short_filename = TRUE)
   message("writing arrow forecast")
   forecast_df <- FLAREr::write_forecast_arrow(da_forecast_output = da_forecast_output,
-                                              use_s3 = use_s3,
+                                              use_s3 = config$run_config$use_s3,
                                               bucket = config$s3$forecasts_parquet$bucket,
                                               endpoint = config$s3$forecasts_parquet$endpoint,
                                               local_directory = file.path(lake_directory, config$s3$forecasts_parquet$bucket))
