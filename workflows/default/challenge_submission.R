@@ -15,6 +15,7 @@ NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4c
   dplyr::distinct(field_site_id) %>%
   dplyr::pull()
 
+NEON_sites <- c(NEON_sites, 'TOOL')
 
 # get the forecast from the FLARE bucket
 forecasts <- arrow::s3_bucket(bucket = "forecasts/parquet",
