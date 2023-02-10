@@ -44,8 +44,8 @@ model_settings:
    ncore: 4
    model: Simstrat
    base_GLM_nml: glm3_BARC.nml
-   base_ler_yaml: LakeEnsemblR.yaml
-   ler_bathymetry_file: LakeEnsemblR_bathymetry_standard.csv
+   base_ler_yaml: LakeEnsemblR_BARC.yaml
+   ler_bathymetry_file: LakeEnsemblR_bathymetry_BARC.csv
    use_ler: TRUE
    modeled_depths: [0.00,0.25,0.50,0.75,
                     1.00,1.25,1.50,1.75,
