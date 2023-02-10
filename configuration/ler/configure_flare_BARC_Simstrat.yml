@@ -42,7 +42,7 @@ da_setup:
     obs_filename: BARC-targets-insitu.csv
 model_settings:
    ncore: 4
-   model: GOTM
+   model: Simstrat
    base_GLM_nml: glm3_BARC.nml
    base_ler_yaml: LakeEnsemblR.yaml
    ler_bathymetry_file: LakeEnsemblR_bathymetry_standard.csv
@@ -83,7 +83,7 @@ met:
    use_observed_met: FALSE
    local_directory: .na
    observed_met_filename: .na
-   use_ler_vars: FALSE
+   use_ler_vars: TRUE
    forecast_lag_days: 1
 uncertainty:
    observation: TRUE
