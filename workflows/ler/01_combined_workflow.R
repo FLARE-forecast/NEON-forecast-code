@@ -7,7 +7,7 @@ forecast_site <- "BARC"
 model <- "GOTM"
 
 message(paste0("Running site: ", forecast_site))
-configure_run_file <- paste0("configure_run_",forecast_site,".yml")
+configure_run_file <- paste0("configure_run_",forecast_site,'_',model,".yml")
 config_set_name <- "ler"
 
 config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
@@ -230,7 +230,7 @@ if(config$output_settings$evaluate_past){
 
 FLAREr::generate_forecast_score_arrow(targets_file = file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")),
                                       forecast_df = forecast_df,
-                                      use_s3 = use_s3,
+                                      use_s3 = config$run_config$use_s3,
                                       bucket = config$s3$scores$bucket,
                                       endpoint = config$s3$scores$endpoint,
                                       local_directory = file.path(lake_directory, config$s3$scores$bucket),
