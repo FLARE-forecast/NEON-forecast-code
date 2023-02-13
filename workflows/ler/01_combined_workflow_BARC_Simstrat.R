@@ -8,7 +8,7 @@ model <- "Simstrat"
 
 message(paste0("Running site: ", forecast_site))
 configure_run_file <- paste0("configure_run_",forecast_site,'_',model,".yml")
-config_set_name <- "ler"
+config_set_name <- file.path("ler", forecast_site)
 
 config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
 

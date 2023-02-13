@@ -4,11 +4,12 @@ lake_directory <- here::here()
 setwd(lake_directory)
 
 forecast_site <- "SUGG"
-model <- "Simstrat"
+model <- "GOTM"
 
 message(paste0("Running site: ", forecast_site))
 configure_run_file <- paste0("configure_run_",forecast_site,'_',model,".yml")
 config_set_name <- file.path("ler", forecast_site)
+
 
 config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
 
@@ -142,7 +143,6 @@ if(model != "GLM"){ #GOTM and Simstrat have different diagnostics
 
 
 #Run EnKF
-
 if(model != "GLM"){
   da_forecast_output <- FLARErLER::run_da_forecast_ler(states_init = init$states,
                                                        pars_init = init$pars,
