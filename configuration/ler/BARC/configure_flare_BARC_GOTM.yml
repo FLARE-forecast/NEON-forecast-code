@@ -2,7 +2,7 @@ file_path:
    qaqc_data_directory: .na
    noaa_directory: .na
    inflow_directory: .na
-   configuration_directory: .na
+   configuration_directory: BARC
    execute_directory: .na
    forecast_output_directory: .na
 s3:
