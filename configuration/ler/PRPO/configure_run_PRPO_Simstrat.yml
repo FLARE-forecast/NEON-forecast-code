@@ -1,0 +1,8 @@
+restart_file: .na
+start_datetime: 2022-10-01 00:00:00
+end_datetime: .na
+forecast_start_datetime: 2022-10-07 00:00:00
+forecast_horizon: 2.0
+sim_name: Simstrat
+configure_flare: configure_flare_PRPO_Simstrat.yml
+use_s3: no
