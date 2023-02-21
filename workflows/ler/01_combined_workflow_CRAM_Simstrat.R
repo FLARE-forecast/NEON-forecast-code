@@ -140,6 +140,8 @@ if(model != "GLM"){ #GOTM and Simstrat have different diagnostics
   config$output_settings$diagnostics_names <- NULL
 }
 
+# stop data assimilations
+obs[ ,2:dim(obs)[2], ] <- NA
 
 #Run EnKF
 if(model != "GLM"){
