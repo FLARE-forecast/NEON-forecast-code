@@ -272,7 +272,8 @@ Fig2a <- combined_1m %>%
         legend.key.height = unit(0.3, "cm"),
         legend.position = "bottom",
         legend.margin=margin(0,0,0,0),
-        plot.tag.position = c(0.25,0.88))
+        plot.tag.position = c(0.22,0.90),
+        plot.tag = element_text(size = 8))
 
 Fig2b <- combined_1m %>% 
   mutate(horizon = as.numeric(horizon)) %>% 
@@ -282,12 +283,13 @@ Fig2b <- combined_1m %>%
   ggplot(aes(horizon, rmse_skill, color = siteID, linetype = domain)) +
   geom_line(size=1) +
   geom_hline(aes(yintercept = 0)) +
-  ylim(-1.5,3.4) +
+  #ylim(-1.5,3.4) +
   labs(x = "Horizon (days)", y = "RMSE Skill (Null - FLARE)", tag = "(b)", title = " ", color = "NEON Site ID", linetype = "NEON Domain") +
   annotate("text", x=20, y=3.15, label = "FLARE performs better", size = 3) +
   annotate("text", x=20, y=-1.45, label = "Null performs better", size = 3) +
   scale_color_manual(values = cbPalette) +
   theme_bw() +
+  scale_y_continuous(breaks = c(-1,0,1,2,3), labels = c("–1", "0", "1", "2", "3"),limits = c(-1.5,3.4)) +
   scale_linetype_manual(values=c("solid", "dashed", "dotted")) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -297,7 +299,8 @@ Fig2b <- combined_1m %>%
         legend.text = element_text(size = 8),
         legend.title = element_text(size = 8),
         legend.margin=margin(0,0,0,0),
-        plot.tag.position = c(0.25,0.88))
+        plot.tag.position = c(0.23,0.90),
+        plot.tag = element_text(size = 8))
 
 Fig2 <- Fig2a + Fig2b + plot_layout(guides = 'collect') & theme(legend.position = "bottom") &   guides(color=guide_legend(nrow=2, title.position = "top"),linetype = guide_legend(nrow=3,byrow=TRUE, title.position = "top"))
 
@@ -318,7 +321,8 @@ Fig3 <- spear_corr_table %>%
   geom_vline(xintercept = -0.5) +
   geom_hline(yintercept = 5.5, linetype = "dashed") +
   xlim(-1,1) +
-  labs(x = "Spearman's correlation coefficient", y = "variable") +
+  scale_x_continuous(labels = c("–1.0", "–0.5", "0.0", "0.5", "1.0")) +
+  labs(x = "Spearman's correlation coefficient", y = "Variable") +
   scale_color_manual(values=c("red", "blue")) +
   theme_bw() +
   theme(panel.grid.major = element_blank(),
@@ -410,7 +414,6 @@ TableS1 <- spear_corr_table %>%
   mutate(rho = round(rho, 2))
 
 knitr::kable(TableS1)
-
 ```
 
 #Supplemental Information Figures
@@ -419,7 +422,7 @@ knitr::kable(TableS1)
 
 ```{r}
 
-y_label <- expression(paste('Water temprature (',degree,'C)', sep = ""))
+y_label <- expression(paste('Water temperature (',degree,'C)', sep = ""))
 cbPalette <- c("#CC79A7", "#009E73", "#E69F00")
 
 FigS1 <- combined %>%
