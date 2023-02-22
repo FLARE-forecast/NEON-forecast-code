@@ -23,9 +23,9 @@ forecasts <- arrow::s3_bucket(bucket = "forecasts/parquet",
 
 today <- paste(Sys.Date(), '00:00:00')
 # yesterday <- paste((Sys.Date() - days(1)), '00:00:00')
-​
-​
-​
+
+
+
 # open_ds <- arrow::open_dataset(forecasts) %>%
 #   dplyr::filter(site_id %in% NEON_sites, 
 #                 reference_datetime == today,
@@ -62,17 +62,17 @@ today <- paste(Sys.Date(), '00:00:00')
 # RCurl::url.exists("https://hc-ping.com/7c570e66-6ea3-4f62-b196-ae7d299773ae", timeout = 5)
 # 
 this_year <- as.character(paste0(seq.Date(as_date('2023-01-01'), Sys.Date(), by = 'day'), ' 00:00:00'))
-​
+
 # check for missed submissions 
 flare_dates  <- arrow::open_dataset(forecasts) |> 
   dplyr::filter(site_id %in% NEON_sites, 
                 reference_datetime %in% this_year) |> 
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull(as_vector = T) 
-​
+
 challenge_s3_region <- "data"
 challenge_s3_endpoint <- "ecoforecast.org"
-​
+
 # are these dates in the challenge
 for (i in 1:length(flare_dates)) {
   
