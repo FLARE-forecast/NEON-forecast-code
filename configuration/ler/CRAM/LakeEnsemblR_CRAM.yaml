@@ -27,7 +27,7 @@ input:
    meteo:
       file: LakeEnsemblR_meteo_standard.csv     # file with meteorological forcing data, with column headers according to LakeEnsemblR vocabulary [csv file]
    light:
-      Kw: 0.87 # light extinction coefficient [m-1, or csv file]
+      Kw: 0.8 # light extinction coefficient [m-1, or csv file]
    ice:
       use: true                                 # turn on ice models? [true/false]
 inflows:
@@ -118,15 +118,15 @@ model_parameters:
    GOTM:                                        # GOTM specific parameters
     turbulence/turb_param/k_min: 5.0E-8                             # minimum turbulent kinetic energy [m^2/s^2; min=0.0]
    Simstrat:                                    # Simstrat specific parameters
-    ModelParameters/a_seiche: 0.0027906391
+    ModelParameters/a_seiche: 0.001
     ModelParameters/q_nn: 1.1
-    ModelParameters/p_lw: 1.0
-    ModelParameters/f_wind: 0.352704769
+    ModelParameters/p_lw: 0.9
+    ModelParameters/f_wind: 0.3
     ModelParameters/freez_temp: 0.01
     ModelParameters/k_min: 1.0e-15
-    ModelParameters/p_windf: 1.0
+    ModelParameters/p_windf: 0.5
     ModelParameters/c10: 1.0
-    ModelParameters/p_sw_water: 1.0
+    ModelParameters/p_sw_water: 0.8
     ModelParameters/snow_temp: 1.39796129
     ModelParameters/wat_albedo: 0.09
     ModelParameters/beta_sol: 0.35
