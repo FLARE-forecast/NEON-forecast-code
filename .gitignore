@@ -38,4 +38,5 @@ analysis/*
 automation/*.log
 restart/*
 targets/*
+scores/*
 
