@@ -2,4 +2,5 @@ par_names,par_names_save,par_file,par_init,par_init_lowerbound,par_init_upperbou
 sediment/sed_temp_mean,zone1temp,glm3.nml,13,10,15,-100,100,1.02,1, deg_C,GLM
 meteorology/lw_factor,lw_factor,glm3.nml,0.9,0.5,1.5,-10,10,1.02,0.02, unitless,GLM
 surface/meteo/swr/scale_factor,swr_scale_factor,gotm.yaml,1.00E+00,5.00E-01,1.50E+00,1.00E-01,2.00E+00,1.04E+00,0.02,unitless,GOTM
-ModelParameters/p_sw_water,p_sw_water,simstrat.par,1,0.5,1.5,0.1,2,1.04,0.02,unitless,Simstrat
+ModelParameters/p_lw,p_lw,simstrat.par,0.95,0.8,1.2,0.1,2,1.04,0.02,unitless,Simstrat
+ModelParameters/f_wind,f_wind,simstrat.par,1.4,0.5,1.5,0.1,2,1.04,0.02,unitless,Simstrat
