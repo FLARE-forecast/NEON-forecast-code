@@ -17,6 +17,8 @@ jobs:
 # Point to the right path, run the right Rscript command
       - name: Install packages
         run: Rscript $GITHUB_WORKSPACE/workflows/ler/install_packages.R
+        env:
+          GITHUB_PAT: ${{ secrets.PAT }}
       - name: Run automatic prediction file
         run: Rscript $GITHUB_WORKSPACE/workflows/ler/01_combined_workflow_BARC_Simstrat.R
         env:
