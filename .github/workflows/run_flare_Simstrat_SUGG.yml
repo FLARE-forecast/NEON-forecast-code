@@ -20,7 +20,7 @@ jobs:
         env:
           GITHUB_PAT: ${{ secrets.PAT }}
       - name: Run automatic prediction file
-        run: Rscript $GITHUB_WORKSPACE/workflows/ler/01_combined_workflow_BARC_Simstrat.R
+        run: Rscript $GITHUB_WORKSPACE/workflows/ler/01_combined_workflow_SUGG_Simstrat.R
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
