@@ -1,5 +1,6 @@
 library(tidyverse)
 library(lubridate)
+FLAREr::ignore_sigpipe()
 lake_directory <- here::here()
 setwd(lake_directory)
 
