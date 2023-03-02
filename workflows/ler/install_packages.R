@@ -10,7 +10,7 @@ remotes::install_github("aemon-j/gotmtools")
 remotes::install_github("rqthomas/glmtools")
 remotes::install_github("FLARE-forecast/LakeEnsemblR")
 #remotes::install_github("rqthomas/FLAREr", ref = "ca1fe5570d58a37e921ee6b0fe64c2947298fb87")
-remotes::install_github("rqthomas/FLAREr")
+remotes::install_github("FLARE-forecast/FLAREr")
 #remotes::install_github("FLARE-forecast/FLARErLER", ref = "b77740a3ba37487346d5b110c90fd92dfe7487d6")
 remotes::install_github("FLARE-forecast/FLARErLER")
 
