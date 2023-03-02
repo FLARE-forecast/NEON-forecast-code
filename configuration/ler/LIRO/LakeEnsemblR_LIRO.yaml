@@ -97,7 +97,7 @@ model_parameters:
       sediment/sed_temp_depth:
       - 0.5, 0.5
       sediment/sed_temp_amplitude:
-      - 0,0 
+      - 0, 0 
       sediment/sed_temp_peak_doy:
       - 250, 255
       init_profiles/restart_variables:
