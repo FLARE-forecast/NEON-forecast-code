@@ -5,4 +5,4 @@ forecast_start_datetime: 2023-02-28 00:00:00
 forecast_horizon: 30.0
 sim_name: Simstrat
 configure_flare: configure_flare_LIRO_Simstrat.yml
-use_s3: no
+use_s3: TRUE
