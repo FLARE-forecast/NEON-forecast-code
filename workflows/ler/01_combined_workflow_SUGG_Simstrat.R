@@ -1,5 +1,8 @@
 library(tidyverse)
 library(lubridate)
+
+options(future.globals.maxSize= 891289600)
+
 FLAREr::ignore_sigpipe()
 lake_directory <- here::here()
 setwd(lake_directory)
