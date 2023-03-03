@@ -7,7 +7,7 @@ remotes::install_github("FLARE-forecast/SimstratR", ref = "c6ccb997705f700f6ff6c
 remotes::install_github("aemon-j/gotmtools", ref = "yaml")
 remotes::install_github("rqthomas/glmtools", ref = "b50e9a7b73e41afcd8119e2b9ac172c1c7beb51f")
 remotes::install_github("FLARE-forecast/LakeEnsemblR")
-remotes::install_github("FLARE-forecast/FLAREr")
+remotes::install_github("OlssonF/FLAREr")
 remotes::install_github("FLARE-forecast/FLARErLER")
 
 # end
