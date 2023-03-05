@@ -1,4 +1,5 @@
-
+library(tidyverse)
+setwd(here::here())
 
 # Check the FLARE S3 bucket to see if it is up to date
 Sys.unsetenv("AWS_ACCESS_KEY_ID")
