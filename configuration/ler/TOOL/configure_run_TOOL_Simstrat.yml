@@ -1,7 +1,7 @@
 restart_file: .na
 start_datetime: 2022-09-10 00:00:00
 end_datetime: .na
-forecast_start_datetime: 2023-02-28 00:00:00
+forecast_start_datetime: 2023-02-01 00:00:00
 forecast_horizon: 30.0
 sim_name: Simstrat
 configure_flare: configure_flare_TOOL_Simstrat.yml
