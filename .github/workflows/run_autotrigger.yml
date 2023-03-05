@@ -22,3 +22,4 @@ jobs:
         run:  Rscript $GITHUB_WORKSPACE/R/auto_run_trigger.R
       - name: GIT commit and push all changed files
         uses: EndBug/add-and-commit@v9.1.1
+        git config --global --add safe.directory /__w/NEON-forecast-code/NEON-forecast-code
