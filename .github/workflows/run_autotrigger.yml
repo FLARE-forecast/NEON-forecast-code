@@ -27,6 +27,7 @@ jobs:
         run: |
           git config user.name OlssonF
           git config user.email freyao@vt.edu
+          git remote set-url --push origin https://OlssonF:$GITHUB_TOKEN@github.com/OlssonF/NEON-forecast-code
           git add rerun
           git commit -a -m "files to rerun"
           git push
