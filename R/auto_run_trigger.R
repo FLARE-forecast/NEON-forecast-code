@@ -10,8 +10,8 @@ Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 
 
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
-  dplyr::filter(field_site_subtype == 'Lake') %>%
-  dplyr::distinct(field_site_id) %>%
+  dplyr::filter(field_site_subtype == 'Lake') |> 
+  dplyr::distinct(field_site_id) |> 
   dplyr::pull()
 
 
