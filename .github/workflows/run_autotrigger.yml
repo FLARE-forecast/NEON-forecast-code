@@ -24,6 +24,7 @@ jobs:
         env: 
           CI_COMMIT_MESSAGE: Continuous Integration Build Artifacts
           CI_COMMIT_AUTHOR: Continuous Integration
+          GITHUB_PAT: ${{ secrets.PAT }}
         run: |
           git config user.name "OlssonF"
           git config user.email "<>"
