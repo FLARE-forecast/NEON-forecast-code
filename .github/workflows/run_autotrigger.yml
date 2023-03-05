@@ -26,8 +26,8 @@ jobs:
           CI_COMMIT_AUTHOR: Continuous Integration
           GITHUB_PAT: ${{ secrets.PAT }}
         run: |
-          git config user.name "OlssonF"
-          git config user.email "<>"
+          git config --global user.name "OlssonF"
+          git config --global user.email "<>"
           git add rerun
           git commit -a -m "files to rerun"
           git push
