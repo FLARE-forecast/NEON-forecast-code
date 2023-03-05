@@ -6,13 +6,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: rqthomas/flare-rocker:4.2.1
+    
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: r-lib/actions/setup-r@v1
+      - uses: r-lib/actions/setup-pandoc@v1
           
 # Point to the right path, run the right Rscript command
       - name: Install packages
