@@ -25,8 +25,8 @@ jobs:
           CI_COMMIT_MESSAGE: Continuous Integration Build Artifacts
           CI_COMMIT_AUTHOR: Continuous Integration
         run: |
-          git config --global user.name "OlssonF"
-          git config --global user.email ""
+          git config user.name "OlssonF"
+          git config user.email "<>"
           git add rerun
           git commit -a -m "files to rerun"
           git push
