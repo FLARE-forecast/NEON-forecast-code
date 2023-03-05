@@ -42,8 +42,10 @@ for (site in most_recent$site_id) {
 # write a file for those that are out of date
 to_rerun <- ls(pattern = 'rerun.*')
 
+dir.create('ruruns')
+
 for (i in 1:length(to_rerun)) {
-  file.create(to_rerun[i])
+  file.create(file.path('ruruns',to_rerun[i]))
 }
 
 
