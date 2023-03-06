@@ -86,7 +86,7 @@ for (i in 1:length(flare_dates)) {
     neon4cast::forecast_output_validator(file_to_submit)
     neon4cast::submit(forecast_file = file_to_submit,
                       ask = F, s3_region = 'data', s3_endpoint = 'ecoforecast.org')
-    message('submitting missed forecast from: ', forecast_file)
+    message('submitting missed forecast from: ', file_to_submit)
   }
 }
 
