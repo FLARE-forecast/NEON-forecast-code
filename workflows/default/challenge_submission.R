@@ -8,7 +8,8 @@ Sys.unsetenv("AWS_DEFAULT_REGION")
 Sys.unsetenv("AWS_S3_ENDPOINT")
 Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 
-model_name <- 'flareGLM'
+flare_model_name <- 'test_runS3'
+challenge_model_name <- 'flareGLM'
 
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
   dplyr::filter(field_site_subtype == 'Lake') %>%
@@ -25,59 +26,23 @@ forecasts <- arrow::s3_bucket(bucket = "forecasts/parquet",
 today <- paste(Sys.Date(), '00:00:00')
 # yesterday <- paste((Sys.Date() - days(1)), '00:00:00')
 
-
-
-# open_ds <- arrow::open_dataset(forecasts) %>%
-#   dplyr::filter(site_id %in% NEON_sites, 
-#                 reference_datetime == today,
-#                 datetime > as_datetime(reference_datetime),
-#                 depth <= 1) %>% 
-#   dplyr::collect() 
-# 
-# challenge_submission <- open_ds %>%
-#   dplyr::filter(variable == "temperature",
-#                 datetime >= today) %>%
-#   # FLARE output at multiple depths
-#   # Need a single "surface" average
-#   dplyr::group_by(site_id, datetime, parameter, reference_datetime,
-#            family, variable) %>%
-#   dplyr::summarise(prediction = mean(prediction)) %>% 
-#   dplyr::mutate(model_id = model_name, 
-#                 reference_datetime = gsub(' 00:00:00', '', reference_datetime),
-#                 site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
-#   
-#   dplyr::select(c('datetime', 'reference_datetime', 'site_id', 'family',
-#                   'parameter', 'variable', 'prediction', 'model_id'))  
-# 
-# # Write the submission
-# forecast_file <- paste0('aquatics-', challenge_submission$reference_datetime[1], '-', model_name, '.csv.gz')
-# 
-# readr::write_csv(challenge_submission, forecast_file)
-# # Submit forecast!
-# 
-# # Now we can submit the forecast output to the Challenge using 
-# neon4cast::forecast_output_validator(forecast_file)
-# neon4cast::submit(forecast_file = forecast_file,
-#                   ask = F, s3_region = 'data', s3_endpoint = 'ecoforecast.org')
-# 
-# RCurl::url.exists("https://hc-ping.com/7c570e66-6ea3-4f62-b196-ae7d299773ae", timeout = 5)
-# 
 this_year <- as.character(paste0(seq.Date(as_date('2023-01-01'), Sys.Date(), by = 'day'), ' 00:00:00'))
 
 # check for missed submissions 
 flare_dates  <- arrow::open_dataset(forecasts) |> 
   dplyr::filter(site_id %in% NEON_sites, 
-                reference_datetime %in% this_year) |> 
+                reference_datetime %in% this_year, 
+                model_id == flare_model_name) |> 
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull(as_vector = T) 
 
 challenge_s3_region <- "data"
 challenge_s3_endpoint <- "ecoforecast.org"
 
-# are these dates in the challenge
+# are these dates in the challenge?
 for (i in 1:length(flare_dates)) {
   
-  forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', model_name, '.csv.gz')
+  forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', challenge_model_name, '.csv.gz')
   
   exists <- suppressMessages(aws.s3::object_exists(object = file.path("raw", 
                                                      'aquatics', forecast_file),
@@ -92,6 +57,7 @@ for (i in 1:length(flare_dates)) {
       dplyr::filter(site_id %in% NEON_sites, 
                     reference_datetime == flare_dates[i],
                     datetime > as_datetime(reference_datetime),
+                    model_id == flare_model_name,
                     depth <= 1) %>% 
       dplyr::collect() 
     
@@ -103,7 +69,7 @@ for (i in 1:length(flare_dates)) {
       dplyr::group_by(site_id, datetime, parameter, reference_datetime,
                       family, variable) %>%
       dplyr::summarise(prediction = mean(prediction)) %>% 
-      dplyr::mutate(model_id = model_name, 
+      dplyr::mutate(model_id = challenge_model_name, 
                     reference_datetime = gsub(' 00:00:00', '', reference_datetime),
                     site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
       
@@ -111,7 +77,7 @@ for (i in 1:length(flare_dates)) {
                       'parameter', 'variable', 'prediction', 'model_id'))  
     
     # Write the submission
-    file_to_submit <- paste0('aquatics-', challenge_submission$reference_datetime[1], '-', model_name, '.csv.gz')
+    file_to_submit <- paste0('aquatics-', challenge_submission$reference_datetime[1], '-', challenge_model_name, '.csv.gz')
     
     readr::write_csv(challenge_submission, file_to_submit)
     # Submit forecast!
