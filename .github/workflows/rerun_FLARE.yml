@@ -20,11 +20,11 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GITHUB_PAT: ${{ secrets.PAT }}
-`     - name: Commit files
+      - name: Commit files
         run: |
-        git config --global --add safe.directory $GITHUB_WORKSPACE
-        git config --local user.name "$GITHUB_ACTOR"
-        git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-        git add rerun.*
-        git commit -m "adding rerun files" || echo "No changes to commit"
-        git push || echo "No changes to commit"
+           git config --global --add safe.directory $GITHUB_WORKSPACE
+           git config --local user.name "$GITHUB_ACTOR"
+           git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+           git add rerun.*
+           git commit -m "adding rerun files" || echo "No changes to commit"
+           git push || echo "No changes to commit"
