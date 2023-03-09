@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-    - 'rerun_Simstrat_CRAM'
+    - 'reruns/rerun_Simstrat_CRAM'
 
 jobs:
   build:
