@@ -11,8 +11,9 @@ Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
   dplyr::filter(field_site_subtype == 'Lake') |> 
-  dplyr::distinct(field_site_id) |> 
-  dplyr::pull()
+  dplyr::distinct(field_site_id)|> 
+  dplyr::mutate(field_site_id = ifelse(field_site_id == 'TOOK', 'TOOL', field_site_id)) |> 
+  dplyr::pull() 
 
 
 # get the forecast from the FLARE bucket
@@ -25,28 +26,30 @@ today <- paste(Sys.Date(), '00:00:00')
 # when was the last FLARE fun
 most_recent <- arrow::open_dataset(forecasts) |> 
   dplyr::filter(site_id %in% NEON_sites, 
-                model_id == 'Simstrat') |> 
-  group_by(site_id) |> 
+                model_id %in% c('Simstrat', 'test_runS3')) |> 
+  group_by(site_id, model_id) |> 
   summarise(last_forecast = max(reference_datetime)) |> 
   collect()
 
 # check what the most recent date is
-for (site in most_recent$site_id) {
-  recent_forecast <- most_recent$last_forecast[which(most_recent$site_id == site)]
+for (i in 1: nrow(most_recent)) {
+  site <- most_recent$site_id[i]
+  model_id <- most_recent$model_id[i]
+  recent_forecast <- most_recent$last_forecast[i]
   
   if (recent_forecast != today) {
-    assign(paste0('rerun.', site), T)
+    assign(paste('rerun', model_id, site, sep = '_'), T)
   } 
 }
 
 # write a file for those that are out of date
-to_rerun <- ls(pattern = 'rerun.*')
+to_rerun <- ls(pattern = 'rerun_*')
 
-dir.create('reruns')
+if (!dir.exists('reruns')) {
+  dir.create('reruns')
+}
+
 
 for (i in 1:length(to_rerun)) {
   file.create(file.path('reruns',to_rerun[i]))
 }
-
-
-
