@@ -1,7 +1,7 @@
 on:
-  push:
-    paths:
-    - 'reruns/rerun_Simstrat_CRAM.txt'
+  workflow_dispatch:
+  schedule:
+  - cron: "0 11 * * *"
 
 jobs:
   build:
