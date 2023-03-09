@@ -38,18 +38,19 @@ for (i in 1: nrow(most_recent)) {
   recent_forecast <- most_recent$last_forecast[i]
   
   if (recent_forecast != today) {
-    assign(paste('rerun', model_id, site, sep = '_'), T)
+    assign(paste('rerun', model_id, site, sep = '_'), Sys.time())
   } 
 }
 
 # write a file for those that are out of date
-to_rerun <- ls(pattern = 'rerun_*')
+FLAREruns <- ls(pattern = 'rerun')
 
 if (!dir.exists('reruns')) {
   dir.create('reruns')
 }
 
 
-for (i in 1:length(to_rerun)) {
-  file.create(file.path('reruns',to_rerun[i]))
+for (i in 1:length(FLAREruns)) {
+  write(file = paste0('reruns/',FLAREruns[i],'.txt'),
+        x = (as.character(get(FLAREruns[i]))))
 }
