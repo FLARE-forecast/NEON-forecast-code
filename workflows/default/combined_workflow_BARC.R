@@ -41,6 +41,9 @@ readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatic
   if(config$run_config$use_s3){
     message("Successfully moved targets to s3 bucket")
   }
+
+noaa_ready <- TRUE
+while(noaa_ready){
   
   output <- FLAREr::run_flare(lake_directory = lake_directory,
                               configure_run_file = configure_run_file,
@@ -68,3 +71,8 @@ readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatic
                      use_https = TRUE)
   
   RCurl::url.exists(ping_url, timeout = 5)
+
+  noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory = lake_directory,
+                                         configure_run_file = configure_run_file,
+                                         config_set_name = config_set_name)
+}
