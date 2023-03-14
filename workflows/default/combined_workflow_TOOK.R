@@ -19,7 +19,7 @@ cuts <- tibble::tibble(cuts = as.integer(factor(config$model_settings$modeled_de
 
 cleaned_insitu_file <- file.path(lake_directory, "targets", config$location$site_id, config$da_setup$obs_filename)
 readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatics-expanded-observations.csv.gz", show_col_types = FALSE) |> 
-  filter(site_id == forecast_site) |> 
+  dplyr::filter(site_id %in% c('TOOL','TOOK')) |> #forecast_site) |> ## FIX FOR SITE_ID TOOL/TOOK ISSUE
   dplyr::mutate(cuts = cut(depth, breaks = config$model_settings$modeled_depths, include.lowest = TRUE, right = FALSE, labels = FALSE)) |>
   dplyr::filter(lubridate::hour(datetime) == 0) |>
   dplyr::group_by(cuts, variable, datetime, site_id) |>
