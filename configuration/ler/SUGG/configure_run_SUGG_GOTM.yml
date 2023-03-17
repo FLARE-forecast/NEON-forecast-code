@@ -1,8 +1,8 @@
 restart_file: .na
-start_datetime: 2022-12-01 00:00:00
+start_datetime: 2023-03-01 00:00:00
 end_datetime: .na
-forecast_start_datetime: 2022-12-15 00:00:00
+forecast_start_datetime: 2023-03-16 00:00:00
 forecast_horizon: 30.0
 sim_name: GOTM
 configure_flare: configure_flare_SUGG_GOTM.yml
-use_s3: no
+use_s3: TRUE
