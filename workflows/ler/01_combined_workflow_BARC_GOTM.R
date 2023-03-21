@@ -2,7 +2,7 @@ library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
-
+FLAREr::ignore_sigpipe()
 forecast_site <- "BARC"
 model <- "GOTM"
 
