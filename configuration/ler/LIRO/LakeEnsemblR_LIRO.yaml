@@ -116,7 +116,10 @@ model_parameters:
       - 0
       - 0
    GOTM:                                        # GOTM specific parameters
-    turbulence/turb_param/k_min: 5.0E-8                             # minimum turbulent kinetic energy [m^2/s^2; min=0.0]
+    turbulence/turb_param/k_min: 1.4E-7                             # minimum turbulent kinetic energy [m^2/s^2; min=0.0]
+    surface/meteo/swr/scale_factor: 1.0
+    surface/fluxes/heat/scale_factor: 1.25
+    surface/meteo/u10/scale_factor: 0.5
    Simstrat:                                    # Simstrat specific parameters
     ModelParameters/a_seiche: 0.001
     ModelParameters/q_nn: 1.1
