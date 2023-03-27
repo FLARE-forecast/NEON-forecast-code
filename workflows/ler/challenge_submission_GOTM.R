@@ -10,6 +10,7 @@ Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 
 flare_model_name <- 'GOTM'
 challenge_model_name <- 'flareGOTM'
+force <- FALSE
 
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
   dplyr::filter(field_site_subtype == 'Lake') %>%
@@ -49,10 +50,10 @@ for (i in 1:length(flare_dates)) {
                                                    bucket = "neon4cast-forecasts",
                                                    region = challenge_s3_region,
                                                    base_url = challenge_s3_endpoint))
-  if (exists == T) {
+  if (exists == T & force == F) {
     message(forecast_file, ' already submitted')
   } 
-  if (exists == F) {
+  if (exists == F | (exists == T & force == T)) {
     open_ds <- arrow::open_dataset(forecasts) %>%
       dplyr::filter(site_id %in% NEON_sites, 
                     reference_datetime == flare_dates[i],
