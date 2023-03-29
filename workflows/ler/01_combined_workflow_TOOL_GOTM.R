@@ -95,9 +95,9 @@ if(config$run_config$forecast_horizon > 16 & config$met$use_forecasted_met){
 # generate met files
 met_out <- FLAREr::generate_met_files_arrow(obs_met_file = NULL,
                                             out_dir = config$file_path$execute_directory,
-                                            start_datetime = config$run_config$start_datetime,
+                                            start_datetime = met_start_datetime,
                                             end_datetime = config$run_config$end_datetime,
-                                            forecast_start_datetime = config$run_config$forecast_start_datetime,
+                                            forecast_start_datetime = met_forecast_start_datetime,
                                             forecast_horizon =  config$run_config$forecast_horizon,
                                             site_id = config$location$site_id,
                                             use_s3 = TRUE,
@@ -106,7 +106,6 @@ met_out <- FLAREr::generate_met_files_arrow(obs_met_file = NULL,
                                             local_directory = NULL,
                                             use_forecast = TRUE,
                                             use_ler_vars = use_ler_vars)
-
 
 met_out$filenames <- met_out$filenames[!stringr::str_detect(met_out$filenames, "31")]
 
