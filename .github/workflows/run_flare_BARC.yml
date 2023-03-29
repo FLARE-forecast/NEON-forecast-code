@@ -19,9 +19,4 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run:  Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_BARC.R TRUE
-      - name: Run automatic prediction file (no DA)
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run:  Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_BARC.R FALSE
+        run:  Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_BARC.R
