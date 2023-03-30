@@ -1,3 +1,9 @@
+DA_use <- commandArgs(trailingOnly = T)
+
+if (length(DA_use) != 1)  {
+  DA_use <- T
+} 
+
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
@@ -140,6 +146,14 @@ if(model != "GLM"){ #GOTM and Simstrat have different diagnostics
   config$output_settings$diagnostics_names <- NULL
 }
 
+# switch to turn DA on or off
+if (DA_use == F) {
+  config$da_setup$use_obs_constraint <- FALSE
+  config$run_config$sim_name <- paste0('flare', model, '_noDA')
+} else {
+  config$da_setup$use_obs_constraint <- TRUE
+  config$run_config$sim_name <- model
+}
 
 #Run EnKF
 if(model != "GLM"){
