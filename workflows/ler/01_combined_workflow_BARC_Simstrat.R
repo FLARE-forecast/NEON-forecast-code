@@ -1,3 +1,11 @@
+# get the arguments from the workflow file
+DA_use <- commandArgs(trailingOnly = T)
+
+if (length(DA_use) != 1)  {
+  DA_use <- T
+} 
+
+
 library(tidyverse)
 library(lubridate)
 FLAREr::ignore_sigpipe()
@@ -8,8 +16,17 @@ forecast_site <- "BARC"
 model <- "Simstrat"
 
 message(paste0("Running site: ", forecast_site))
-configure_run_file <- paste0("configure_run_",forecast_site,'_',model,".yml")
 config_set_name <- file.path("ler", forecast_site)
+
+# switch to turn DA on or off
+if (DA_use == F) {
+  configure_run_file <- paste0("configure_run_",forecast_site,'_',model,"noDA.yml")
+  message('using run_config with no data assimilation')
+} else {
+  configure_run_file <- paste0("configure_run_",forecast_site,'_',model,".yml")
+  
+}
+
 
 config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
 
@@ -48,6 +65,14 @@ if(config$run_config$use_s3){
 # Run FLARE
 config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
 config <- FLAREr::get_restart_file(config, lake_directory)
+
+# switch to turn DA on or off check
+if (DA_use == F) {
+  config$da_setup$use_obs_constraint <- FALSE
+} else {
+  config$da_setup$use_obs_constraint <- TRUE
+}
+
 
 message(paste0("     Running forecast that starts on: ", config$run_config$start_datetime))
 
@@ -141,8 +166,6 @@ if(model != "GLM"){ #GOTM and Simstrat have different diagnostics
   config$output_settings$diagnostics_names <- NULL
 }
 
-# stop data assimilations
-# obs[ ,2:dim(obs)[2], ] <- NA
 
 #Run EnKF
 if(model != "GLM"){
