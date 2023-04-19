@@ -8,7 +8,7 @@ file_path:
 s3:
   drivers:
     endpoint: s3.flare-forecast.org
-    bucket: drivers/noaa/gefs-v12
+    bucket: drivers/noaa/gefs-v12-reprocess
   inflow_drivers:
     endpoint: s3.flare-forecast.org
     bucket: drivers/inflow/neon/parquet
