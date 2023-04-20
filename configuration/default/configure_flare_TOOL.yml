@@ -21,7 +21,7 @@ s3:
     endpoint: s3.flare-forecast.org
     bucket: scores/parquet
 location:
-   site_id: TOOL
+   site_id: TOOK
    name: Toolik Lake
    latitude: 68.63069   #Degrees North
    longitude: -149.6106  #Degrees West
