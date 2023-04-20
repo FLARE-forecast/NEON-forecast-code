@@ -22,7 +22,7 @@ if (DA_use == F) {
   configure_run_file <- paste0("configure_run_",forecast_site,'_',"noDA.yml")
   message('using run_config with no data assimilation')
 } else {
-  configure_run_file <- paste0("configure_run_",forecast_site,'_',".yml")
+  configure_run_file <- paste0("configure_run_",forecast_site,".yml")
   
 }
 
