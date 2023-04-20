@@ -1,14 +1,31 @@
+# get the arguments from the workflow file
+DA_use <- commandArgs(trailingOnly = T)
+
+if (length(DA_use) != 1)  {
+  DA_use <- T
+} 
+
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
 
-forecast_site <- "TOOL"
+forecast_site <- "TOOK"
 ping_url <- 'https://hc-ping.com/97a2f542-bfd0-42d1-9200-c2741699de1b'
   
 message(paste0("Running site: ", forecast_site))
-configure_run_file <- paste0("configure_run_",forecast_site,".yml")
 config_set_name <- "default"
+
+
+# switch to turn DA on or off
+if (DA_use == F) {
+  configure_run_file <- paste0("configure_run_",forecast_site,'_',"noDA.yml")
+  message('using run_config with no data assimilation')
+} else {
+  configure_run_file <- paste0("configure_run_",forecast_site,'_',".yml")
+  
+}
+
 
 message("Checking for NOAA forecasts")
 noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory,
@@ -73,7 +90,8 @@ if(noaa_ready){
   
   output <- FLAREr::run_flare(lake_directory = lake_directory,
                               configure_run_file = configure_run_file,
-                              config_set_name = config_set_name)
+                              config_set_name = config_set_name,
+                              DA_use = DA_use)
   
   
   forecast_start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) + lubridate::days(1)
