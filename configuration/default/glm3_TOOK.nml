@@ -1,5 +1,5 @@
 &glm_setup
-   sim_name = 'TOOL'
+   sim_name = 'TOOK'
    max_layers = 500
    min_layer_vol = 0.025
    min_layer_thick = 0.10
@@ -82,7 +82,7 @@
    rad_mode = 1
    albedo_mode = 1
    cloud_mode = 4
-   meteo_fl = 'TOOL_met_final.csv'
+   meteo_fl = 'TOOK_met_final.csv'
    subdaily = .true.
    wind_factor = 1
    sw_factor = 1
