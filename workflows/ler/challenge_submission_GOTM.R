@@ -12,7 +12,6 @@ Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
   dplyr::filter(field_site_subtype == 'Lake') %>%
   dplyr::distinct(field_site_id) %>%
-  dplyr::mutate(site_id = ifelse(field_site_id == 'TOOK', 'TOOL', field_site_id)) |> 
   dplyr::pull()
 
 #### WITH DATA ASSIMILATION ####
@@ -70,8 +69,7 @@ for (i in 1:length(flare_dates)) {
                       family, variable) %>%
       dplyr::summarise(prediction = mean(prediction)) %>% 
       dplyr::mutate(model_id = challenge_model_name, 
-                    reference_datetime = gsub(' 00:00:00', '', reference_datetime),
-                    site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
+                    reference_datetime = gsub(' 00:00:00', '', reference_datetime))%>%
       
       dplyr::select(c('datetime', 'reference_datetime', 'site_id', 'family',
                       'parameter', 'variable', 'prediction', 'model_id'))  
@@ -146,8 +144,7 @@ for (i in 1:length(flare_dates)) {
                       family, variable) %>%
       dplyr::summarise(prediction = mean(prediction)) %>% 
       dplyr::mutate(model_id = challenge_model_name, 
-                    reference_datetime = gsub(' 00:00:00', '', reference_datetime),
-                    site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
+                    reference_datetime = gsub(' 00:00:00', '', reference_datetime))%>%
       
       dplyr::select(c('datetime', 'reference_datetime', 'site_id', 'family',
                       'parameter', 'variable', 'prediction', 'model_id'))  
