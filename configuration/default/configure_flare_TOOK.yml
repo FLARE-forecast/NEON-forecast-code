@@ -1,7 +1,7 @@
 s3:
   drivers:
     endpoint: s3.flare-forecast.org
-    bucket: drivers/noaa/gefs-v12
+    bucket: drivers/noaa/gefs-v12-reprocess
   inflow_drivers:
     endpoint: s3.flare-forecast.org
     bucket: drivers/inflow/neon/parquet
@@ -32,11 +32,11 @@ da_setup:
     no_negative_states: TRUE
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
-    obs_filename: TOOK-targets-insitu.csv
+    obs_filename: TOOL-targets-insitu.csv
 model_settings:
    ncore: 4
    model_name: glm
-   base_GLM_nml: glm3_TOOK.nml
+   base_GLM_nml: glm3_TOOL.nml
    modeled_depths: [0.0,0.25,0.50,0.75,
                     1.00,1.25,1.50,1.75,
                     2.00,2.25,2.50,2.75,
@@ -63,10 +63,10 @@ model_settings:
                     23.00, 23.50,
                     24.00, 24.50,
                     25.00, 25.50, 26.00]
-   par_config_file: parameter_calibration_config_TOOK.csv
-   obs_config_file: observations_config_TOOK.csv
-   states_config_file: states_config_TOOK.csv
-   depth_model_sd_config_file: depth_model_sd_TOOK.csv
+   par_config_file: parameter_calibration_config_TOOL.csv
+   obs_config_file: observations_config_TOOL.csv
+   states_config_file: states_config_TOOL.csv
+   depth_model_sd_config_file: depth_model_sd_TOOL.csv
 default_init:
    lake_depth: 26.2  #not a modeled state
    temp: [20,20,20,20,20,
