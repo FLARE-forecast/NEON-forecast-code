@@ -7,7 +7,7 @@ FLAREr::ignore_sigpipe()
 lake_directory <- here::here()
 setwd(lake_directory)
 
-forecast_site <- "TOOL"
+forecast_site <- "TOOK"
 model <- "Simstrat"
 
 message(paste0("Running site: ", forecast_site))
