@@ -45,6 +45,7 @@ if(config$run_config$use_s3){
 noaa_ready <- TRUE
 while(noaa_ready){
   
+
   config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
   
   output <- FLAREr::run_flare(lake_directory = lake_directory,
@@ -78,3 +79,4 @@ while(noaa_ready){
                                                  configure_run_file = configure_run_file,
                                                  config_set_name = config_set_name)
 }
+

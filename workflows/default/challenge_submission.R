@@ -14,7 +14,6 @@ challenge_model_name <- 'flareGLM'
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
   dplyr::filter(field_site_subtype == 'Lake') %>%
   dplyr::distinct(field_site_id) %>%
-  dplyr::mutate(site_id = ifelse(field_site_id == 'TOOK', 'TOOL', field_site_id)) |> 
   dplyr::pull()
 
 
@@ -44,11 +43,11 @@ for (i in 1:length(flare_dates)) {
   
   forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', challenge_model_name, '.csv.gz')
   
-  exists <- suppressMessages(aws.s3::object_exists(object = file.path("raw", 
-                                                                      'aquatics', forecast_file),
+  exists <- suppressMessages(aws.s3::object_exists(object = file.path("raw", 'aquatics', forecast_file),
                                                    bucket = "neon4cast-forecasts",
                                                    region = challenge_s3_region,
                                                    base_url = challenge_s3_endpoint))
+
   if (exists == T) {
     message(forecast_file, ' already submitted')
   } 
