@@ -59,8 +59,12 @@ if(config$run_config$use_s3){
 }
 
 noaa_ready <- TRUE
+start <- Sys.time()
+run_duration <- 0
 
-while(noaa_ready){
+max_runtime <- 5*60*60
+
+while(run_duration < max_runtime & noaa_ready == T){
   # RUN FLARE
   
   config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
@@ -219,7 +223,10 @@ while(noaa_ready){
   
   RCurl::url.exists(ping_url, timeout = 5)
   
+  # check that it should run again...
   noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory = lake_directory,
                                                  configure_run_file = configure_run_file,
                                                  config_set_name = config_set_name)
+  finish_time <- Sys.time()
+  run_duration <- finish_time - start
 }
