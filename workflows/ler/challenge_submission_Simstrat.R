@@ -2,7 +2,6 @@ library(tidyverse)
 library(arrow)
 library(lubridate)
 
-FLAREr::ignore_sigpipe()
 
 Sys.unsetenv("AWS_ACCESS_KEY_ID")
 Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
