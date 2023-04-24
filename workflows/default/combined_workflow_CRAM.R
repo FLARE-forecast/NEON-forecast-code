@@ -20,7 +20,7 @@ config_set_name <- "default"
 
 # switch to turn DA on or off
 if (DA_use == F) {
-  configure_run_file <- paste0("configure_run_",forecast_site,"noDA.yml")
+  configure_run_file <- paste0("configure_run_",forecast_site,"_noDA.yml")
   message('using run_config with no data assimilation')
 } else {
   configure_run_file <- paste0("configure_run_",forecast_site,".yml")
