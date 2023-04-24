@@ -64,7 +64,7 @@ run_duration <- 0
 
 max_runtime <- 5*60*60
 
-while(noaa_ready){
+while(run_duration < max_runtime & noaa_ready == T){
   # RUN FLARE
   
   config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
