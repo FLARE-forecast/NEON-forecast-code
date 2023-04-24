@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
-  schedule:
-  - cron: "0 11 * * *"
+  #schedule:
+  #- cron: "0 11 * * *"
 
 jobs:
   build:
@@ -19,4 +19,10 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run:  Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_TOOK.R
+        run:  Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_TOOK.R TRUE
+
+      - name: Run automatic prediction file - no data assimilation
+        run:  Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_TOOK.R FALSE
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

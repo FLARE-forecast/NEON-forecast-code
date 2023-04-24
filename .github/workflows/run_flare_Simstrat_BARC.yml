@@ -1,0 +1,32 @@
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 11 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: rqthomas/flare-rocker:4.2.1
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+# Point to the right path, run the right Rscript command
+      - name: Install packages
+        run: Rscript $GITHUB_WORKSPACE/workflows/ler/install_packages.R
+        env:
+          GITHUB_PAT: ${{ secrets.PAT }}
+      - name: Run automatic prediction file
+        run: Rscript $GITHUB_WORKSPACE/workflows/ler/01_combined_workflow_BARC_Simstrat.R TRUE
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Run automatic prediction file - no data assimilation
+        run: Rscript $GITHUB_WORKSPACE/workflows/ler/01_combined_workflow_BARC_Simstrat.R FALSE
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

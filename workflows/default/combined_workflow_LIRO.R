@@ -77,4 +77,3 @@ while(noaa_ready){
   noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory = lake_directory,
                                                  configure_run_file = configure_run_file,
                                                  config_set_name = config_set_name)
-}

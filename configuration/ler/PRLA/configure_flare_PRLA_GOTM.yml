@@ -1,0 +1,92 @@
+file_path:
+   qaqc_data_directory: .na
+   noaa_directory: .na
+   inflow_directory: .na
+   configuration_directory: PRLA
+   execute_directory: .na
+   forecast_output_directory: .na
+s3:
+  drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers/noaa/gefs-v12-reprocess
+  inflow_drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers/inflow/neon/parquet
+  targets:
+    endpoint: s3.flare-forecast.org
+    bucket: targets/neon
+  forecasts:
+    endpoint: s3.flare-forecast.org
+    bucket: forecasts
+  forecasts_parquet:
+    endpoint: s3.flare-forecast.org
+    bucket: forecasts/parquet
+  warm_start:
+    endpoint: s3.flare-forecast.org
+    bucket: restart/neon
+  scores:
+    endpoint: s3.flare-forecast.org
+    bucket: scores/parquet
+location:
+   site_id: PRLA
+   name: Prairie Lake
+   latitude: 47.15909   #Degrees North
+   longitude: -99.11388  #Degrees West
+da_setup:
+    da_method: enkf
+    par_fit_method: perturb_const
+    ensemble_size:  256
+    no_negative_states: TRUE
+    assimilate_first_step: FALSE
+    use_obs_constraint: TRUE
+    obs_filename: PRLA-targets-insitu.csv
+model_settings:
+   ncore: 4
+   model: GOTM
+   base_GLM_nml: glm3_PRLA.nml
+   base_ler_yaml: LakeEnsemblR_PRLA.yaml
+   ler_bathymetry_file: LakeEnsemblR_bathymetry_PRLA.csv
+   use_ler: TRUE
+   modeled_depths: [0.00,0.25,0.50,0.75,
+                    1.00,1.25,1.50,1.75,
+                    2.00,2.25,2.50,2.75,
+                    3.00,3.25,3.50,3.75,
+                    4.00]
+   par_config_file: parameter_calibration_config_PRLA.csv
+   obs_config_file: observations_config_PRLA.csv
+   states_config_file: states_config_PRLA.csv
+   depth_model_sd_config_file: depth_model_sd_PRLA.csv
+default_init:
+   lake_depth: 4.1 #not a modeled state
+   temp: [16,16,16,16,16,16,16,16,16,16]
+   temp_depths: [0.00,0.10,0.50,1.00,1.50,2.00,2.50,3.00,3.50,4.00]
+   salinity: 0.0
+   snow_thickness: 0.0
+   white_ice_thickness: 0.0
+   blue_ice_thickness: 0.0
+inflow:
+   include_inflow: FALSE
+   use_forecasted_inflow: FALSE
+   forecast_inflow_model: NA
+   observed_inflow_filename: NA
+   inflow_variables: NA
+   use_ler_vars: FALSE
+met:
+   use_forecasted_met: TRUE
+   use_observed_met: FALSE
+   local_directory: .na
+   observed_met_filename: .na
+   use_ler_vars: TRUE
+   forecast_lag_days: 1
+uncertainty:
+   observation: TRUE
+   process: TRUE
+   weather: TRUE
+   initial_condition: TRUE
+   parameter: TRUE
+   met_downscale: TRUE
+   inflow_process: TRUE
+output_settings:
+   diagnostics_names:  [extc]
+   evaluate_past: FALSE
+   variables_in_scores: [state, parameter]

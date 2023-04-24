@@ -6,4 +6,3 @@ forecast_horizon: 30.0
 sim_name: test_runS3
 configure_flare: configure_flare_TOOL.yml
 use_s3: TRUE
-

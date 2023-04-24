@@ -15,5 +15,9 @@ jobs:
           fetch-depth: 0
           
 # Point to the right path, run the right Rscript command
-      - name: Run automatic forecast submission file
-        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/default/challenge_submission.R 
+#      - name: Run automatic forecast submission file - GLM
+#        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/default/challenge_submission.R 
+      - name: Run automatic forecast submission file - Simstrat
+        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/ler/challenge_submission_Simstrat.R 
+      - name: Run automatic forecast submission file - GOTM
+        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/ler/challenge_submission_GOTM.R 
