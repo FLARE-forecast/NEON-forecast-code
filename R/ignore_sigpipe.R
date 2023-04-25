@@ -1,3 +1,4 @@
+install.packages("decor")
 library(decor)
 cpp11::cpp_source(code = '
 #include <csignal>
