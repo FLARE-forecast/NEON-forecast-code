@@ -228,5 +228,7 @@ while(run_duration < max_runtime & noaa_ready == T){
                                                  configure_run_file = configure_run_file,
                                                  config_set_name = config_set_name)
   finish_time <- Sys.time()
-  run_duration <- finish_time - start
+  run_duration <- round(difftime(finish_time, start, units = 'secs'))
+  message(paste('current runtime:', round(run_duration), '/', max_runtime))
+
 }
