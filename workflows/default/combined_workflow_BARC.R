@@ -1,4 +1,4 @@
-source('ignore_sigpipe.R')
+source('R/ignore_sigpipe.R')
 
 # get the arguments from the workflow file
 DA_use <- commandArgs(trailingOnly = T)
