@@ -63,10 +63,10 @@ model_settings:
                     23.00, 23.50,
                     24.00, 24.50,
                     25.00, 25.50, 26.00]
-   par_config_file: parameter_calibration_config_TOOL.csv
-   obs_config_file: observations_config_TOOL.csv
-   states_config_file: states_config_TOOL.csv
-   depth_model_sd_config_file: depth_model_sd_TOOL.csv
+   par_config_file: parameter_calibration_config_TOOK.csv
+   obs_config_file: observations_config_TOOK.csv
+   states_config_file: states_config_TOOK.csv
+   depth_model_sd_config_file: depth_model_sd_TOOK.csv
 default_init:
    lake_depth: 26.2  #not a modeled state
    temp: [20,20,20,20,20,
