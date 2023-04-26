@@ -18,7 +18,7 @@ jobs:
       - name: Install packages
         run: Rscript $GITHUB_WORKSPACE/workflows/ler/install_packages.R
         env:
-          GITHUB_PAT: ${{ secrets.PAT }}
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       - name: Run automatic prediction file
         run: Rscript $GITHUB_WORKSPACE/workflows/ler/01_combined_workflow_BARC_GOTM.R TRUE
         env:

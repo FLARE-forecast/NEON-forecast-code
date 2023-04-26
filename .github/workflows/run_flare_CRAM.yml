@@ -15,9 +15,14 @@ jobs:
           fetch-depth: 0
           
 # Point to the right path, run the right Rscript command
-      - name: Run automatic prediction file
+      - name: Run forecast with DA
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_CRAM.R
+        run: Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_CRAM.R TRUE
+      - name: Run forecast no DA
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_CRAM.R FALSE
           
