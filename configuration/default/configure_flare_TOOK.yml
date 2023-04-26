@@ -32,11 +32,11 @@ da_setup:
     no_negative_states: TRUE
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
-    obs_filename: TOOL-targets-insitu.csv
+    obs_filename: TOOK-targets-insitu.csv
 model_settings:
    ncore: 4
    model_name: glm
-   base_GLM_nml: glm3_TOOL.nml
+   base_GLM_nml: glm3_TOOK.nml
    modeled_depths: [0.0,0.25,0.50,0.75,
                     1.00,1.25,1.50,1.75,
                     2.00,2.25,2.50,2.75,
