@@ -2,6 +2,7 @@ library(tidyverse)
 library(arrow)
 library(lubridate)
 
+source("R/ignore_sigpipe.R")
 
 Sys.unsetenv("AWS_ACCESS_KEY_ID")
 Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
