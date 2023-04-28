@@ -18,7 +18,6 @@ forecast_site <- "SUGG"
 model <- "GOTM"
 
 message(paste0("Running site: ", forecast_site))
-configure_run_file <- paste0("configure_run_",forecast_site,'_',model,".yml")
 config_set_name <- file.path("ler", forecast_site)
 
 # switch to turn DA on or off
