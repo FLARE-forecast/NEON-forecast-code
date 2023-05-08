@@ -88,5 +88,70 @@ for (i in 1:length(flare_dates)) {
     message('submitting missed forecast from: ', file_to_submit)
   }
 }
+# ===============================#
+
+# Forecasts with no DA
+
+flare_model_name <- 'flareGLM_noDA'
+challenge_model_name <- 'flareGLM_noDA'
+
+# check for missed submissions 
+flare_dates  <- arrow::open_dataset(forecasts) |> 
+  dplyr::filter(site_id %in% NEON_sites, 
+                reference_datetime %in% this_year, 
+                model_id == flare_model_name) |> 
+  dplyr::distinct(reference_datetime) |>  
+  dplyr::pull(as_vector = T) 
+
+# are these dates in the challenge?
+for (i in 1:length(flare_dates)) {
+  
+  forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', challenge_model_name, '.csv.gz')
+  
+  exists <- suppressMessages(aws.s3::object_exists(object = file.path("raw", 'aquatics', forecast_file),
+                                                   bucket = "neon4cast-forecasts",
+                                                   region = challenge_s3_region,
+                                                   base_url = challenge_s3_endpoint))
+
+  if (exists == T) {
+    message(forecast_file, ' already submitted')
+  } 
+  if (exists == F) {
+    open_ds <- arrow::open_dataset(forecasts) %>%
+      dplyr::filter(site_id %in% NEON_sites, 
+                    reference_datetime == flare_dates[i],
+                    datetime > as_datetime(reference_datetime),
+                    model_id == flare_model_name,
+                    depth <= 1) %>% 
+      dplyr::collect() 
+    
+    challenge_submission <- open_ds %>%
+      dplyr::filter(variable == "temperature",
+                    datetime >= reference_datetime) %>%
+      # FLARE output at multiple depths
+      # Need a single "surface" average
+      dplyr::group_by(site_id, datetime, parameter, reference_datetime,
+                      family, variable) %>%
+      dplyr::summarise(prediction = mean(prediction)) %>% 
+      dplyr::mutate(model_id = challenge_model_name, 
+                    reference_datetime = gsub(' 00:00:00', '', reference_datetime),
+                    site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
+      
+      dplyr::select(c('datetime', 'reference_datetime', 'site_id', 'family',
+                      'parameter', 'variable', 'prediction', 'model_id'))  
+    
+    # Write the submission
+    file_to_submit <- paste0('aquatics-', challenge_submission$reference_datetime[1], '-', challenge_model_name, '.csv.gz')
+    
+    readr::write_csv(challenge_submission, file_to_submit)
+    # Submit forecast!
+    
+    # Now we can submit the forecast output to the Challenge using 
+    neon4cast::forecast_output_validator(file_to_submit)
+    neon4cast::submit(forecast_file = file_to_submit,
+                      ask = F, s3_region = 'data', s3_endpoint = 'ecoforecast.org')
+    message('submitting missed forecast from: ', file_to_submit)
+  }
+}
 
 RCurl::url.exists("https://hc-ping.com/7c570e66-6ea3-4f62-b196-ae7d299773ae", timeout = 5)
