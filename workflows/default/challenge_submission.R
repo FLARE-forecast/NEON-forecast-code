@@ -7,6 +7,7 @@ Sys.unsetenv("AWS_SECRET_ACCESS_KEY")
 Sys.unsetenv("AWS_DEFAULT_REGION")
 Sys.unsetenv("AWS_S3_ENDPOINT")
 Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
+source('R/ignore_sigpipe.R')
 
 flare_model_name <- 'test_runS3'
 challenge_model_name <- 'flareGLM'
@@ -33,7 +34,7 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
                 reference_datetime %in% this_year, 
                 model_id == flare_model_name) |> 
   dplyr::distinct(reference_datetime) |>  
-  dplyr::pull(as_vector = T) 
+  dplyr::pull() 
 
 challenge_s3_region <- "data"
 challenge_s3_endpoint <- "ecoforecast.org"
