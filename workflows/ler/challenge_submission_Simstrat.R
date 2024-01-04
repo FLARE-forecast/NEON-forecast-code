@@ -85,7 +85,7 @@ for (i in 1:length(flare_dates)) {
     # Now we can submit the forecast output to the Challenge using 
     # neon4cast::forecast_output_validator(file_to_submit)
     neon4cast::submit(forecast_file = file_to_submit,
-                      ask = F, s3_region = 'data', s3_endpoint = 'ecoforecast.org')
+                      ask = F, s3_region = 'submit', s3_endpoint = 'ecoforecast.org')
     message('submitting missed forecast from: ', file_to_submit)
   }
 }
@@ -113,7 +113,7 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull(as_vector = T) 
 
-challenge_s3_region <- "data"
+challenge_s3_region <- "submit"
 challenge_s3_endpoint <- "ecoforecast.org"
 
 # are these dates in the challenge?
@@ -161,7 +161,7 @@ for (i in 1:length(flare_dates)) {
     # Now we can submit the forecast output to the Challenge using 
     # neon4cast::forecast_output_validator(file_to_submit)
     neon4cast::submit(forecast_file = file_to_submit,
-                      ask = F, s3_region = 'data', s3_endpoint = 'ecoforecast.org')
+                      ask = F, s3_region = 'submit', s3_endpoint = 'ecoforecast.org')
     message('submitting missed forecast from: ', file_to_submit)
   }
 }
