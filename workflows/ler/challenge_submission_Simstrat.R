@@ -27,7 +27,7 @@ forecasts <- arrow::s3_bucket(bucket = "forecasts/parquet",
                               endpoint_override = "s3.flare-forecast.org",
                               anonymous=TRUE)
 
-this_year <- as.character(paste0(seq.Date(as_date('2023-03-07'), (Sys.Date() - days(3)), by = 'day'), ' 00:00:00'))
+this_year <- as.character(paste0(seq.Date(as_date('2023-03-07'), Sys.Date(), by = 'day'), ' 00:00:00'))
 
 # check for missed submissions 
 flare_dates  <- arrow::open_dataset(forecasts) |> 
