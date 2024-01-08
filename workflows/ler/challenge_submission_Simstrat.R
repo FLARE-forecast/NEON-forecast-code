@@ -37,6 +37,12 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull(as_vector = T) 
 
+# Get all the submissions 
+submissions <- aws.s3::get_bucket_df("bio230014-bucket01", 
+                                     prefix = "challenges/forecasts/raw",
+                                     region = "sdsc",
+                                     base_url = "osn.xsede.org",
+                                     max = Inf)
 
 
 # are these dates in the challenge?
