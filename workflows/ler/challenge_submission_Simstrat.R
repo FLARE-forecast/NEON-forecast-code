@@ -27,7 +27,7 @@ forecasts <- arrow::s3_bucket(bucket = "forecasts/parquet",
                               endpoint_override = "s3.flare-forecast.org",
                               anonymous=TRUE)
 
-this_year <- as.character(paste0(seq.Date(as_date('2023-03-07'), Sys.Date(), by = 'day'), ' 00:00:00'))
+this_year <- as.character(paste0(seq.Date(as_date('2023-03-07'), (Sys.Date() - days(3)), by = 'day'), ' 00:00:00'))
 
 # check for missed submissions 
 flare_dates  <- arrow::open_dataset(forecasts) |> 
@@ -37,19 +37,16 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull(as_vector = T) 
 
-challenge_s3_region <- "data"
-challenge_s3_endpoint <- "ecoforecast.org"
+
 
 # are these dates in the challenge?
 for (i in 1:length(flare_dates)) {
   
   forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', challenge_model_name, '.csv.gz')
   
-  exists <- suppressMessages(aws.s3::object_exists(object = file.path("raw", 
-                                                                      'aquatics', forecast_file),
-                                                   bucket = "neon4cast-forecasts",
-                                                   region = challenge_s3_region,
-                                                   base_url = challenge_s3_endpoint))
+  exists <- nrow(dplyr::filter(submissions, stringr::str_detect(Key, forecast_file))) > 0
+
+
   if (exists == T & force == F) {
     message(forecast_file, ' already submitted')
   } 
@@ -85,7 +82,7 @@ for (i in 1:length(flare_dates)) {
     # Now we can submit the forecast output to the Challenge using 
     # neon4cast::forecast_output_validator(file_to_submit)
     neon4cast::submit(forecast_file = file_to_submit,
-                      ask = F, s3_region = 'submit', s3_endpoint = 'ecoforecast.org')
+                      ask = F)
     message('submitting missed forecast from: ', file_to_submit)
   }
 }
@@ -113,19 +110,14 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull(as_vector = T) 
 
-challenge_s3_region <- "submit"
-challenge_s3_endpoint <- "ecoforecast.org"
 
 # are these dates in the challenge?
 for (i in 1:length(flare_dates)) {
   
   forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', challenge_model_name, '.csv.gz')
   
-  exists <- suppressMessages(aws.s3::object_exists(object = file.path("raw", 
-                                                                      'aquatics', forecast_file),
-                                                   bucket = "neon4cast-forecasts",
-                                                   region = challenge_s3_region,
-                                                   base_url = challenge_s3_endpoint))
+  exists <- nrow(dplyr::filter(submissions, stringr::str_detect(Key, forecast_file))) > 0
+  
   if (exists == T & force == F) {
     message(forecast_file, ' already submitted')
   } 
@@ -161,7 +153,7 @@ for (i in 1:length(flare_dates)) {
     # Now we can submit the forecast output to the Challenge using 
     # neon4cast::forecast_output_validator(file_to_submit)
     neon4cast::submit(forecast_file = file_to_submit,
-                      ask = F, s3_region = 'submit', s3_endpoint = 'ecoforecast.org')
+                      ask = F)
     message('submitting missed forecast from: ', file_to_submit)
   }
 }
