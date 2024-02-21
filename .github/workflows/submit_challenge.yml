@@ -1,8 +1,8 @@
 on:
   workflow_dispatch:
-  schedule:
-  - cron: "0 20 * * *"
-
+  #schedule:
+  #- cron: "0 20 * * *"
+  
 jobs:
   submit_default:
     runs-on: ubuntu-latest
