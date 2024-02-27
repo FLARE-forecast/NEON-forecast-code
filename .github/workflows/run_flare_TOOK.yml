@@ -7,10 +7,10 @@ jobs:
   run_default:
     runs-on: ubuntu-latest
     container:
-      image: rqthomas/flare-rocker:4.2.1
+      image: rqthomas/flare-rocker:4.3.2
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Run forecast with DA

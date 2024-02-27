@@ -4,7 +4,7 @@ s3:
     bucket: bio230121-bucket01/flare/drivers/met/gefs-v12
   targets:
     endpoint: renc.osn.xsede.org
-    bucket: bio230121-bucket01/flare/targets/BARC
+    bucket: bio230121-bucket01/flare/targets
   forecasts:
     endpoint: renc.osn.xsede.org
     bucket: bio230121-bucket01/flare/forecasts/netcdf
