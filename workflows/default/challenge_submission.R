@@ -19,19 +19,19 @@ NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4c
 
 
 # get the forecast from the FLARE bucket
-forecasts <- arrow::s3_bucket(bucket = "bio230121-bucket01/flare/forecasts/parquet",
+forecasts <- arrow::s3_bucket(bucket = "bio230121-bucket01/flare/forecasts/parquet/",
                               endpoint_override = "renc.osn.xsede.org",
                               anonymous=TRUE)
 
 today <- paste(Sys.Date(), '00:00:00')
 # yesterday <- paste((Sys.Date() - days(1)), '00:00:00')
 
-this_year <- as.character(paste0(seq.Date(as_date('2024-01-01'), Sys.Date(), by = 'day'), ' 00:00:00'))
+this_year <- as.character(seq.Date(as_date('2024-01-01'), Sys.Date(), by = 'day'))
 
 # check for missed submissions 
 flare_dates  <- arrow::open_dataset(forecasts) |> 
   dplyr::filter(site_id %in% NEON_sites, 
-                reference_datetime %in% this_year, 
+                reference_date %in% this_year, 
                 model_id == flare_model_name) |> 
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull() 
@@ -47,7 +47,8 @@ submissions <- aws.s3::get_bucket_df("bio230014-bucket01",
 # are these dates in the challenge?
 for (i in 1:length(flare_dates)) {
   
-  forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', challenge_model_name, '.csv.gz')
+  forecast_date <- as.character(flare_dates[i])
+  forecast_file <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
   
   exists <- nrow(dplyr::filter(submissions, stringr::str_detect(Key, forecast_file))) > 0
 
@@ -58,7 +59,7 @@ for (i in 1:length(flare_dates)) {
   if (exists == F) {
     open_ds <- arrow::open_dataset(forecasts) %>%
       dplyr::filter(site_id %in% NEON_sites, 
-                    reference_datetime == flare_dates[i],
+                    reference_date == forecast_date,
                     datetime > as_datetime(reference_datetime),
                     model_id == flare_model_name,
                     depth <= 1) %>% 
@@ -80,7 +81,7 @@ for (i in 1:length(flare_dates)) {
                       'parameter', 'variable', 'prediction', 'model_id'))  
     
     # Write the submission
-    file_to_submit <- paste0('aquatics-', challenge_submission$reference_datetime[1], '-', challenge_model_name, '.csv.gz')
+    file_to_submit <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
     
     readr::write_csv(challenge_submission, file_to_submit)
     # Submit forecast!
@@ -110,7 +111,8 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
 # are these dates in the challenge?
 for (i in 1:length(flare_dates)) {
   
-  forecast_file <- paste0('aquatics-', as_date(flare_dates[i]), '-', challenge_model_name, '.csv.gz')
+  forecast_date <- as.character(flare_dates[i])
+  forecast_file <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
   
   exists <- nrow(dplyr::filter(submissions, stringr::str_detect(Key, forecast_file))) > 0
 
@@ -120,7 +122,7 @@ for (i in 1:length(flare_dates)) {
   if (exists == F) {
     open_ds <- arrow::open_dataset(forecasts) %>%
       dplyr::filter(site_id %in% NEON_sites, 
-                    reference_datetime == flare_dates[i],
+                    reference_date == forecast_date,
                     datetime > as_datetime(reference_datetime),
                     model_id == flare_model_name,
                     depth <= 1) %>% 
