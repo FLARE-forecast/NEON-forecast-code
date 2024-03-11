@@ -73,6 +73,17 @@ max_runtime <- 5*60*60
 while(run_duration < max_runtime & noaa_ready == T){
   config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
   
+  # switch to turn DA on or off check
+  if (DA_use == F) {
+    config_flare <- yaml::read_yaml(file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
+    config_flare$da_setup$use_obs_constraint <- FALSE
+    yaml::write_yaml(config_flare, file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
+  } else {
+    config_flare <- yaml::read_yaml(file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
+    config_flare$da_setup$use_obs_constraint <-TRUE
+    yaml::write_yaml(config_flare, file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
+  }
+  
   # Run FLARE
   output <- FLAREr::run_flare(lake_directory = lake_directory,
                               configure_run_file = configure_run_file,
