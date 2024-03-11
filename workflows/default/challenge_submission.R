@@ -9,7 +9,7 @@ Sys.unsetenv("AWS_S3_ENDPOINT")
 Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 source('R/ignore_sigpipe.R')
 
-flare_model_name <- 'test_runS3'
+flare_model_name <- 'glm_flare_v1'
 challenge_model_name <- 'flareGLM'
 
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
