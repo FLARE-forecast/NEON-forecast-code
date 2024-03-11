@@ -19,14 +19,14 @@ NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4c
 
 
 # get the forecast from the FLARE bucket
-forecasts <- arrow::s3_bucket(bucket = "forecasts/parquet",
-                              endpoint_override = "s3.flare-forecast.org",
+forecasts <- arrow::s3_bucket(bucket = "bio230121-bucket01/flare/forecasts/parquet",
+                              endpoint_override = "renc.osn.xsede.org",
                               anonymous=TRUE)
 
 today <- paste(Sys.Date(), '00:00:00')
 # yesterday <- paste((Sys.Date() - days(1)), '00:00:00')
 
-this_year <- as.character(paste0(seq.Date(as_date('2023-01-01'), Sys.Date(), by = 'day'), ' 00:00:00'))
+this_year <- as.character(paste0(seq.Date(as_date('2024-01-01'), Sys.Date(), by = 'day'), ' 00:00:00'))
 
 # check for missed submissions 
 flare_dates  <- arrow::open_dataset(forecasts) |> 
