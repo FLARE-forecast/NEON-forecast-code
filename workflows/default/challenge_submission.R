@@ -87,7 +87,6 @@ for (i in 1:length(flare_dates)) {
     # Submit forecast!
     
     # Now we can submit the forecast output to the Challenge using 
-    neon4cast::forecast_output_validator(file_to_submit)
     neon4cast::submit(forecast_file = file_to_submit,
                       ask = F)
     message('submitting missed forecast from: ', file_to_submit)
@@ -103,7 +102,7 @@ challenge_model_name <- 'flareGLM_noDA'
 # check for missed submissions 
 flare_dates  <- arrow::open_dataset(forecasts) |> 
   dplyr::filter(site_id %in% NEON_sites, 
-                reference_datetime %in% this_year, 
+                reference_date %in% this_year, 
                 model_id == flare_model_name) |> 
   dplyr::distinct(reference_datetime) |>  
   dplyr::pull(as_vector = T) 
@@ -150,7 +149,6 @@ for (i in 1:length(flare_dates)) {
     # Submit forecast!
     
     # Now we can submit the forecast output to the Challenge using 
-    neon4cast::forecast_output_validator(file_to_submit)
     neon4cast::submit(forecast_file = file_to_submit,
                       ask = F)
     message('submitting missed forecast from: ', file_to_submit)
