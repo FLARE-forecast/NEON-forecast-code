@@ -20,7 +20,7 @@ jobs:
         run:  Rscript $GITHUB_WORKSPACE/workflows/default/combined_workflow_TOOK.R TRUE
   run_noDA:
     runs-on: ubuntu-latest
-   container:
+    container:
       image: rqthomas/flare-rocker:4.3.2
     steps:
       - name: Checkout repo
