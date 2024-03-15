@@ -1,5 +1,7 @@
 source('R/ignore_sigpipe.R')
 
+Sys.setenv('USE_HTTPS' = FALSE)
+
 # get the arguments from the workflow file
 DA_use <- commandArgs(trailingOnly = T)
 
