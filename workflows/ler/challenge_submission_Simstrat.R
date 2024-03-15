@@ -120,7 +120,7 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
                 reference_date %in% this_year, 
                 model_id == flare_model_name) |> 
   dplyr::distinct(reference_datetime) |>  
-  dplyr::pull(as_Vector = T) 
+  dplyr::pull(as_vector = T) 
 flare_dates <- sort(flare_dates)
 
 # Get all the submissions 
