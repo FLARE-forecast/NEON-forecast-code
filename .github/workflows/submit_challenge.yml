@@ -16,26 +16,26 @@ jobs:
       - name: Run automatic forecast submission file - GLM
         run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/default/challenge_submission.R 
   
-  submit_Simstrat:
-    runs-on: ubuntu-latest
-    container:
-      image: eco4cast/rocker-neon4cast
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0   
-      - name: Run automatic forecast submission file - Simstrat
-        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/ler/challenge_submission_Simstrat.R 
+#  submit_Simstrat:
+#    runs-on: ubuntu-latest
+#    container:
+#      image: eco4cast/rocker-neon4cast
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0   
+#      - name: Run automatic forecast submission file - Simstrat
+#        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/ler/challenge_submission_Simstrat.R 
   
-  submit_GOTM:
-    runs-on: ubuntu-latest
-    container:
-      image: eco4cast/rocker-neon4cast
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Run automatic forecast submission file - GOTM
-        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/ler/challenge_submission_GOTM.R 
+#  submit_GOTM:
+#    runs-on: ubuntu-latest
+#    container:
+#      image: eco4cast/rocker-neon4cast
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#      - name: Run automatic forecast submission file - GOTM
+#        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/ler/challenge_submission_GOTM.R 
