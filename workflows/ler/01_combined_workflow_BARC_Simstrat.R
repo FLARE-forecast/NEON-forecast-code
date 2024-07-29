@@ -1,4 +1,4 @@
-source('R/ignore_sigpipe.R')
+# source('R/ignore_sigpipe.R')
 
 Sys.setenv("AWS_DEFAULT_REGION" = "renc",
            "AWS_S3_ENDPOINT" = "osn.xsede.org",
