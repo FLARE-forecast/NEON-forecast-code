@@ -1,5 +1,9 @@
 source('R/ignore_sigpipe.R')
 
+Sys.setenv("AWS_DEFAULT_REGION" = "renc",
+           "AWS_S3_ENDPOINT" = "osn.xsede.org",
+           "USE_HTTPS" = TRUE)
+
 # get the arguments from the workflow file
 DA_use <- commandArgs(trailingOnly = T)
 
