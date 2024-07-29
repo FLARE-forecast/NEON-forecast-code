@@ -42,19 +42,21 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
 flare_dates <- sort(flare_dates)
 
 # Get all the submissions 
-submissions <- aws.s3::get_bucket_df("bio230014-bucket01", 
-                                     prefix = "challenges/forecasts/raw",
-                                     region = "sdsc",
-                                     base_url = "osn.xsede.org",
-                                     max = Inf)
+submissions <- arrow::s3_bucket(bucket = "bio230014-bucket01/challenges/forecasts/parquet/project_id=neon4cast/duration=P1D/variable=temperature/model_id=flareGOTM",
+                                endpoint_override = "sdsc.osn.xsede.org",
+                                anonymous=TRUE) %>% 
+  arrow::open_dataset() %>% 
+  distinct(reference_date) %>% 
+  collect()
 
 # are these dates in the challenge?
 for (i in 1:length(flare_dates)) {
   
   forecast_date <- as.character(flare_dates[i])
-  forecast_file <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
+  # forecast_file <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
   
-  exists <- nrow(dplyr::filter(submissions, stringr::str_detect(Key, forecast_file))) > 0
+  exists <- nrow(submissions %>% 
+    filter(forecast_date  == reference_date)) > 0
   
   
   if (exists == T) {
@@ -76,13 +78,15 @@ for (i in 1:length(flare_dates)) {
       # Need a single "surface" average
       dplyr::group_by(site_id, datetime, parameter, reference_datetime,
                       family, variable) %>%
-      dplyr::summarise(prediction = mean(prediction)) %>% 
+      dplyr::summarise(prediction = mean(prediction), .groups = 'drop') %>% 
       dplyr::mutate(model_id = challenge_model_name, 
                     reference_datetime = gsub(' 00:00:00', '', reference_datetime),
-                    site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
+                    site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id),
+                    duration = 'P1D',
+                    project_id = 'neon4cast')%>%
       
       dplyr::select(c('datetime', 'reference_datetime', 'site_id', 'family',
-                      'parameter', 'variable', 'prediction', 'model_id'))  
+                      'parameter', 'variable', 'prediction', 'model_id', 'duration', 'project_id'))  
     
     # Write the submission
     file_to_submit <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
@@ -124,19 +128,21 @@ flare_dates  <- arrow::open_dataset(forecasts) |>
 flare_dates <- sort(flare_dates)
 
 # Get all the submissions 
-submissions <- aws.s3::get_bucket_df("bio230014-bucket01", 
-                                     prefix = "challenges/forecasts/raw",
-                                     region = "sdsc",
-                                     base_url = "osn.xsede.org",
-                                     max = Inf)
+submissions <- arrow::s3_bucket(bucket = "bio230014-bucket01/challenges/forecasts/parquet/project_id=neon4cast/duration=P1D/variable=temperature/model_id=flareGOTM",
+                                endpoint_override = "sdsc.osn.xsede.org",
+                                anonymous = TRUE) %>% 
+  arrow::open_dataset() %>% 
+  distinct(reference_date) %>% 
+  collect()
 
 # are these dates in the challenge?
 for (i in 1:length(flare_dates)) {
   
   forecast_date <- as.character(flare_dates[i])
-  forecast_file <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
+  # forecast_file <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
   
-  exists <- nrow(dplyr::filter(submissions, stringr::str_detect(Key, forecast_file))) > 0
+  exists <- nrow(submissions %>% 
+                   filter(forecast_date  == reference_date)) > 0
   
   
   if (exists == T) {
@@ -161,10 +167,12 @@ for (i in 1:length(flare_dates)) {
       dplyr::summarise(prediction = mean(prediction)) %>% 
       dplyr::mutate(model_id = challenge_model_name, 
                     reference_datetime = gsub(' 00:00:00', '', reference_datetime),
-                    site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id))%>%
+                    site_id = ifelse(site_id == 'TOOL', 'TOOK', site_id),
+                    duration = 'P1D',
+                    project_id = 'neon4cast')%>%
       
       dplyr::select(c('datetime', 'reference_datetime', 'site_id', 'family',
-                      'parameter', 'variable', 'prediction', 'model_id'))  
+                      'parameter', 'variable', 'prediction', 'model_id', 'duration', 'project_id'))  
     
     # Write the submission
     file_to_submit <- paste0('aquatics-', forecast_date, '-', challenge_model_name, '.csv.gz')
