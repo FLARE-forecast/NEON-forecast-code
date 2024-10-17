@@ -41,5 +41,5 @@ targets/*
 scores/*
 
 # ignore any forecasts written to file
-*.csv*
+#*.csv*
 
