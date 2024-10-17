@@ -1,0 +1,106 @@
+s3:
+  drivers:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/drivers/met
+  inflow_drivers:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/drivers/inflow/BARC/lm_ar
+  outflow_drivers:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/drivers/inflow/BARC/lm_ar
+  targets:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/targets
+  forecasts:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/forecasts/netcdf
+  forecasts_parquet:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/forecasts/parquet
+  restart:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/restart
+  scores:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/scores/parquet
+location:
+   site_id: BARC
+   name: Lake Barco
+   latitude: 29.67562   #Degrees North
+   longitude: -82.0085  #Degrees West
+da_setup:
+    da_method: enkf
+    par_fit_method: perturb_const
+    ensemble_size:  256
+    localization_distance: .na
+    no_negative_states: TRUE
+    assimilate_first_step: FALSE
+    use_obs_constraint: TRUE
+    obs_filename: BARC-targets-insitu.csv
+model_settings:
+   ncore: 4
+   max_model_layers: 100
+   model_name: glm
+   base_GLM_nml: glm3_BARC.nml
+   modeled_depths: [0.00,0.25,0.50,0.75,
+                    1.00,1.25,1.50,1.75,
+                    2.00,2.25,2.50,2.75,
+                    3.00,3.25,3.50,3.75,
+                    4.00,4.25,4.50,4.75,
+                    5.00,5.25,5.50,5.75, 6.00]
+   par_config_file: parameter_calibration_config_BARC.csv
+   obs_config_file: observations_config_BARC.csv
+   states_config_file: states_config_BARC.csv
+   depth_model_sd_config_file: depth_model_sd_BARC.csv
+default_init:
+   lake_depth: 6.1  #not a modeled state
+   temp: [20,20,20,20,
+          20,20,20,20,
+          20,20,20,20,
+          20,20]
+   temp_depths: [0.00,0.10,0.50,1.00,
+                 1.50,2.00,2.50,3.00,
+                 3.50,4.00,4.50,5.00,
+                 5.50,6.00]
+   salinity: 0.0
+   snow_thickness: 0.0
+   white_ice_thickness: 0.0
+   blue_ice_thickness: 0.0
+flows:
+   include_inflow: FALSE
+   include_outflow: FALSE
+   use_forecasted_inflow: FALSE
+   forecast_inflow_model: NA
+   observed_inflow_filename: NA
+   inflow_variables: NA
+   use_ler_vars: FALSE
+   historical_inflow_model: NA
+   future_inflow_model: NA
+   historical_outflow_model: NA
+   future_outflow_model: NA
+   local_inflow_directory: NA
+   local_outflow_directory: NA
+   use_flows_s3: NA
+met:
+   future_met_model: 'gefs-v12/stage2/reference_datetime={reference_date}/site_id={site_id}'
+   historical_met_model: 'gefs-v12/stage3/site_id={site_id}'
+   historical_met_use_s3: TRUE
+   future_met_use_s3: TRUE
+   use_openmeteo: FALSE
+   local_met_directory: 'drivers'
+   use_forecasted_met: TRUE
+   use_ler_vars: FALSE
+   forecast_lag_days: 1
+uncertainty:
+   observation: TRUE
+   process: TRUE
+   weather: TRUE
+   initial_condition: TRUE
+   parameter: TRUE
+   met_downscale: TRUE
+   inflow: TRUE
+output_settings:
+   diagnostics_names:  [extc]
+   evaluate_past: FALSE
+   variables_in_scores: [state, parameter]
+   generate_plots: FALSE
