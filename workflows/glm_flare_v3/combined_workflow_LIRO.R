@@ -8,7 +8,7 @@ Sys.setenv('GLM_PATH'='GLM3r')
 
 lake_directory <- here::here()
 setwd(lake_directory)
-forecast_site <- "CRAM"
+forecast_site <- "LIRO"
 #configure_run_file <- paste0("configure_run.yaml")
 configure_run_file <- paste0("configure_run_",forecast_site,".yml")
 config_set_name <- "glm_flare_v3"
@@ -20,7 +20,7 @@ Sys.setenv("AWS_DEFAULT_REGION" = "renc",
            "AWS_S3_ENDPOINT" = "osn.xsede.org",
            "USE_HTTPS" = TRUE)
 
-config_obs <- yaml::read_yaml(file.path(lake_directory,'configuration',config_set_name,'observation_processing_CRAM.yml'))
+config_obs <- yaml::read_yaml(file.path(lake_directory,'configuration',config_set_name,'observation_processing_LIRO.yml'))
 
 config <- FLAREr:::set_up_simulation(configure_run_file,lake_directory, config_set_name = config_set_name)
 
