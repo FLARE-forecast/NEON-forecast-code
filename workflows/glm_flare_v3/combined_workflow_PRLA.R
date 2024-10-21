@@ -1,101 +1,139 @@
-source('R/ignore_sigpipe.R')
+library(tidyverse)
+library(lubridate)
+
+remotes::install_github('flare-forecast/FLAREr')
+remotes::install_github("rqthomas/GLM3r")
+remotes::install_github("cboettig/aws.s3")
+Sys.setenv('GLM_PATH'='GLM3r')
+
+lake_directory <- here::here()
+setwd(lake_directory)
+forecast_site <- "PRLA"
+#configure_run_file <- paste0("configure_run.yaml")
+configure_run_file <- paste0("configure_run_",forecast_site,".yml")
+config_set_name <- "glm_flare_v3"
+
+#' Source the R files in the repository
+#walk(list.files(file.path(lake_directory, "R"), full.names = TRUE), source)
 
 Sys.setenv("AWS_DEFAULT_REGION" = "renc",
            "AWS_S3_ENDPOINT" = "osn.xsede.org",
            "USE_HTTPS" = TRUE)
 
-# get the arguments from the workflow file
-DA_use <- commandArgs(trailingOnly = T)
+config_obs <- yaml::read_yaml(file.path(lake_directory,'configuration',config_set_name,'observation_processing_PRLA.yml'))
 
-if (length(DA_use) != 1)  {
-  DA_use <- T
-} 
+config <- FLAREr:::set_up_simulation(configure_run_file,lake_directory, config_set_name = config_set_name)
 
-library(tidyverse)
-library(lubridate)
-lake_directory <- here::here()
-setwd(lake_directory)
+dir.create(file.path(lake_directory, "targets", config$location$site_id), showWarnings = FALSE)
 
-forecast_site <- c("PRLA")
-ping_url <- 'https://hc-ping.com/5615c921-5adf-4128-8484-b0c4315b63f8'
-
-message(paste0("Running site: ", forecast_site))
-config_set_name <- "default"
+noaa_ready <- FLAREr::check_noaa_present(lake_directory,
+                                         configure_run_file = configure_run_file,
+                                         config_set_name = config_set_name)
 
 
-# switch to turn DA on or off
-if (DA_use == F) {
-  configure_run_file <- paste0("configure_run_",forecast_site,"_noDA.yml")
-  message('using run_config with no data assimilation')
-} else {
-  configure_run_file <- paste0("configure_run_",forecast_site,".yml")
+config <- FLAREr:::set_up_simulation(configure_run_file,lake_directory, config_set_name = config_set_name)
+
+dir.create(file.path(lake_directory, "targets", config$location$site_id), showWarnings = FALSE)
+
+noaa_ready <- FLAREr::check_noaa_present(lake_directory,
+                                         configure_run_file = configure_run_file,
+                                         config_set_name = config_set_name)
+
+
+## TARGETS ##
+
+if (noaa_ready){
+  cuts <- tibble::tibble(cuts = as.integer(factor(config$model_settings$modeled_depths)),
+                         depth = config$model_settings$modeled_depths)
   
-}
-
-config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
-
-
-cuts <- tibble::tibble(cuts = as.integer(factor(config$model_settings$modeled_depths)),
-                       depth = config$model_settings$modeled_depths)
-
-cleaned_insitu_file <- file.path(lake_directory, "targets", config$location$site_id, config$da_setup$obs_filename)
-readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatics-expanded-observations.csv.gz", show_col_types = FALSE) |> 
-  filter(site_id == forecast_site) |> 
-  dplyr::mutate(cuts = cut(depth, breaks = config$model_settings$modeled_depths, include.lowest = TRUE, right = FALSE, labels = FALSE)) |>
-  dplyr::filter(lubridate::hour(datetime) == 0) |>
-  dplyr::group_by(cuts, variable, datetime, site_id) |>
-  dplyr::summarize(observation = mean(observation, na.rm = TRUE), .groups = "drop") |>
-  dplyr::left_join(cuts, by = "cuts") |>
-  dplyr::select(site_id, datetime, variable, depth, observation) |>
-  write_csv(cleaned_insitu_file)
-
-#' Move targets to s3 bucket
-
-message("Successfully generated targets")
-
-FLAREr::put_targets(site_id =  config$location$site_id,
-                    cleaned_insitu_file = cleaned_insitu_file,
-                    cleaned_met_file = NA,
-                    cleaned_inflow_file = NA,
-                    use_s3 = config$run_config$use_s3,
-                    config = config)
-
-if(config$run_config$use_s3){
-  message("Successfully moved targets to s3 bucket")
-}
-
-noaa_ready <- TRUE
-start <- Sys.time()
-run_duration <- 0
-
-max_runtime <- 5*60*60
-
-while(run_duration < max_runtime & noaa_ready == T){
-  config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
+  cleaned_insitu_file <- file.path(lake_directory, "targets", config$location$site_id, config$da_setup$obs_filename)
+  readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatics-expanded-observations.csv.gz", show_col_types = FALSE) |> 
+    filter(site_id == forecast_site) |> 
+    dplyr::mutate(cuts = cut(depth, breaks = config$model_settings$modeled_depths, include.lowest = TRUE, right = FALSE, labels = FALSE)) |>
+    dplyr::filter(lubridate::hour(datetime) == 0) |>
+    dplyr::group_by(cuts, variable, datetime, site_id) |>
+    dplyr::summarize(observation = mean(observation, na.rm = TRUE), .groups = "drop") |>
+    dplyr::left_join(cuts, by = "cuts") |>
+    dplyr::select(site_id, datetime, variable, depth, observation) |>
+    write_csv(cleaned_insitu_file)
   
-  # switch to turn DA on or off check
-  if (DA_use == F) {
-    config_flare <- yaml::read_yaml(file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
-    config_flare$da_setup$use_obs_constraint <- FALSE
-    yaml::write_yaml(config_flare, file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
-  } else {
-    config_flare <- yaml::read_yaml(file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
-    config_flare$da_setup$use_obs_constraint <-TRUE
-    yaml::write_yaml(config_flare, file.path(config$file_path$configuration_directory, config$run_config$configure_flare))
+  #' Move targets to s3 bucket
+  
+  message("Successfully generated targets")
+  
+  FLAREr:::put_targets(site_id =  config$location$site_id,
+                       cleaned_insitu_file = cleaned_insitu_file,
+                       cleaned_met_file = NA,
+                       cleaned_inflow_file = NA,
+                       use_s3 = config$run_config$use_s3,
+                       config = config)
+  
+  if(config$run_config$use_s3){
+    message("Successfully moved targets to s3 bucket")
   }
   
+  source('./R/generate_forecast_score_arrow.R')
+}
+
+while(noaa_ready){
+  
+  config <- FLAREr:::set_up_simulation(configure_run_file,lake_directory, config_set_name = config_set_name)
   
   # Run FLARE
   output <- FLAREr::run_flare(lake_directory = lake_directory,
                               configure_run_file = configure_run_file,
                               config_set_name = config_set_name)
   
+  message("Scoring forecasts")
+  forecast_s3 <- arrow::s3_bucket(bucket = config$s3$forecasts_parquet$bucket, endpoint_override = config$s3$forecasts_parquet$endpoint, anonymous = TRUE)
+  forecast_df <- arrow::open_dataset(forecast_s3) |>
+    dplyr::mutate(reference_date = lubridate::as_date(reference_date)) |>
+    dplyr::filter(model_id == 'glm_flare_v3',
+                  site_id == forecast_site,
+                  reference_date == lubridate::as_datetime(config$run_config$forecast_start_datetime)) |>
+    dplyr::collect()
+  
+  #if(config$run_config$use_s3){
+  #past_days <- lubridate::as_date(forecast_df$reference_datetime[1]) - lubridate::days(config$run_config$forecast_horizon)
+  past_days <- lubridate::as_date(lubridate::as_date(config$run_config$forecast_start_datetime) - lubridate::days(config$run_config$forecast_horizon))
+  
+  #vars <- arrow_env_vars()
+  past_s3 <- arrow::s3_bucket(bucket = config$s3$forecasts_parquet$bucket, endpoint_override = config$s3$forecasts_parquet$endpoint, anonymous = TRUE)
+  past_forecasts <- arrow::open_dataset(past_s3) |>
+    dplyr::mutate(reference_date = lubridate::as_date(reference_date)) |>
+    dplyr::filter(model_id == 'glm_flare_v3',
+                  site_id == forecast_site,
+                  reference_date == past_days) |>
+    dplyr::collect()
+  #unset_arrow_vars(vars)
+  # }else{
+  #   past_forecasts <- NULL
+  # }
+  
+  combined_forecasts <- dplyr::bind_rows(forecast_df, past_forecasts)
+  
+  targets_df <- read_csv(file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")),show_col_types = FALSE)
+  
+  #combined_forecasts <- arrow::open_dataset('./forecasts/parquet/site_id=ccre/model_id=glm_flare_v3/reference_date=2024-09-03/part-0.parquet') |> collect()
+  
+  message('running scoring function')
+  scoring <- generate_forecast_score_arrow(targets_df = targets_df,
+                                           forecast_df = combined_forecasts, ## only works if dataframe returned from output
+                                           use_s3 = config$run_config$use_s3,
+                                           bucket = config$s3$scores$bucket,
+                                           endpoint = config$s3$scores$endpoint,
+                                           local_directory = './NEON-forecast_code/scores/PRLA',
+                                           variable_types = c("state","parameter"))
+  
+  
   
   forecast_start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) + lubridate::days(1)
   start_datetime <- lubridate::as_datetime(config$run_config$forecast_start_datetime) - lubridate::days(1)
-  restart_file <- paste0(config$location$site_id,"-", (lubridate::as_date(forecast_start_datetime)- days(1)), "-",config$run_config$sim_name ,".nc")
+  restart_file <- paste0(config$location$site_id,"-", (lubridate::as_date(forecast_start_datetime) - lubridate::days(1)), "-",config$run_config$sim_name ,".nc")
   
-  FLAREr::update_run_config2(lake_directory = lake_directory,
+  
+  message('updating run configuration')
+  FLAREr:::update_run_config(lake_directory = lake_directory,
                              configure_run_file = configure_run_file, 
                              restart_file = restart_file, 
                              start_datetime = start_datetime, 
@@ -107,14 +145,11 @@ while(run_duration < max_runtime & noaa_ready == T){
                              configure_flare = config$run_config$configure_flare, 
                              configure_obs = config$run_config$configure_obs, 
                              use_s3 = config$run_config$use_s3,
-                             bucket = config$s3$warm_start$bucket,
-                             endpoint = config$s3$warm_start$endpoint,
+                             bucket = config$s3$restart$bucket,
+                             endpoint = config$s3$restart$endpoint,
                              use_https = TRUE)
   
-  RCurl::url.exists(ping_url, timeout = 5)
-  
-  noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory,
-                                                 configure_run_file,
-                                                 config_set_name = config_set_name)
-
+  noaa_ready <- FLAREr::check_noaa_present(lake_directory,
+                                           configure_run_file,
+                                           config_set_name = config_set_name)
 }
