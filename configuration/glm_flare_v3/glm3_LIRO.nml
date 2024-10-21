@@ -2,8 +2,8 @@
    sim_name = 'LIRO'
    max_layers = 500
    min_layer_vol = 0.025
-   min_layer_thick = 0.10
-   max_layer_thick = 0.50
+   min_layer_thick = 0.2
+   max_layer_thick = 0.8
    non_avg = .true.
 /
 &light
@@ -47,9 +47,9 @@
    nsave = 24
 /
 &init_profiles
-   num_depths = 13
+   num_heights = 13
    lake_depth = 10
-   the_depths = 0, 0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+   the_heights = 0, 0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
    the_temps = 20, 20, 20, 20, 18, 15, 14, 13, 12, 11, 10, 10, 10
    the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
    num_wq_vars = 0
@@ -60,6 +60,7 @@
    blue_ice_thickness = 0
    avg_surf_temp = 20
    restart_variables = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   restart_mixer_count = 0
 /
 &meteorology
    met_sw = .true.

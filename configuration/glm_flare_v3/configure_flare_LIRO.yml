@@ -1,7 +1,13 @@
 s3:
   drivers:
     endpoint: renc.osn.xsede.org
-    bucket: bio230121-bucket01/flare/drivers/met/gefs-v12
+    bucket: bio230121-bucket01/flare/drivers/met
+  inflow_drivers:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/drivers/inflow/LIRO/lm_ar
+  outflow_drivers:
+    endpoint: renc.osn.xsede.org
+    bucket: bio230121-bucket01/flare/drivers/inflow/LIRO/lm_ar
   targets:
     endpoint: renc.osn.xsede.org
     bucket: bio230121-bucket01/flare/targets
@@ -26,6 +32,7 @@ da_setup:
     da_method: enkf
     par_fit_method: perturb_const
     ensemble_size:  256
+    localization_distance: .na
     no_negative_states: TRUE
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
@@ -57,18 +64,29 @@ default_init:
    snow_thickness: 0.0
    white_ice_thickness: 0.0
    blue_ice_thickness: 0.0
-inflow:
+flows:
    include_inflow: FALSE
+   include_outflow: FALSE
    use_forecasted_inflow: FALSE
    forecast_inflow_model: NA
    observed_inflow_filename: NA
    inflow_variables: NA
    use_ler_vars: FALSE
+   historical_inflow_model: NA
+   future_inflow_model: NA
+   historical_outflow_model: NA
+   future_outflow_model: NA
+   local_inflow_directory: NA
+   local_outflow_directory: NA
+   use_flows_s3: NA
 met:
+   future_met_model: 'gefs-v12/stage2/reference_datetime={reference_date}/site_id={site_id}'
+   historical_met_model: 'gefs-v12/stage3/site_id={site_id}'
+   historical_met_use_s3: TRUE
+   future_met_use_s3: TRUE
+   use_openmeteo: FALSE
+   local_met_directory: 'drivers'
    use_forecasted_met: TRUE
-   use_observed_met: FALSE
-   local_directory: .na
-   observed_met_filename: .na
    use_ler_vars: FALSE
    forecast_lag_days: 1
 uncertainty:
@@ -78,8 +96,9 @@ uncertainty:
    initial_condition: TRUE
    parameter: TRUE
    met_downscale: TRUE
-   inflow_process: TRUE
+   inflow: TRUE
 output_settings:
    diagnostics_names:  [extc]
    evaluate_past: FALSE
    variables_in_scores: [state, parameter]
+   generate_plots: FALSE
