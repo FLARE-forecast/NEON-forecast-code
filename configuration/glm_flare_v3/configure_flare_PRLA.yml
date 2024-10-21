@@ -42,7 +42,7 @@ model_settings:
    model_name: glm #other is "null"
    base_GLM_nml: glm3_PRLA.nml
    max_model_layers: 100
-   modeled_depths: [0.00,0.20,0.50,0.70,
+   modeled_depths: [0.00,0.25,0.50,0.75,
                     1.05,1.25,1.50,1.75,
                     2.00,2.25,2.50,2.75,
                     3.00,3.25,3.50,3.75,
