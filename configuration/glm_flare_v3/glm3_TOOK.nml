@@ -2,8 +2,9 @@
    sim_name = 'TOOK'
    max_layers = 500
    min_layer_vol = 0.025
-   min_layer_thick = 0.10
-   max_layer_thick = 0.50
+   min_layer_thick = 0.2
+   max_layer_thick = 0.8
+
    non_avg = .true.
 /
 &light
@@ -47,9 +48,9 @@
    nsave = 24
 /
 &init_profiles
-   num_depths = 28
+   num_heights = 28
    lake_depth = 26.2
-   the_depths = 0.00, 0.10, 0.50, 1.00,
+   the_heights = 0.00, 0.10, 0.50, 1.00,
                   1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 
                   4.50, 5.00, 5.50, 6.00, 6.50, 7.00,
                   7.50, 8.00, 8.50, 9.00, 9.50, 10.0,
@@ -72,6 +73,7 @@
    blue_ice_thickness = 0
    avg_surf_temp = 20
    restart_variables = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   restart_mixer_count = 0
 /
 &meteorology
    met_sw = .true.

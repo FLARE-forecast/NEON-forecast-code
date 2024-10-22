@@ -2,8 +2,8 @@
    sim_name = 'SUGG'
    max_layers = 500
    min_layer_vol = 0.025
-   min_layer_thick = 0.10
-   max_layer_thick = 0.50
+   min_layer_thick = 0.2
+   max_layer_thick = 0.8
    non_avg = .true.
 /
 &light
@@ -47,9 +47,9 @@
    nsave = 24
 /
 &init_profiles
-   num_depths = 8
+   num_heights = 8
    lake_depth = 3
-   the_depths = 0, 0.1, 0.5, 1, 1.5, 2, 2.5, 3
+   the_heights = 0, 0.1, 0.5, 1, 1.5, 2, 2.5, 3
    the_temps = 16,16,16,14,13,10,10,10
    the_sals = 0, 0, 0, 0, 0, 0, 0, 0
    num_wq_vars = 0
@@ -60,6 +60,7 @@
    blue_ice_thickness = 0
    avg_surf_temp = 24
    restart_variables = 0, 0, 0, 0, 0, 0, 0, 0
+   restart_mixer_count = 0
 /
 &meteorology
    met_sw = .true.
