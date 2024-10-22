@@ -4,10 +4,10 @@ s3:
     bucket: bio230121-bucket01/flare/drivers/met
   inflow_drivers:
     endpoint: renc.osn.xsede.org
-    bucket: bio230121-bucket01/flare/drivers/inflow/PRLA/lm_ar
+    bucket: bio230121-bucket01/flare/drivers/inflow/PRPO/lm_ar
   outflow_drivers:
     endpoint: renc.osn.xsede.org
-    bucket: bio230121-bucket01/flare/drivers/outflow/PRLA/lm_ar
+    bucket: bio230121-bucket01/flare/drivers/outflow/PRPO/lm_ar
   targets:
     endpoint: renc.osn.xsede.org
     bucket: bio230121-bucket01/flare/targets
