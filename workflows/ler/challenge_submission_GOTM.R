@@ -24,7 +24,7 @@ force <- FALSE
 
 # get the forecast from the FLARE bucket
 forecasts <- arrow::s3_bucket(bucket = "bio230121-bucket01/flare/forecasts/parquet/",
-                              endpoint_override = "renc.osn.xsede.org",
+                              endpoint_override = "amnh1.osn.mghpcc.org",
                               anonymous=TRUE)
 
 today <- paste(Sys.Date(), '00:00:00')
@@ -110,7 +110,7 @@ force <- FALSE
 
 # get the forecast from the FLARE bucket
 forecasts <- arrow::s3_bucket(bucket = "bio230121-bucket01/flare/forecasts/parquet/",
-                              endpoint_override = "renc.osn.xsede.org",
+                              endpoint_override = "amnh1.osn.mghpcc.org",
                               anonymous=TRUE)
 
 today <- paste(Sys.Date(), '00:00:00')

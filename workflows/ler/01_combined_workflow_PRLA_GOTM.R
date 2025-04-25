@@ -1,5 +1,5 @@
-Sys.setenv("AWS_DEFAULT_REGION" = "renc",
-           "AWS_S3_ENDPOINT" = "osn.xsede.org",
+Sys.setenv("AWS_DEFAULT_REGION" = "amnh1",
+           "AWS_S3_ENDPOINT" = "osn.mghpcc.org",
            "USE_HTTPS" = TRUE)
 
 source('R/ignore_sigpipe.R')
