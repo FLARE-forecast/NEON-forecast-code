@@ -1,21 +1,21 @@
 s3:
   drivers:
-    endpoint: renc.osn.xsede.org
+    endpoint: amnh1.osn.mghpcc.org
     bucket: bio230121-bucket01/flare/drivers/met/gefs-v12
   targets:
-    endpoint: renc.osn.xsede.org
+    endpoint: amnh1.osn.mghpcc.org
     bucket: bio230121-bucket01/flare/targets
   forecasts:
-    endpoint: renc.osn.xsede.org
+    endpoint: amnh1.osn.mghpcc.org
     bucket: bio230121-bucket01/flare/forecasts/netcdf
   forecasts_parquet:
-    endpoint: renc.osn.xsede.org
+    endpoint: amnh1.osn.mghpcc.org
     bucket: bio230121-bucket01/flare/forecasts/parquet
   warm_start:
-    endpoint: renc.osn.xsede.org
+    endpoint: amnh1.osn.mghpcc.org
     bucket: bio230121-bucket01/flare/restart
   scores:
-    endpoint: renc.osn.xsede.org
+    endpoint: amnh1.osn.mghpcc.org
     bucket: bio230121-bucket01/flare/scores/parquet
 location:
    site_id: CRAM
