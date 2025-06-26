@@ -2,8 +2,8 @@ restart_file: .na
 start_datetime: 2024-12-01 00:00:00
 end_datetime: .na
 forecast_start_datetime: 2024-12-05 00:00:00
-forecast_horizon: 10.0
+forecast_horizon: 34.0
 sim_name: glm_flare_v3
 configure_flare: configure_flare_PRPO.yml
-use_s3: FALSE
+use_s3: TRUE
 
