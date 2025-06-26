@@ -49,7 +49,7 @@
 &init_profiles
    num_heights = 13
    lake_depth = 10
-   the_heights = 0, 0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+   the_heights = 0, 0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10.5
    the_temps = 20, 20, 20, 20, 18, 15, 14, 13, 12, 11, 10, 10, 10
    the_sals = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
    num_wq_vars = 0
