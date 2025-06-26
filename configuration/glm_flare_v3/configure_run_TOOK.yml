@@ -5,4 +5,4 @@ forecast_start_datetime: 2024-10-20 00:00:00
 forecast_horizon: 34.0
 sim_name: glm_flare_v3
 configure_flare: configure_flare_TOOK.yml
-use_s3: FALSE
+use_s3: TRUE
