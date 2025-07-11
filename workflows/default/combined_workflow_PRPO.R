@@ -32,7 +32,7 @@ if (DA_use == F) {
   
 }
 
-config <- FLAREr::set_up_simulation(configure_run_file,lake_directory, config_set_name = config_set_name)
+config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
 
 
 cuts <- tibble::tibble(cuts = as.integer(factor(config$model_settings$modeled_depths)),
