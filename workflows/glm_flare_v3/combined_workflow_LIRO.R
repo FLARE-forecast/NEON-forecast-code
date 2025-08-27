@@ -2,7 +2,7 @@ library(tidyverse)
 library(lubridate)
 
 remotes::install_github('flare-forecast/FLAREr')
-remotes::install_github("rqthomas/GLM3r")
+remotes::install_github("rqthomas/GLM3r@v3.1.0")
 remotes::install_github("cboettig/aws.s3")
 Sys.setenv('GLM_PATH'='GLM3r')
 
@@ -153,3 +153,5 @@ while(noaa_ready){
                                            configure_run_file,
                                            config_set_name = config_set_name)
 }
+
+RCurl::url.exists('https://hc-ping.com/a841b155-354d-47c5-a869-a1c21670109d', timeout = 5)

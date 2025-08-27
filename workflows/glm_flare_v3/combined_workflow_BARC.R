@@ -153,3 +153,4 @@ while(noaa_ready){
                                            config_set_name = config_set_name)
 }
 
+RCurl::url.exists('https://hc-ping.com/6f2ee700-7da2-483f-aaea-425155d092da', timeout = 5)
