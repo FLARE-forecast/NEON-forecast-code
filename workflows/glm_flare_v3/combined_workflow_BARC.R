@@ -148,9 +148,9 @@ while(noaa_ready){
                              endpoint = config$s3$restart$endpoint,
                              use_https = TRUE)
   
+  RCurl::url.exists('https://hc-ping.com/6f2ee700-7da2-483f-aaea-425155d092da', timeout = 5)
+  
   noaa_ready <- FLAREr::check_noaa_present(lake_directory,
                                            configure_run_file,
                                            config_set_name = config_set_name)
 }
-
-RCurl::url.exists('https://hc-ping.com/6f2ee700-7da2-483f-aaea-425155d092da', timeout = 5)
