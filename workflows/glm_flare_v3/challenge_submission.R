@@ -9,7 +9,7 @@ Sys.unsetenv("AWS_S3_ENDPOINT")
 Sys.setenv(AWS_EC2_METADATA_DISABLED="TRUE")
 source('R/ignore_sigpipe.R')
 
-flare_model_name <- 'glm_flare_v1'
+flare_model_name <- 'glm_flare_v3'
 challenge_model_name <- 'flareGLM'
 
 NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4cast-targets/main/NEON_Field_Site_Metadata_20220412.csv") |> 
@@ -20,7 +20,7 @@ NEON_sites <- readr::read_csv("https://raw.githubusercontent.com/eco4cast/neon4c
 
 # get the forecast from the FLARE bucket
 forecasts <- arrow::s3_bucket(bucket = "bio230121-bucket01/flare/forecasts/parquet/",
-                              endpoint_override = "renc.osn.xsede.org",
+                              endpoint_override = "amnh1.osn.mghpcc.org",
                               anonymous=TRUE)
 
 today <- paste(Sys.Date(), '00:00:00')
