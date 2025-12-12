@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run automatic forecast submission file - GLM
-        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/default/challenge_submission.R 
+        run: /usr/local/bin/r $GITHUB_WORKSPACE/workflows/glm_flare_v3/challenge_submission.R 
   
 #  submit_Simstrat:
 #    runs-on: ubuntu-latest
