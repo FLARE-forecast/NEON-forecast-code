@@ -47,7 +47,7 @@ if (noaa_ready){
                          depth = config$model_settings$modeled_depths)
   
   cleaned_insitu_file <- file.path(lake_directory, "targets", config$location$site_id, config$da_setup$obs_filename)
-  readr::read_csv("https://data.ecoforecast.org/neon4cast-targets/aquatics/aquatics-expanded-observations.csv.gz", show_col_types = FALSE) |> 
+  readr::read_csv("https://sdsc.osn.xsede.org/bio230014-bucket01/challenges/supporting_data/project_id=neon4cast/aquatics-expanded-observations.csv.gz", show_col_types = FALSE) |> 
     filter(site_id == forecast_site) |> 
     dplyr::mutate(cuts = cut(depth, breaks = config$model_settings$modeled_depths, include.lowest = TRUE, right = FALSE, labels = FALSE)) |>
     dplyr::filter(lubridate::hour(datetime) == 0) |>
